@@ -1,6 +1,6 @@
 import "dart:io";
 
-import "package:nyxx_interactions/interactions.dart";
+import "package:nyxx_interactions/nyxx_interactions.dart";
 import "package:nyxx/nyxx.dart";
 
 void main() {

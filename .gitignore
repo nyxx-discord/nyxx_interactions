@@ -1,0 +1,5 @@
+**/coverage/**
+.idea
+.dart_tool
+pubspec.lock
+.packages

@@ -1,7 +1,7 @@
 import "dart:math";
 
 import "package:nyxx/nyxx.dart";
-import "package:nyxx_interactions/interactions.dart";
+import "package:nyxx_interactions/nyxx_interactions.dart";
 
 // Creates instance of slash command builder with name, description and sub options.
 // Its used to synchronise commands with discord and also to be able to respond to them.

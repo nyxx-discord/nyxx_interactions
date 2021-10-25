@@ -1,5 +1,5 @@
 import "package:nyxx/nyxx.dart";
-import "package:nyxx_interactions/interactions.dart";
+import "package:nyxx_interactions/nyxx_interactions.dart";
 
 final singleCommand = SlashCommandBuilder("help", "This is example help command", [])
   ..registerHandler((event) async {

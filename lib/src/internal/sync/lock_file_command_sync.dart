@@ -10,13 +10,13 @@ class LockFileCommandSync implements ICommandsSync {
     final lockFileMapData = <String, String>{};
 
     for (final c in commands) {
-      lockFileMapData[c.name] = new _LockfileCommand(
+      lockFileMapData[c.name] = _LockfileCommand(
         c.name,
         c.description,
         c.guild,
         c.defaultPermissions,
-        c.permissions?.map((p) => new _LockfilePermission(p._type, p.id, p.hasPermission)) ?? [],
-        c.options.map((o) => new _LockfileOption(o.type.value, o.name, o.description, o.options ?? [])),
+        c.permissions?.map((p) => _LockfilePermission(p._type, p.id, p.hasPermission)) ?? [],
+        c.options.map((o) => _LockfileOption(o.type.value, o.name, o.description, o.options ?? [])),
       ).generateHash();
     }
 
@@ -74,7 +74,7 @@ class _LockfileOption {
 
   _LockfileOption(this.type, this.name, this.description, Iterable<CommandOptionBuilder> options) {
     this.options = options.map(
-      (o) => new _LockfileOption(
+      (o) => _LockfileOption(
         o.type.value,
         o.name,
         o.description,

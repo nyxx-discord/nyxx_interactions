@@ -22,18 +22,17 @@ class AutocompleteInteractionEvent extends InteractionEvent<Interaction> {
   @override
   late final SlashCommandInteraction interaction;
 
-  AutocompleteInteractionEvent._new(Interactions interactions, RawApiMap raw): super._new(interactions) {
+  AutocompleteInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions) {
     this.interaction = SlashCommandInteraction._new(client, raw);
   }
 
   /// Returns focused option of autocomplete
-  InteractionOption get focusedOption => _extractArgs(this.interaction.options)
-      .firstWhere((element) => element.isFocused);
+  InteractionOption get focusedOption => _extractArgs(this.interaction.options).firstWhere((element) => element.isFocused);
 
   /// Responds to interaction
   Future<void> respond(List<ArgChoiceBuilder> builders) async {
     if (DateTime.now().difference(this.receivedAt).inSeconds > 3) {
-      throw new InteractionExpiredError._3secs();
+      throw InteractionExpiredError._3secs();
     }
 
     return this.interactions.interactionsEndpoints.respondToAutocomplete(this.interaction.id, this.interaction.token, builders);
@@ -50,7 +49,7 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
   /// Opcode for responding to interaction
   int get _respondOpcode;
 
-  InteractionEventWithAcknowledge._new(Interactions interactions): super._new(interactions);
+  InteractionEventWithAcknowledge._new(Interactions interactions) : super._new(interactions);
 
   /// Create a followup message for an Interaction
   Future<Message> sendFollowup(MessageBuilder builder) async {
@@ -59,16 +58,12 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
     }
     this._logger.fine("Sending followup for for interaction: ${this.interaction.id}");
 
-    return this.interactions.interactionsEndpoints.sendFollowup(
-        this.interaction.token,
-        this.client.app.id,
-        builder
-    );
+    return this.interactions.interactionsEndpoints.sendFollowup(this.interaction.token, this.client.app.id, builder);
   }
 
   /// Edits followup message
   Future<Message> editFollowup(Snowflake messageId, MessageBuilder builder) =>
-    this.interactions.interactionsEndpoints.editFollowup(this.interaction.token, this.client.app.id, messageId, builder);
+      this.interactions.interactionsEndpoints.editFollowup(this.interaction.token, this.client.app.id, messageId, builder);
 
   /// Deletes followup message with given id
   Future<void> deleteFollowup(Snowflake messageId) =>
@@ -80,7 +75,7 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
 
   /// Fetch followup message
   Future<Message> fetchFollowup(Snowflake messageId) async =>
-    this.interactions.interactionsEndpoints.fetchFollowup(this.interaction.token, this.client.app.id, messageId);
+      this.interactions.interactionsEndpoints.fetchFollowup(this.interaction.token, this.client.app.id, messageId);
 
   /// Used to acknowledge a Interaction but not send any response yet.
   /// Once this is sent you can then only send ChannelMessages.
@@ -94,12 +89,7 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
       return Future.error(InteractionExpiredError._3secs());
     }
 
-    await this.interactions.interactionsEndpoints.acknowledge(
-        this.interaction.token,
-        this.interaction.id.toString(),
-        hidden,
-        this._acknowledgeOpCode
-    );
+    await this.interactions.interactionsEndpoints.acknowledge(this.interaction.token, this.interaction.id.toString(), hidden, this._acknowledgeOpCode);
 
     this._logger.fine("Sending acknowledge for for interaction: ${this.interaction.id}");
 
@@ -118,24 +108,16 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
 
     this._logger.fine("Sending respond for for interaction: ${this.interaction.id}");
     if (_hasAcked) {
-      await this.interactions.interactionsEndpoints.respondEditOriginal(
-          this.interaction.token,
-          this.client.app.id,
-          builder,
-          hidden
-      );
+      await this.interactions.interactionsEndpoints.respondEditOriginal(this.interaction.token, this.client.app.id, builder, hidden);
     } else {
       if (!builder.canBeUsedAsNewMessage()) {
         return Future.error(ArgumentError("Cannot sent message when MessageBuilder doesn't have set either content, embed or files"));
       }
 
-      await this.interactions.interactionsEndpoints.respondCreateResponse(
-          this.interaction.token,
-          this.interaction.id.toString(),
-          builder,
-          hidden,
-          _respondOpcode
-      );
+      await this
+          .interactions
+          .interactionsEndpoints
+          .respondCreateResponse(this.interaction.token, this.interaction.id.toString(), builder, hidden, _respondOpcode);
     }
 
     _hasAcked = true;

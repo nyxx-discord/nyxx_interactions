@@ -74,22 +74,17 @@ class Interactions {
 
               switch (componentType) {
                 case 2:
-                  _events.onButtonEvent
-                      .add(ButtonInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+                  _events.onButtonEvent.add(ButtonInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
                   break;
                 case 3:
-                  _events.onMultiselectEvent
-                      .add(MultiselectInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+                  _events.onMultiselectEvent.add(MultiselectInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
                   break;
                 default:
-                  this
-                      ._logger
-                      .warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(event.rawData)}");
+                  this._logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(event.rawData)}");
               }
               break;
             case 4:
-              _events.onAutocompleteEvent
-                  .add(AutocompleteInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+              _events.onAutocompleteEvent.add(AutocompleteInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
               break;
             default:
               this._logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(event.rawData)}");
@@ -118,17 +113,13 @@ class Interactions {
     final globalCommands = commandPartition.first;
     final groupedGuildCommands = _groupSlashCommandBuilders(commandPartition.last);
 
-    final globalCommandsResponse = await this.interactionsEndpoints
-        .bulkOverrideGlobalCommands(this._client.app.id, globalCommands)
-        .toList();
+    final globalCommandsResponse = await this.interactionsEndpoints.bulkOverrideGlobalCommands(this._client.app.id, globalCommands).toList();
 
     _extractCommandIds(globalCommandsResponse);
     this._registerCommandHandlers(globalCommandsResponse, globalCommands);
 
-    for(final entry in groupedGuildCommands.entries) {
-      final response = await this.interactionsEndpoints
-          .bulkOverrideGuildCommands(this._client.app.id, entry.key, entry.value)
-          .toList();
+    for (final entry in groupedGuildCommands.entries) {
+      final response = await this.interactionsEndpoints.bulkOverrideGuildCommands(this._client.app.id, entry.key, entry.value).toList();
 
       _extractCommandIds(response);
       this._registerCommandHandlers(response, entry.value);
@@ -194,42 +185,35 @@ class Interactions {
   void registerButtonHandler(String id, ButtonInteractionHandler handler) => this._buttonHandlers[id] = handler;
 
   /// Register callback for dropdown event for given [id]
-  void registerMultiselectHandler(String id, MultiselectInteractionHandler handler) =>
-      this._multiselectHandlers[id] = handler;
+  void registerMultiselectHandler(String id, MultiselectInteractionHandler handler) => this._multiselectHandlers[id] = handler;
 
   /// Allows to register new [SlashCommandBuilder]
   void registerSlashCommand(SlashCommandBuilder slashCommandBuilder) => this._commandBuilders.add(slashCommandBuilder);
 
   /// Register callback for slash command event for given [id]
-  void registerSlashCommandHandler(String id, SlashCommandHandler handler) =>
-      this._commandHandlers[id] = handler;
+  void registerSlashCommandHandler(String id, SlashCommandHandler handler) => this._commandHandlers[id] = handler;
 
   /// Deletes global command
-  Future<void> deleteGlobalCommand(Snowflake commandId) =>
-      this.interactionsEndpoints.deleteGlobalCommand(this._client.app.id, commandId);
+  Future<void> deleteGlobalCommand(Snowflake commandId) => this.interactionsEndpoints.deleteGlobalCommand(this._client.app.id, commandId);
 
   /// Deletes guild command
   Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId) =>
       this.interactionsEndpoints.deleteGuildCommand(this._client.app.id, commandId, guildId);
 
   /// Fetches all global bots command
-  Stream<SlashCommand> fetchGlobalCommands() =>
-      this.interactionsEndpoints.fetchGlobalCommands(this._client.app.id);
+  Stream<SlashCommand> fetchGlobalCommands() => this.interactionsEndpoints.fetchGlobalCommands(this._client.app.id);
 
   /// Fetches all guild commands for given guild
-  Stream<SlashCommand> fetchGuildCommands(Snowflake guildId) =>
-      this.interactionsEndpoints.fetchGuildCommands(this._client.app.id, guildId);
+  Stream<SlashCommand> fetchGuildCommands(Snowflake guildId) => this.interactionsEndpoints.fetchGuildCommands(this._client.app.id, guildId);
 
   void _extractCommandIds(List<SlashCommand> commands) {
     for (final slashCommand in commands) {
-      this._commandBuilders
-          .firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id)
-          ._setId(slashCommand.id);
+      this._commandBuilders.firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id)._setId(slashCommand.id);
     }
   }
 
   void _registerCommandHandlers(List<SlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
-    for(final registeredCommand in registeredSlashCommands) {
+    for (final registeredCommand in registeredSlashCommands) {
       final matchingBuilder = builders.firstWhere((element) => element.name.toLowerCase() == registeredCommand.name);
       this._assignCommandToHandler(matchingBuilder, registeredCommand);
 
@@ -256,8 +240,7 @@ class Interactions {
     final subCommandGroups = builder.options.where((element) => element.type == CommandOptionType.subCommandGroup);
     if (subCommandGroups.isNotEmpty) {
       for (final subCommandGroup in subCommandGroups) {
-        final subCommands =
-            subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
+        final subCommands = subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
 
         for (final subCommand in subCommands) {
           if (subCommand._handler == null) {

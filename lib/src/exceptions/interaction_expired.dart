@@ -14,7 +14,8 @@ class InteractionExpiredError implements Error {
 
   /// Returns a string representation of this object.
   @override
-  String toString() => "InteractionExpiredError: Interaction tokens are only valid for $_timeFrameString. It has been over $_timeFrameString and the token is now invalid.";
+  String toString() =>
+      "InteractionExpiredError: Interaction tokens are only valid for $_timeFrameString. It has been over $_timeFrameString and the token is now invalid.";
 
   @override
   StackTrace? get stackTrace => StackTrace.empty;

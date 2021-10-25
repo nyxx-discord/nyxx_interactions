@@ -7,8 +7,8 @@ abstract class IComponentBuilder extends Builder {
 
   @override
   Map<String, dynamic> build() => {
-    "type": this.type.value,
-  };
+        "type": this.type.value,
+      };
 }
 
 /// Allows to create multi select option for [MultiselectBuilder]
@@ -33,16 +33,17 @@ class MultiselectOptionBuilder extends Builder {
 
   @override
   RawApiMap build() => {
-    "label": this.label,
-    "value": this.value,
-    "default": this.isDefault,
-    if (this.emoji != null) "emoji": {
-      if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
-      if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
-      if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
-    },
-    if (description != null) "description": this.description,
-  };
+        "label": this.label,
+        "value": this.value,
+        "default": this.isDefault,
+        if (this.emoji != null)
+          "emoji": {
+            if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
+            if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
+            if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
+          },
+        if (description != null) "description": this.description,
+      };
 }
 
 /// Allows to create multi select interactive components.
@@ -83,16 +84,13 @@ class MultiselectBuilder extends IComponentBuilder {
 
   @override
   Map<String, dynamic> build() => {
-    ...super.build(),
-    "custom_id": this.customId,
-    "options": [
-      for (final optionBuilder in this.options)
-        optionBuilder.build()
-    ],
-    if (placeholder != null) "placeholder": this.placeholder,
-    if (minValues != null) "min_values": this.minValues,
-    if (maxValues != null) "max_values": this.maxValues,
-  };
+        ...super.build(),
+        "custom_id": this.customId,
+        "options": [for (final optionBuilder in this.options) optionBuilder.build()],
+        if (placeholder != null) "placeholder": this.placeholder,
+        if (minValues != null) "min_values": this.minValues,
+        if (maxValues != null) "max_values": this.maxValues,
+      };
 }
 
 /// Allows to build button. Generic interface for all types of buttons
@@ -121,16 +119,17 @@ abstract class IButtonBuilder extends IComponentBuilder {
 
   @override
   Map<String, dynamic> build() => {
-    ...super.build(),
-    "label": this.label,
-    "style": this.style.value,
-    if (this.disabled) "disabled": true,
-    if (this.emoji != null) "emoji": {
-      if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
-      if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
-      if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
-    }
-  };
+        ...super.build(),
+        "label": this.label,
+        "style": this.style.value,
+        if (this.disabled) "disabled": true,
+        if (this.emoji != null)
+          "emoji": {
+            if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
+            if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
+            if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
+          }
+      };
 }
 
 /// Allows to create a button with link
@@ -139,23 +138,14 @@ class LinkButtonBuilder extends IButtonBuilder {
   final String url;
 
   /// Creates instance of [LinkButtonBuilder]
-  LinkButtonBuilder(
-      String label,
-      this.url,
-      {bool disabled = false,
-        IEmoji? emoji
-      }): super(label, ComponentStyle.link, disabled: disabled, emoji: emoji
-  ) {
+  LinkButtonBuilder(String label, this.url, {bool disabled = false, IEmoji? emoji}) : super(label, ComponentStyle.link, disabled: disabled, emoji: emoji) {
     if (this.url.length > 512) {
       throw ArgumentError("Url for button cannot have more than 512 characters");
     }
   }
 
   @override
-  RawApiMap build() => {
-    ...super.build(),
-    "url": url
-  };
+  RawApiMap build() => {...super.build(), "url": url};
 }
 
 /// Button which will generate event when clicked.
@@ -164,24 +154,15 @@ class ButtonBuilder extends IButtonBuilder {
   String customId;
 
   /// Creates instance of [ButtonBuilder]
-  ButtonBuilder(
-      String label,
-      this.customId,
-      ComponentStyle style,
-      {bool disabled = false,
-        IEmoji? emoji
-      }) : super(label, style, disabled: disabled, emoji: emoji
-  ) {
+  ButtonBuilder(String label, this.customId, ComponentStyle style, {bool disabled = false, IEmoji? emoji})
+      : super(label, style, disabled: disabled, emoji: emoji) {
     if (this.label.length > 100) {
       throw ArgumentError("customId for button cannot have more than 100 characters");
     }
   }
 
   @override
-  RawApiMap build() => {
-    ...super.build(),
-    "custom_id": customId
-  };
+  RawApiMap build() => {...super.build(), "custom_id": customId};
 }
 
 /// Helper builder to provide fluid api for building component rows
@@ -216,16 +197,14 @@ class ComponentMessageBuilder extends MessageBuilder {
 
   @override
   RawApiMap build(INyxx client) => {
-    ...super.build(client),
-    if (this.components != null) "components": [
-      for (final row in this.components!)
-        {
-          "type": ComponentType.row.value,
+        ...super.build(client),
+        if (this.components != null)
           "components": [
-            for (final component in row)
-              component.build()
+            for (final row in this.components!)
+              {
+                "type": ComponentType.row.value,
+                "components": [for (final component in row) component.build()]
+              }
           ]
-        }
-    ]
-  };
+      };
 }

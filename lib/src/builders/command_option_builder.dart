@@ -43,8 +43,7 @@ class CommandOptionBuilder extends Builder {
 
   /// Used to create an argument for a [SlashCommandBuilder].
   CommandOptionBuilder(this.type, this.name, this.description,
-      {this.defaultArg = false, this.required = false, this.choices, this.options,
-      this.channelTypes, this.autoComplete});
+      {this.defaultArg = false, this.required = false, this.choices, this.options, this.channelTypes, this.autoComplete});
 
   /// Registers handler for subcommand
   void registerHandler(SlashCommandHandler handler) {
@@ -56,15 +55,14 @@ class CommandOptionBuilder extends Builder {
   }
 
   RawApiMap build() => {
-    "type": this.type.value,
-    "name": this.name,
-    "description": this.description,
-    "default": this.defaultArg,
-    "required": this.required,
-    if (this.choices != null) "choices": this.choices!.map((e) => e.build()).toList(),
-    if (this.options != null) "options": this.options!.map((e) => e.build()).toList(),
-    if (this.channelTypes != null && this.type == CommandOptionType.channel)
-      "channel_types": channelTypes!.map((e) => e.value).toList(),
-    if (this.autoComplete != null) "autocomplete": this.autoComplete,
-  };
+        "type": this.type.value,
+        "name": this.name,
+        "description": this.description,
+        "default": this.defaultArg,
+        "required": this.required,
+        if (this.choices != null) "choices": this.choices!.map((e) => e.build()).toList(),
+        if (this.options != null) "options": this.options!.map((e) => e.build()).toList(),
+        if (this.channelTypes != null && this.type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
+        if (this.autoComplete != null) "autocomplete": this.autoComplete,
+      };
 }

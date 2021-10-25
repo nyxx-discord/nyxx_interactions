@@ -23,20 +23,17 @@ class SlashCommand extends SnowflakeEntity {
   /// Whether the command is enabled by default when the app is added to a guild
   late final bool defaultPermissions;
 
-  SlashCommand._new(RawApiMap raw, Nyxx client): super(Snowflake(raw["id"])) {
+  SlashCommand._new(RawApiMap raw, Nyxx client) : super(Snowflake(raw["id"])) {
     this.applicationId = Snowflake(raw["application_id"]);
     this.name = raw["name"] as String;
     this.description = raw["description"] as String;
     this.type = SlashCommandType(raw["type"] as int? ?? 1);
-    this.guild = raw["guild_id"] != null
-      ? CacheUtility.createCacheableGuild(client, Snowflake(raw["guild_id"]))
-      : null;
+    this.guild = raw["guild_id"] != null ? CacheUtility.createCacheableGuild(client, Snowflake(raw["guild_id"])) : null;
     this.defaultPermissions = raw["default_permission"] as bool? ?? true;
 
     this.options = [
       if (raw["options"] != null)
-        for(final optionRaw in raw["options"])
-          CommandOption._new(optionRaw as RawApiMap)
+        for (final optionRaw in raw["options"]) CommandOption._new(optionRaw as RawApiMap)
     ];
   }
 }

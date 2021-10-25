@@ -1,5 +1,5 @@
 import "package:nyxx/nyxx.dart";
-import "package:nyxx_interactions/interactions.dart";
+import "package:nyxx_interactions/nyxx_interactions.dart";
 
 void main() {
   final bot = Nyxx("<TOKEN>", GatewayIntents.allUnprivileged);

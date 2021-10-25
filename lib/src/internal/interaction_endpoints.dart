@@ -77,25 +77,22 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> acknowledge(String token, String interactionId, bool hidden, int opCode) async {
-   final url = "/interactions/$interactionId/$token/callback";
-   final response = await this._client.httpEndpoints.sendRawRequest(url, "POST", body: {
-    "type": opCode,
-    "data": {
-     if (hidden) "flags": 1 << 6,
-    }
-   });
+    final url = "/interactions/$interactionId/$token/callback";
+    final response = await this._client.httpEndpoints.sendRawRequest(url, "POST", body: {
+      "type": opCode,
+      "data": {
+        if (hidden) "flags": 1 << 6,
+      }
+    });
 
-   if (response is HttpResponseError) {
-    return Future.error(response);
-   }
+    if (response is HttpResponseError) {
+      return Future.error(response);
+    }
   }
 
   @override
   Future<void> deleteFollowup(String token, Snowflake applicationId, Snowflake messageId) =>
-      this._client.httpEndpoints.sendRawRequest(
-        "webhooks/$applicationId/$token/messages/$messageId",
-        "DELETE"
-      );
+      this._client.httpEndpoints.sendRawRequest("webhooks/$applicationId/$token/messages/$messageId", "DELETE");
 
   @override
   Future<void> deleteOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
@@ -123,11 +120,8 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<Message> editOriginalResponse(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/webhooks/$applicationId/$token/messages/@original",
-        "PATCH",
-        body: builder.build(this._client)
-    );
+    final response =
+        await this._client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH", body: builder.build(this._client));
 
     if (response is HttpResponseError) {
       return Future.error(response);
@@ -138,10 +132,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<Message> fetchOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/webhooks/$applicationId/$token/messages/@original",
-        "GET"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "GET");
 
     if (response is HttpResponseError) {
       return Future.error(response);
@@ -152,49 +143,34 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden) async {
-  final response = await this._client.httpEndpoints.sendRawRequest(
-    "/webhooks/$applicationId/$token/messages/@original",
-    "PATCH",
-    body: {
-       if (hidden) "flags": 1 << 6,
-       ...BuilderUtility.buildWithClient(builder, _client)
-     },
-    files: builder.files ?? []
-   );
+    final response = await this._client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH",
+        body: {if (hidden) "flags": 1 << 6, ...BuilderUtility.buildWithClient(builder, _client)}, files: builder.files ?? []);
 
-   if (response is HttpResponseError) {
-    return Future.error(response);
-   }
+    if (response is HttpResponseError) {
+      return Future.error(response);
+    }
   }
 
   @override
   Future<void> respondCreateResponse(String token, String interactionId, MessageBuilder builder, bool hidden, int respondOpCode) async {
-  final response = await this._client.httpEndpoints.sendRawRequest(
-       "/interactions/${interactionId.toString()}/$token/callback",
-       "POST",
-       body: {
-         "type": respondOpCode,
-         "data": {
-           if (hidden) "flags": 1 << 6,
-           ...BuilderUtility.buildWithClient(builder, _client)
-         },
-       },
-       files: builder.files ?? []
-   );
+    final response = await this._client.httpEndpoints.sendRawRequest("/interactions/${interactionId.toString()}/$token/callback", "POST",
+        body: {
+          "type": respondOpCode,
+          "data": {if (hidden) "flags": 1 << 6, ...BuilderUtility.buildWithClient(builder, _client)},
+        },
+        files: builder.files ?? []);
 
-   if (response is HttpResponseError) {
-     return Future.error(response);
-   }
+    if (response is HttpResponseError) {
+      return Future.error(response);
+    }
   }
 
   @override
   Future<Message> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-      "/webhooks/$applicationId/$token",
-      "POST",
-      body: BuilderUtility.buildWithClient(builder, _client),
-      files: builder.files ?? []
-    );
+    final response = await this
+        ._client
+        .httpEndpoints
+        .sendRawRequest("/webhooks/$applicationId/$token", "POST", body: BuilderUtility.buildWithClient(builder, _client), files: builder.files ?? []);
 
     if (response is HttpResponseError) {
       return Future.error(response);
@@ -205,14 +181,10 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<SlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async* {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/commands",
-        "PUT",
-        body: [
-          for(final builder in builders)
-            builder.build()
-        ]
-    );
+    final response = await this
+        ._client
+        .httpEndpoints
+        .sendRawRequest("/applications/$applicationId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
 
     if (response is HttpResponseError) {
       yield* Stream.error(response);
@@ -225,14 +197,10 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<SlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async* {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/${this._client.app.id}/guilds/$guildId/commands",
-        "PUT",
-        body: [
-          for(final builder in builders)
-            builder.build()
-        ]
-    );
+    final response = await this
+        ._client
+        .httpEndpoints
+        .sendRawRequest("/applications/${this._client.app.id}/guilds/$guildId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
 
     if (response is HttpResponseError) {
       yield* Stream.error(response);
@@ -245,10 +213,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> deleteGlobalCommand(Snowflake applicationId, Snowflake commandId) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/commands/$commandId",
-        "DELETE"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "DELETE");
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -257,10 +222,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> deleteGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/guilds/$guildId/commands/$commandId",
-        "DELETE"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "DELETE");
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -269,11 +231,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<SlashCommand> editGlobalCommand(Snowflake applicationId, Snowflake commandId, SlashCommandBuilder builder) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/commands/$commandId",
-        "PATCH",
-        body: builder.build()
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "PATCH", body: builder.build());
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -284,11 +242,8 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<SlashCommand> editGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, SlashCommandBuilder builder) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/guilds/$guildId/commands/$commandId",
-        "GET",
-        body: builder.build()
-    );
+    final response =
+        await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", body: builder.build());
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -299,10 +254,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<SlashCommand> fetchGlobalCommand(Snowflake applicationId, Snowflake commandId) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/commands/$commandId",
-        "GET"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "GET");
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -313,10 +265,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<SlashCommand> fetchGlobalCommands(Snowflake applicationId) async* {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/commands",
-        "GET"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET");
 
     if (response is HttpResponseError) {
       yield* Stream.error(response);
@@ -329,10 +278,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<SlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-        "/applications/$applicationId/guilds/$guildId/commands/$commandId",
-        "GET"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET");
 
     if (response is HttpResponseSuccess) {
       return Future.error(response);
@@ -343,10 +289,7 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<SlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId) async* {
-    final response = await this._client.httpEndpoints.sendRawRequest(
-      "/applications/$applicationId/guilds/$guildId/commands",
-      "GET"
-    );
+    final response = await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET");
 
     if (response is HttpResponseError) {
       yield* Stream.error(response);
@@ -362,13 +305,12 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
     final globalBody = builders
         .where((builder) => builder.permissions != null && builder.permissions!.isNotEmpty)
         .map((builder) => {
-          "id": builder._id.toString(),
-          "permissions": [for (final permsBuilder in builder.permissions!) permsBuilder.build()]
-        })
+              "id": builder._id.toString(),
+              "permissions": [for (final permsBuilder in builder.permissions!) permsBuilder.build()]
+            })
         .toList();
 
-    await this._client.httpEndpoints
-        .sendRawRequest("/applications/$applicationId/commands/permissions", "PUT", body: globalBody);
+    await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/permissions", "PUT", body: globalBody);
   }
 
   @override
@@ -376,22 +318,17 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
     final guildBody = builders
         .where((b) => b.permissions != null && b.permissions!.isNotEmpty)
         .map((builder) => {
-          "id": builder._id.toString(),
-          "permissions": [for (final permsBuilder in builder.permissions!) permsBuilder.build()]
-        })
+              "id": builder._id.toString(),
+              "permissions": [for (final permsBuilder in builder.permissions!) permsBuilder.build()]
+            })
         .toList();
 
-    await this._client.httpEndpoints
-        .sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/permissions", "PUT", body: guildBody);
-
+    await this._client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/permissions", "PUT", body: guildBody);
   }
 
   @override
   Future<Message> fetchFollowup(String token, Snowflake applicationId, Snowflake messageId) async {
-    final result = await this._client.httpEndpoints.sendRawRequest(
-        "/webhooks/$applicationId/$token/messages/${messageId.toString()}",
-        "GET"
-    );
+    final result = await this._client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/${messageId.toString()}", "GET");
 
     if (result is HttpResponseError) {
       return Future.error(result);
@@ -402,19 +339,12 @@ class _InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> respondToAutocomplete(Snowflake interactionId, String token, List<ArgChoiceBuilder> builders) async {
-    final result = await this._client.httpEndpoints.sendRawRequest(
-      "/interactions/${interactionId.toString()}/$token/callback",
-      "POST",
-      body: {
-        "type": 8,
-        "data": {
-           "choices": [
-             for (final builder in builders)
-               builder.build()
-           ]
-        }
+    final result = await this._client.httpEndpoints.sendRawRequest("/interactions/${interactionId.toString()}/$token/callback", "POST", body: {
+      "type": 8,
+      "data": {
+        "choices": [for (final builder in builders) builder.build()]
       }
-    );
+    });
 
     if (result is HttpResponseError) {
       return Future.error(result);
