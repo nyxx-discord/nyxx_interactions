@@ -1,9 +1,8 @@
-import "package:nyxx/nyxx.dart";
 import "package:nyxx_interactions/nyxx_interactions.dart";
 
 import "package:test/test.dart";
 
-final client = NyxxRest("dum", 0);
+// final client = NyxxFactory.createNyxxRest("dum", 0, Snowflake.zero());
 final slashCommandNameRegexMatcher = matches(slashCommandNameRegex);
 
 void main() {

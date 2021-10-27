@@ -35,7 +35,7 @@ final subCommandFlipGame = CommandOptionBuilder(CommandOptionType.subCommand, "c
   });
 
 void main() {
-  final bot = Nyxx("<TOKEN>", GatewayIntents.allUnprivileged);
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
   Interactions(bot)
     ..registerSlashCommand(singleCommand) // Register created before slash command
     ..syncOnReady(); // This is needed if you want to sync commands on bot startup.

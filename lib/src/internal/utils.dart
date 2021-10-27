@@ -1,9 +1,14 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/models/interaction_option.dart';
+import 'package:nyxx_interactions/src/models/interaction.dart';
 
 /// Slash command names and subcommands names have to match this regex
 final RegExp slashCommandNameRegex = RegExp(r"^[\w-]{1,32}$");
 
-Iterable<Iterable<T>> _partition<T>(Iterable<T> list, bool Function(T) predicate) {
+Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate) {
   final matches = <T>[];
   final nonMatches = <T>[];
 
@@ -20,7 +25,7 @@ Iterable<Iterable<T>> _partition<T>(Iterable<T> list, bool Function(T) predicate
 }
 
 /// Determine what handler should be executed based on [interaction]
-String _determineInteractionCommandHandler(SlashCommandInteraction interaction) {
+String determineInteractionCommandHandler(ISlashCommandInteraction interaction) {
   final commandHash = "${interaction.commandId}|${interaction.name}";
 
   try {
@@ -41,7 +46,7 @@ String _determineInteractionCommandHandler(SlashCommandInteraction interaction) 
 }
 
 /// Groups [SlashCommandBuilder] for registering them later in bulk
-Map<Snowflake, Iterable<SlashCommandBuilder>> _groupSlashCommandBuilders(Iterable<SlashCommandBuilder> commands) {
+Map<Snowflake, Iterable<SlashCommandBuilder>> groupSlashCommandBuilders(Iterable<SlashCommandBuilder> commands) {
   final commandsMap = <Snowflake, List<SlashCommandBuilder>>{};
 
   for (final slashCommand in commands) {
@@ -58,9 +63,9 @@ Map<Snowflake, Iterable<SlashCommandBuilder>> _groupSlashCommandBuilders(Iterabl
   return commandsMap;
 }
 
-Iterable<InteractionOption> _extractArgs(Iterable<InteractionOption> args) {
+Iterable<IInteractionOption> extractArgs(Iterable<IInteractionOption> args) {
   if (args.length == 1 && (args.first.type == CommandOptionType.subCommand || args.first.type == CommandOptionType.subCommandGroup)) {
-    return _extractArgs(args.first.options);
+    return extractArgs(args.first.options);
   }
 
   return args;

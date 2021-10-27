@@ -1,5 +1,3 @@
-part of nyxx_interactions;
-
 /// Thrown when you have already responded to an interaction
 class AlreadyRespondedError implements Error {
   /// Returns a string representation of this object.

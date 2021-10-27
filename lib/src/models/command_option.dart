@@ -1,4 +1,6 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/models/arg_choice.dart';
 
 /// The type that a user should input for a [CommandOptionBuilder]
 class CommandOptionType extends IEnum<int> {
@@ -30,8 +32,7 @@ class CommandOptionType extends IEnum<int> {
   const CommandOptionType(int value) : super(value);
 }
 
-/// An argument for a [SlashCommand].
-class CommandOption {
+abstract class ICommandOption {
   /// The type of arg that will be later changed to an INT value, their values can be seen in the table below:
   /// | Name              | Value |
   /// |-------------------|-------|
@@ -43,37 +44,75 @@ class CommandOption {
   /// | USER              | 6     |
   /// | CHANNEL           | 7     |
   /// | ROLE              | 8     |
+  CommandOptionType get type;
+
+  /// The name of your argument / sub-group.
+  String get name;
+
+  /// The description of your argument / sub-group.
+  String get description;
+
+  /// If this argument is required
+  bool get required;
+
+  /// Choices for [CommandOptionType.string] and [CommandOptionType.string] types for the user to pick from
+  List<IArgChoice> get choices;
+
+  /// If the option is a subcommand or subcommand group type, this nested options will be the parameters
+  List<ICommandOption> get options;
+}
+
+/// An argument for a [SlashCommand].
+class CommandOption implements ICommandOption {
+  /// The type of arg that will be later changed to an INT value, their values can be seen in the table below:
+  /// | Name              | Value |
+  /// |-------------------|-------|
+  /// | SUB_COMMAND       | 1     |
+  /// | SUB_COMMAND_GROUP | 2     |
+  /// | STRING            | 3     |
+  /// | INTEGER           | 4     |
+  /// | BOOLEAN           | 5     |
+  /// | USER              | 6     |
+  /// | CHANNEL           | 7     |
+  /// | ROLE              | 8     |
+  @override
   late final CommandOptionType type;
 
   /// The name of your argument / sub-group.
+  @override
   late final String name;
 
   /// The description of your argument / sub-group.
+  @override
   late final String description;
 
   /// If this argument is required
+  @override
   late final bool required;
 
   /// Choices for [CommandOptionType.string] and [CommandOptionType.string] types for the user to pick from
-  late final List<ArgChoice> choices;
+  @override
+  late final List<IArgChoice> choices;
 
   /// If the option is a subcommand or subcommand group type, this nested options will be the parameters
-  late final List<CommandOption> options;
+  @override
+  late final List<ICommandOption> options;
 
-  CommandOption._new(RawApiMap raw) {
-    this.type = CommandOptionType(raw["type"] as int);
-    this.name = raw["name"] as String;
-    this.description = raw["description"] as String;
-    this.required = raw["required"] as bool? ?? false;
+  /// Creates na instance of [CommandOption]
+  CommandOption(RawApiMap raw) {
+    type = CommandOptionType(raw["type"] as int);
+    name = raw["name"] as String;
+    description = raw["description"] as String;
+    required = raw["required"] as bool? ?? false;
 
-    this.choices = [
+    choices = [
       if (raw["choices"] != null)
-        for (final choiceRaw in raw["choices"]) ArgChoice._new(choiceRaw as RawApiMap)
+        for (final choiceRaw in raw["choices"]) ArgChoice(choiceRaw as RawApiMap)
     ];
 
-    this.options = [
+    options = [
       if (raw["options"] != null)
-        for (final optionRaw in raw["options"]) CommandOption._new(optionRaw as RawApiMap)
+        for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
     ];
   }
 }

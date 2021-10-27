@@ -4,7 +4,7 @@ import "package:nyxx_interactions/nyxx_interactions.dart";
 import "package:nyxx/nyxx.dart";
 
 void main() {
-  final bot = Nyxx(Platform.environment["BOT_TOKEN"]!, GatewayIntents.allUnprivileged);
+  final bot = NyxxFactory.createNyxxWebsocket(Platform.environment["BOT_TOKEN"]!, GatewayIntents.allUnprivileged);
 
   Interactions(bot)
     // ..registerSlashCommand(SlashCommandBuilder("test", "This is command group test", [

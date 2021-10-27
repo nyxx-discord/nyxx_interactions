@@ -34,7 +34,7 @@ final singleCommand = SlashCommandBuilder("help", "This is example help command"
 // slash command it needs to acknowledged and/or responded.
 // If you know that command handler would take more that 3 second to complete
 // you would need to acknowledge and then respond later with proper result.
-Future<void> buttonHandler(ButtonInteractionEvent event) async {
+Future<void> buttonHandler(IButtonInteractionEvent event) async {
   await event.acknowledge(); // ack the interaction so we can send response later
 
   // Send followup to button click with id of button
@@ -46,7 +46,7 @@ Future<void> buttonHandler(ButtonInteractionEvent event) async {
 // Handling multiselect events is no different from handling button.
 // Only thing that changes is type of function argument -- it now passes information
 // about values selected with multiselect
-Future<void> multiselectHandlerHandler(MultiselectInteractionEvent event) async {
+Future<void> multiselectHandlerHandler(IMultiselectInteractionEvent event) async {
   await event.acknowledge(); // ack the interaction so we can send response later
 
   // Send followup to button click with id of button
@@ -56,7 +56,7 @@ Future<void> multiselectHandlerHandler(MultiselectInteractionEvent event) async 
 }
 
 void main() {
-  final bot = Nyxx("<TOKEN>", GatewayIntents.allUnprivileged);
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
   Interactions(bot)
     ..registerSlashCommand(singleCommand) // Register created before slash command
     ..registerButtonHandler("thisisid", buttonHandler) // register handler for button with id: thisisid

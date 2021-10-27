@@ -1,33 +1,58 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/models/command_option.dart';
+
+abstract class IInteractionOption {
+  /// The value given by the user
+  dynamic get value;
+
+  /// Type of interaction
+  CommandOptionType get type;
+
+  /// Name of option
+  String get name;
+
+  /// Any args under this as you can have sub commands
+  Iterable<InteractionOption> get options;
+
+  /// True if options is focused
+  bool get isFocused;
+}
 
 /// The option given by the user when sending a command
-class InteractionOption {
+class InteractionOption implements IInteractionOption {
   /// The value given by the user
+  @override
   late final dynamic value;
 
   /// Type of interaction
+  @override
   late final CommandOptionType type;
 
   /// Name of option
+  @override
   late final String name;
 
   /// Any args under this as you can have sub commands
+  @override
   late final Iterable<InteractionOption> options;
 
   /// True if options is focused
+  @override
   late final bool isFocused;
 
-  InteractionOption._new(RawApiMap raw) {
-    this.value = raw["value"] as dynamic;
-    this.name = raw["name"] as String;
-    this.type = CommandOptionType(raw["type"] as int);
+  /// Creates na instance of [InteractionOption]
+  InteractionOption(RawApiMap raw) {
+    value = raw["value"] as dynamic;
+    name = raw["name"] as String;
+    type = CommandOptionType(raw["type"] as int);
 
     if (raw["options"] != null) {
-      this.options = (raw["options"] as List<dynamic>).map((e) => InteractionOption._new(e as RawApiMap));
+      options = (raw["options"] as List<dynamic>).map((e) => InteractionOption(e as RawApiMap));
     } else {
-      this.options = [];
+      options = [];
     }
 
-    this.isFocused = raw["focused"] as bool? ?? false;
+    isFocused = raw["focused"] as bool? ?? false;
   }
 }

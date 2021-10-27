@@ -1,15 +1,13 @@
-part of nyxx_interactions;
-
 /// Thrown when 15 minutes has passed since an interaction was called.
 class InteractionExpiredError implements Error {
   late final String _timeFrameString;
 
-  InteractionExpiredError._15mins() {
-    this._timeFrameString = "15mins";
+  InteractionExpiredError.fifteenMins() {
+    _timeFrameString = "15mins";
   }
 
-  InteractionExpiredError._3secs() {
-    this._timeFrameString = "3secs";
+  InteractionExpiredError.threeSecs() {
+    _timeFrameString = "3secs";
   }
 
   /// Returns a string representation of this object.

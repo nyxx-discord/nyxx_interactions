@@ -1,13 +1,13 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
 
 /// Allows to create components
-abstract class IComponentBuilder extends Builder {
+abstract class ComponentBuilderAbstract extends Builder {
   /// Type of component
   ComponentType get type;
 
   @override
   Map<String, dynamic> build() => {
-        "type": this.type.value,
+        "type": type.value,
       };
 }
 
@@ -33,21 +33,21 @@ class MultiselectOptionBuilder extends Builder {
 
   @override
   RawApiMap build() => {
-        "label": this.label,
-        "value": this.value,
-        "default": this.isDefault,
-        if (this.emoji != null)
+        "label": label,
+        "value": value,
+        "default": isDefault,
+        if (emoji != null)
           "emoji": {
-            if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
-            if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
-            if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
+            if (emoji is IGuildEmoji) "id": (emoji as IGuildEmoji).id,
+            if (emoji is UnicodeEmoji) "name": (emoji as UnicodeEmoji).code,
+            if (emoji is IGuildEmoji) "animated": (emoji as IGuildEmoji).animated,
           },
-        if (description != null) "description": this.description,
+        if (description != null) "description": description,
       };
 }
 
 /// Allows to create multi select interactive components.
-class MultiselectBuilder extends IComponentBuilder {
+class MultiselectBuilder extends ComponentBuilderAbstract {
   @override
   ComponentType get type => ComponentType.select;
 
@@ -70,7 +70,7 @@ class MultiselectBuilder extends IComponentBuilder {
 
   /// Creates instance of [MultiselectBuilder]
   MultiselectBuilder(this.customId, [Iterable<MultiselectOptionBuilder>? options]) {
-    if (this.customId.length > 100) {
+    if (customId.length > 100) {
       throw ArgumentError("Custom Id for Select cannot have more than 100 characters");
     }
 
@@ -80,21 +80,21 @@ class MultiselectBuilder extends IComponentBuilder {
   }
 
   /// Adds option to dropdown
-  void addOption(MultiselectOptionBuilder builder) => this.options.add(builder);
+  void addOption(MultiselectOptionBuilder builder) => options.add(builder);
 
   @override
   Map<String, dynamic> build() => {
         ...super.build(),
-        "custom_id": this.customId,
-        "options": [for (final optionBuilder in this.options) optionBuilder.build()],
-        if (placeholder != null) "placeholder": this.placeholder,
-        if (minValues != null) "min_values": this.minValues,
-        if (maxValues != null) "max_values": this.maxValues,
+        "custom_id": customId,
+        "options": [for (final optionBuilder in options) optionBuilder.build()],
+        if (placeholder != null) "placeholder": placeholder,
+        if (minValues != null) "min_values": minValues,
+        if (maxValues != null) "max_values": maxValues,
       };
 }
 
 /// Allows to build button. Generic interface for all types of buttons
-abstract class IButtonBuilder extends IComponentBuilder {
+abstract class ButtonBuilderAbstract extends ComponentBuilderAbstract {
   @override
   ComponentType get type => ComponentType.button;
 
@@ -110,9 +110,9 @@ abstract class IButtonBuilder extends IComponentBuilder {
   /// Additional emoji for button
   IEmoji? emoji;
 
-  /// Creates instance of [IButtonBuilder]
-  IButtonBuilder(this.label, this.style, {this.disabled = false, this.emoji}) {
-    if (this.label.length > 80) {
+  /// Creates instance of [ButtonBuilderAbstract]
+  ButtonBuilderAbstract(this.label, this.style, {this.disabled = false, this.emoji}) {
+    if (label.length > 80) {
       throw ArgumentError("Label for Button cannot have more than 80 characters");
     }
   }
@@ -120,26 +120,26 @@ abstract class IButtonBuilder extends IComponentBuilder {
   @override
   Map<String, dynamic> build() => {
         ...super.build(),
-        "label": this.label,
-        "style": this.style.value,
-        if (this.disabled) "disabled": true,
-        if (this.emoji != null)
+        "label": label,
+        "style": style.value,
+        if (disabled) "disabled": true,
+        if (emoji != null)
           "emoji": {
-            if (this.emoji is IGuildEmoji) "id": (this.emoji as IGuildEmoji).id,
-            if (this.emoji is UnicodeEmoji) "name": (this.emoji as UnicodeEmoji).code,
-            if (this.emoji is GuildEmoji) "animated": (this.emoji as GuildEmoji).animated,
+            if (emoji is IGuildEmoji) "id": (emoji as IGuildEmoji).id,
+            if (emoji is UnicodeEmoji) "name": (emoji as UnicodeEmoji).code,
+            if (emoji is IGuildEmoji) "animated": (emoji as IGuildEmoji).animated,
           }
       };
 }
 
 /// Allows to create a button with link
-class LinkButtonBuilder extends IButtonBuilder {
+class LinkButtonBuilder extends ButtonBuilderAbstract {
   /// Url where his button should redirect
   final String url;
 
   /// Creates instance of [LinkButtonBuilder]
   LinkButtonBuilder(String label, this.url, {bool disabled = false, IEmoji? emoji}) : super(label, ComponentStyle.link, disabled: disabled, emoji: emoji) {
-    if (this.url.length > 512) {
+    if (url.length > 512) {
       throw ArgumentError("Url for button cannot have more than 512 characters");
     }
   }
@@ -149,7 +149,7 @@ class LinkButtonBuilder extends IButtonBuilder {
 }
 
 /// Button which will generate event when clicked.
-class ButtonBuilder extends IButtonBuilder {
+class ButtonBuilder extends ButtonBuilderAbstract {
   /// Id with optional additional metadata for button.
   String customId;
 
@@ -167,40 +167,38 @@ class ButtonBuilder extends IButtonBuilder {
 
 /// Helper builder to provide fluid api for building component rows
 class ComponentRowBuilder {
-  final List<IComponentBuilder> _components = [];
+  final List<ComponentBuilderAbstract> _components = [];
 
   /// Adds component to row
-  void addComponent(IComponentBuilder componentBuilder) => this._components.add(componentBuilder);
+  void addComponent(ComponentBuilderAbstract componentBuilder) => _components.add(componentBuilder);
 }
 
 /// Extended [MessageBuilder] with support for buttons
 class ComponentMessageBuilder extends MessageBuilder {
   /// Set of buttons to attach to message. Message can only have 5 rows with 5 buttons each.
-  List<List<IComponentBuilder>>? components;
+  List<List<ComponentBuilderAbstract>>? components;
 
   /// Allows to add
   void addComponentRow(ComponentRowBuilder componentRowBuilder) {
-    if (this.components == null) {
-      this.components = [];
-    }
+    components ??= [];
 
     if (componentRowBuilder._components.length > 5 || componentRowBuilder._components.isEmpty) {
       throw ArgumentError("Component row cannot be empty or have more than 5 components");
     }
 
-    if (this.components!.length == 5) {
+    if (components!.length == 5) {
       throw ArgumentError("There cannot be more that 5 rows of components");
     }
 
-    this.components!.add(componentRowBuilder._components);
+    components!.add(componentRowBuilder._components);
   }
 
   @override
   RawApiMap build(INyxx client) => {
         ...super.build(client),
-        if (this.components != null)
+        if (components != null)
           "components": [
-            for (final row in this.components!)
+            for (final row in components!)
               {
                 "type": ComponentType.row.value,
                 "components": [for (final component in row) component.build()]

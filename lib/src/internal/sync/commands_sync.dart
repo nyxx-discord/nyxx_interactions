@@ -1,4 +1,6 @@
-part of nyxx_interactions;
+import 'dart:async';
+
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 
 /// Used to make multiple methods of checking if the slash commands have been edited since last update
 abstract class ICommandsSync {

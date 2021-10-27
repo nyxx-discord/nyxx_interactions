@@ -1,45 +1,119 @@
-part of nyxx_interactions;
+import 'dart:collection';
 
-abstract class InteractionEvent<T extends Interaction> {
+import 'package:logging/logging.dart';
+import 'package:nyxx_interactions/src/models/interaction.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
+import 'package:nyxx_interactions/src/internal/utils.dart';
+import 'package:nyxx_interactions/src/models/interaction_option.dart';
+import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
+import 'package:nyxx_interactions/src/exceptions/interaction_expired.dart';
+import 'package:nyxx_interactions/src/exceptions/response_required.dart';
+import 'package:nyxx_interactions/src/exceptions/already_responded.dart';
+import 'package:nyxx/nyxx.dart';
+
+abstract class IInteractionEvent<T extends IInteraction> {
   /// Reference to [Nyxx]
-  Nyxx get client => interactions._client;
+  INyxx get client;
 
   /// Reference to [Interactions]
-  late final Interactions interactions;
+  Interactions get interactions;
 
   /// The interaction data, includes the args, name, guild, channel, etc.
   T get interaction;
 
   /// The DateTime the interaction was received by the Nyxx Client.
+  DateTime get receivedAt;
+}
+
+abstract class InteractionEventAbstract<T extends IInteraction> implements IInteractionEvent<T> {
+  /// Reference to [Nyxx]
+  @override
+  INyxx get client => interactions.client;
+
+  /// Reference to [Interactions]
+  @override
+  late final Interactions interactions;
+
+  /// The interaction data, includes the args, name, guild, channel, etc.
+  @override
+  T get interaction;
+
+  /// The DateTime the interaction was received by the Nyxx Client.
+  @override
   final DateTime receivedAt = DateTime.now();
 
-  final Logger _logger = Logger("Interaction Event");
+  final Logger logger = Logger("Interaction Event");
 
-  InteractionEvent._new(this.interactions);
+  InteractionEventAbstract(this.interactions);
 }
 
-class AutocompleteInteractionEvent extends InteractionEvent<Interaction> {
+abstract class IAutocompleteInteractionEvent implements InteractionEventAbstract<ISlashCommandInteraction> {
   @override
-  late final SlashCommandInteraction interaction;
-
-  AutocompleteInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions) {
-    this.interaction = SlashCommandInteraction._new(client, raw);
-  }
+  late final ISlashCommandInteraction interaction;
 
   /// Returns focused option of autocomplete
-  InteractionOption get focusedOption => _extractArgs(this.interaction.options).firstWhere((element) => element.isFocused);
+  IInteractionOption get focusedOption;
 
   /// Responds to interaction
+  Future<void> respond(List<ArgChoiceBuilder> builders);
+}
+
+class AutocompleteInteractionEvent extends InteractionEventAbstract<ISlashCommandInteraction> implements IAutocompleteInteractionEvent {
+  @override
+  late final ISlashCommandInteraction interaction;
+
+  /// Returns focused option of autocomplete
+  @override
+  IInteractionOption get focusedOption => extractArgs(interaction.options).firstWhere((element) => element.isFocused);
+
+  AutocompleteInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions) {
+    interaction = SlashCommandInteraction(client, raw);
+  }
+
+  /// Responds to interaction
+  @override
   Future<void> respond(List<ArgChoiceBuilder> builders) async {
-    if (DateTime.now().difference(this.receivedAt).inSeconds > 3) {
-      throw InteractionExpiredError._3secs();
+    if (DateTime.now().difference(receivedAt).inSeconds > 3) {
+      throw InteractionExpiredError.threeSecs();
     }
 
-    return this.interactions.interactionsEndpoints.respondToAutocomplete(this.interaction.id, this.interaction.token, builders);
+    return interactions.interactionsEndpoints.respondToAutocomplete(interaction.id, interaction.token, builders);
   }
 }
 
-abstract class InteractionEventWithAcknowledge<T extends Interaction> extends InteractionEvent<T> {
+abstract class IInteractionEventWithAcknowledge<T extends IInteraction> implements IInteractionEvent<T> {
+  /// Create a followup message for an Interaction
+  Future<IMessage> sendFollowup(MessageBuilder builder);
+
+  /// Edits followup message
+  Future<IMessage> editFollowup(Snowflake messageId, MessageBuilder builder);
+
+  /// Deletes followup message with given id
+  Future<void> deleteFollowup(Snowflake messageId);
+
+  /// Deletes original response
+  Future<void> deleteOriginalResponse();
+
+  /// Fetch followup message
+  Future<IMessage> fetchFollowup(Snowflake messageId);
+
+  /// Used to acknowledge a Interaction but not send any response yet.
+  /// Once this is sent you can then only send ChannelMessages.
+  /// You can also set showSource to also print out the command the user entered.
+  Future<void> acknowledge({bool hidden = false});
+
+  /// Used to acknowledge a Interaction and send a response.
+  /// Once this is sent you can then only send ChannelMessages.
+  Future<void> respond(MessageBuilder builder, {bool hidden = false});
+
+  /// Returns [Message] object of original interaction response
+  Future<IMessage> getOriginalResponse();
+
+  /// Edits original message response
+  Future<IMessage> editOriginalResponse(MessageBuilder builder);
+}
+
+abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends InteractionEventAbstract<T> implements IInteractionEventWithAcknowledge<T> {
   /// If the Client has sent a response to the Discord API. Once the API was received a response you cannot send another.
   bool _hasAcked = false;
 
@@ -49,91 +123,103 @@ abstract class InteractionEventWithAcknowledge<T extends Interaction> extends In
   /// Opcode for responding to interaction
   int get _respondOpcode;
 
-  InteractionEventWithAcknowledge._new(Interactions interactions) : super._new(interactions);
+  InteractionEventWithAcknowledge(Interactions interactions) : super(interactions);
 
   /// Create a followup message for an Interaction
-  Future<Message> sendFollowup(MessageBuilder builder) async {
+  @override
+  Future<IMessage> sendFollowup(MessageBuilder builder) async {
     if (!_hasAcked) {
       return Future.error(ResponseRequiredError());
     }
-    this._logger.fine("Sending followup for for interaction: ${this.interaction.id}");
+    logger.fine("Sending followup for for interaction: ${interaction.id}");
 
-    return this.interactions.interactionsEndpoints.sendFollowup(this.interaction.token, this.client.app.id, builder);
+    return interactions.interactionsEndpoints.sendFollowup(interaction.token, client.appId, builder);
   }
 
   /// Edits followup message
-  Future<Message> editFollowup(Snowflake messageId, MessageBuilder builder) =>
-      this.interactions.interactionsEndpoints.editFollowup(this.interaction.token, this.client.app.id, messageId, builder);
+  @override
+  Future<IMessage> editFollowup(Snowflake messageId, MessageBuilder builder) =>
+      interactions.interactionsEndpoints.editFollowup(interaction.token, client.appId, messageId, builder);
 
   /// Deletes followup message with given id
-  Future<void> deleteFollowup(Snowflake messageId) =>
-      this.interactions.interactionsEndpoints.deleteFollowup(this.interaction.token, this.client.app.id, messageId);
+  @override
+  Future<void> deleteFollowup(Snowflake messageId) => interactions.interactionsEndpoints.deleteFollowup(interaction.token, client.appId, messageId);
 
   /// Deletes original response
+  @override
   Future<void> deleteOriginalResponse() =>
-      this.interactions.interactionsEndpoints.deleteOriginalResponse(this.interaction.token, this.client.app.id, this.interaction.id.toString());
+      interactions.interactionsEndpoints.deleteOriginalResponse(interaction.token, client.appId, interaction.id.toString());
 
   /// Fetch followup message
-  Future<Message> fetchFollowup(Snowflake messageId) async =>
-      this.interactions.interactionsEndpoints.fetchFollowup(this.interaction.token, this.client.app.id, messageId);
+  @override
+  Future<IMessage> fetchFollowup(Snowflake messageId) async => interactions.interactionsEndpoints.fetchFollowup(interaction.token, client.appId, messageId);
 
   /// Used to acknowledge a Interaction but not send any response yet.
   /// Once this is sent you can then only send ChannelMessages.
   /// You can also set showSource to also print out the command the user entered.
+  @override
   Future<void> acknowledge({bool hidden = false}) async {
     if (_hasAcked) {
       return Future.error(AlreadyRespondedError());
     }
 
-    if (DateTime.now().isAfter(this.receivedAt.add(const Duration(seconds: 3)))) {
-      return Future.error(InteractionExpiredError._3secs());
+    if (DateTime.now().isAfter(receivedAt.add(const Duration(seconds: 3)))) {
+      return Future.error(InteractionExpiredError.threeSecs());
     }
 
-    await this.interactions.interactionsEndpoints.acknowledge(this.interaction.token, this.interaction.id.toString(), hidden, this._acknowledgeOpCode);
+    await interactions.interactionsEndpoints.acknowledge(interaction.token, interaction.id.toString(), hidden, _acknowledgeOpCode);
 
-    this._logger.fine("Sending acknowledge for for interaction: ${this.interaction.id}");
+    logger.fine("Sending acknowledge for for interaction: ${interaction.id}");
 
     _hasAcked = true;
   }
 
   /// Used to acknowledge a Interaction and send a response.
   /// Once this is sent you can then only send ChannelMessages.
+  @override
   Future<void> respond(MessageBuilder builder, {bool hidden = false}) async {
     final now = DateTime.now();
-    if (_hasAcked && now.isAfter(this.receivedAt.add(const Duration(minutes: 15)))) {
-      return Future.error(InteractionExpiredError._15mins());
-    } else if (now.isAfter(this.receivedAt.add(const Duration(seconds: 3)))) {
-      return Future.error(InteractionExpiredError._3secs());
+    if (_hasAcked && now.isAfter(receivedAt.add(const Duration(minutes: 15)))) {
+      return Future.error(InteractionExpiredError.fifteenMins());
+    } else if (now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
+      return Future.error(InteractionExpiredError.threeSecs());
     }
 
-    this._logger.fine("Sending respond for for interaction: ${this.interaction.id}");
+    logger.fine("Sending respond for for interaction: ${interaction.id}");
     if (_hasAcked) {
-      await this.interactions.interactionsEndpoints.respondEditOriginal(this.interaction.token, this.client.app.id, builder, hidden);
+      await interactions.interactionsEndpoints.respondEditOriginal(interaction.token, client.appId, builder, hidden);
     } else {
       if (!builder.canBeUsedAsNewMessage()) {
         return Future.error(ArgumentError("Cannot sent message when MessageBuilder doesn't have set either content, embed or files"));
       }
 
-      await this
-          .interactions
-          .interactionsEndpoints
-          .respondCreateResponse(this.interaction.token, this.interaction.id.toString(), builder, hidden, _respondOpcode);
+      await interactions.interactionsEndpoints.respondCreateResponse(interaction.token, interaction.id.toString(), builder, hidden, _respondOpcode);
     }
 
     _hasAcked = true;
   }
 
   /// Returns [Message] object of original interaction response
-  Future<Message> getOriginalResponse() async =>
-      this.interactions.interactionsEndpoints.fetchOriginalResponse(this.interaction.token, this.client.app.id, this.interaction.id.toString());
+  @override
+  Future<IMessage> getOriginalResponse() async =>
+      interactions.interactionsEndpoints.fetchOriginalResponse(interaction.token, client.appId, interaction.id.toString());
 
   /// Edits original message response
-  Future<Message> editOriginalResponse(MessageBuilder builder) =>
-      this.interactions.interactionsEndpoints.editOriginalResponse(this.interaction.token, this.client.app.id, builder);
+  @override
+  Future<IMessage> editOriginalResponse(MessageBuilder builder) =>
+      interactions.interactionsEndpoints.editOriginalResponse(interaction.token, client.appId, builder);
+}
+
+abstract class ISlashCommandInteractionEvent implements InteractionEventWithAcknowledge<SlashCommandInteraction> {
+  /// Returns args of interaction
+  List<IInteractionOption> get args;
+
+  /// Searches for arg with [name] in this interaction
+  IInteractionOption getArg(String name);
 }
 
 /// Event for slash commands
-class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<SlashCommandInteraction> {
+class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<SlashCommandInteraction> implements ISlashCommandInteractionEvent {
   /// Interaction data for slash command
   @override
   late final SlashCommandInteraction interaction;
@@ -145,21 +231,25 @@ class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<Slash
   int get _respondOpcode => 4;
 
   /// Returns args of interaction
-  List<InteractionOption> get args => UnmodifiableListView(_extractArgs(this.interaction.options));
+  @override
+  List<IInteractionOption> get args => UnmodifiableListView(extractArgs(interaction.options));
 
   /// Searches for arg with [name] in this interaction
-  InteractionOption getArg(String name) => args.firstWhere((element) => element.name == name);
+  @override
+  IInteractionOption getArg(String name) => args.firstWhere((element) => element.name == name);
 
-  SlashCommandInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions) {
-    this.interaction = SlashCommandInteraction._new(client, raw);
+  SlashCommandInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions) {
+    interaction = SlashCommandInteraction(client, raw);
   }
 }
 
+abstract class IComponentInteractionEvent<T extends IComponentInteraction> implements IInteractionEventWithAcknowledge<T> {}
+
 /// Generic event for component interactions
-abstract class ComponentInteractionEvent<T extends ComponentInteraction> extends InteractionEventWithAcknowledge<T> {
+abstract class ComponentInteractionEvent<T extends IComponentInteraction> extends InteractionEventWithAcknowledge<T> implements IComponentInteractionEvent<T> {
   /// Interaction data for slash command
   @override
-  late final T interaction;
+  T get interaction;
 
   @override
   int get _acknowledgeOpCode => 6;
@@ -167,25 +257,29 @@ abstract class ComponentInteractionEvent<T extends ComponentInteraction> extends
   @override
   int get _respondOpcode => 7;
 
-  ComponentInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions);
+  ComponentInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions);
 }
 
-/// Interaction event for button events
-class ButtonInteractionEvent extends ComponentInteractionEvent<ButtonInteraction> {
-  @override
-  late final ButtonInteraction interaction;
+abstract class IButtonInteractionEvent implements IComponentInteractionEvent<IButtonInteraction> {}
 
-  ButtonInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions, raw) {
-    this.interaction = ButtonInteraction._new(client, raw);
+/// Interaction event for button events
+class ButtonInteractionEvent extends ComponentInteractionEvent<IButtonInteraction> implements IButtonInteractionEvent {
+  @override
+  late final IButtonInteraction interaction;
+
+  ButtonInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = ButtonInteraction(client, raw);
   }
 }
 
-/// Interaction event for dropdown events
-class MultiselectInteractionEvent extends ComponentInteractionEvent<MultiselectInteraction> {
-  @override
-  late final MultiselectInteraction interaction;
+abstract class IMultiselectInteractionEvent implements ComponentInteractionEvent<IMultiselectInteraction> {}
 
-  MultiselectInteractionEvent._new(Interactions interactions, RawApiMap raw) : super._new(interactions, raw) {
-    this.interaction = MultiselectInteraction._new(client, raw);
+/// Interaction event for dropdown events
+class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselectInteraction> implements IMultiselectInteractionEvent {
+  @override
+  late final IMultiselectInteraction interaction;
+
+  MultiselectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = MultiselectInteraction(client, raw);
   }
 }

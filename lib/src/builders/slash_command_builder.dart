@@ -1,4 +1,13 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
+import 'package:nyxx_interactions/src/builders/command_permission_builder.dart';
+
+import 'package:nyxx_interactions/src/models/slash_command_type.dart';
+import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
+import 'package:nyxx_interactions/src/internal/utils.dart';
+import 'package:nyxx_interactions/src/typedefs.dart';
 
 /// A slash command, can only be instantiated through a method on [Interactions]
 class SlashCommandBuilder extends Builder {
@@ -21,56 +30,57 @@ class SlashCommandBuilder extends Builder {
   List<CommandOptionBuilder> options;
 
   /// Permission overrides for the command
-  List<ICommandPermissionBuilder>? permissions;
+  List<CommandPermissionBuilderAbstract>? permissions;
 
   /// Target of slash command if different that SlashCommandTarget.chat - slash command will
   /// become context menu in appropriate context
   SlashCommandType type;
 
   /// Handler for SlashCommandBuilder
-  SlashCommandHandler? _handler;
+  SlashCommandHandler? handler;
 
   /// A slash command, can only be instantiated through a method on [Interactions]
   SlashCommandBuilder(this.name, this.description, this.options,
       {this.defaultPermissions = true, this.permissions, this.guild, this.type = SlashCommandType.chat}) {
-    if (!slashCommandNameRegex.hasMatch(this.name)) {
+    if (!slashCommandNameRegex.hasMatch(name)) {
       throw ArgumentError("Command name has to match regex: ${slashCommandNameRegex.pattern}");
     }
 
-    if (this.description == null && this.type == SlashCommandType.chat) {
+    if (description == null && type == SlashCommandType.chat) {
       throw ArgumentError("Normal slash command needs to have description");
     }
 
-    if (this.description != null && this.type != SlashCommandType.chat) {
+    if (description != null && type != SlashCommandType.chat) {
       throw ArgumentError("Context menus cannot have description");
     }
   }
 
   @override
   RawApiMap build() => {
-        "name": this.name,
-        if (this.type == SlashCommandType.chat) "description": this.description,
-        "default_permission": this.defaultPermissions,
-        if (this.options.isNotEmpty) "options": this.options.map((e) => e.build()).toList(),
-        "type": this.type.value,
+        "name": name,
+        if (type == SlashCommandType.chat) "description": description,
+        "default_permission": defaultPermissions,
+        if (options.isNotEmpty) "options": options.map((e) => e.build()).toList(),
+        "type": type.value,
       };
 
-  void _setId(Snowflake id) => this._id = id;
+  void setId(Snowflake id) => _id = id;
+
+  Snowflake get id => _id;
 
   /// Register a permission
-  void addPermission(ICommandPermissionBuilder permission) {
-    if (this.permissions == null) {
-      this.permissions = [];
-    }
-    this.permissions!.add(permission);
+  void addPermission(CommandPermissionBuilderAbstract permission) {
+    permissions ??= [];
+
+    permissions!.add(permission);
   }
 
   /// Registers handler for command. Note command cannot have handler if there are options present
   void registerHandler(SlashCommandHandler handler) {
-    if (this.options.any((element) => element.type == CommandOptionType.subCommand || element.type == CommandOptionType.subCommandGroup)) {
+    if (options.any((element) => element.type == CommandOptionType.subCommand || element.type == CommandOptionType.subCommandGroup)) {
       throw ArgumentError("Cannot register handler for slash command if command have subcommand or subcommandgroup");
     }
 
-    this._handler = handler;
+    handler = handler;
   }
 }

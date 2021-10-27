@@ -1,135 +1,224 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/src/core/permissions/permissions.dart';
+import 'package:nyxx/src/core/user/user.dart';
+import 'package:nyxx/src/core/user/member.dart';
+import 'package:nyxx/src/core/guild/guild.dart';
+import 'package:nyxx/src/internal/cache/cacheable.dart';
+import 'package:nyxx/src/core/channel/cacheable_text_channel.dart';
+import 'package:nyxx/src/core/message/message.dart';
 
-/// The Interaction data. e.g channel, guild and member
-class Interaction extends SnowflakeEntity {
+import 'package:nyxx_interactions/src/models/interaction_option.dart';
+import 'package:nyxx_interactions/src/models/interaction_data_resolved.dart';
+
+abstract class IInteraction implements SnowflakeEntity {
   /// Reference to bot instance.
-  final Nyxx _client;
+  INyxx get client;
 
   /// The type of the interaction received.
-  late final int type;
+  int get type;
 
   /// The guild the command was sent in.
-  late final Cacheable<Snowflake, Guild>? guild;
+  Cacheable<Snowflake, IGuild>? get guild;
 
   /// The channel the command was sent in.
-  late final Cacheable<Snowflake, TextChannel> channel;
+  Cacheable<Snowflake, ITextChannel> get channel;
 
   /// The member who sent the interaction
-  late final Member? memberAuthor;
+  IMember? get memberAuthor;
 
   /// Permission of member who sent the interaction. Will be set if [memberAuthor]
   /// is not null
-  late final Permissions? memberAuthorPermissions;
+  IPermissions? get memberAuthorPermissions;
 
   /// The user who sent the interaction.
-  late final User? userAuthor;
+  IUser? get userAuthor;
 
   /// Token to send requests
+  String get token;
+
+  /// Version of interactions api
+  int get version;
+}
+
+/// The Interaction data. e.g channel, guild and member
+class Interaction extends SnowflakeEntity implements IInteraction {
+  /// Reference to bot instance.
+  @override
+  final INyxx client;
+
+  /// The type of the interaction received.
+  @override
+  late final int type;
+
+  /// The guild the command was sent in.
+  @override
+  late final Cacheable<Snowflake, IGuild>? guild;
+
+  /// The channel the command was sent in.
+  @override
+  late final Cacheable<Snowflake, ITextChannel> channel;
+
+  /// The member who sent the interaction
+  @override
+  late final IMember? memberAuthor;
+
+  /// Permission of member who sent the interaction. Will be set if [memberAuthor]
+  /// is not null
+  @override
+  late final IPermissions? memberAuthorPermissions;
+
+  /// The user who sent the interaction.
+  @override
+  late final IUser? userAuthor;
+
+  /// Token to send requests
+  @override
   late final String token;
 
   /// Version of interactions api
+  @override
   late final int version;
 
-  Interaction._new(this._client, RawApiMap raw) : super(Snowflake(raw["id"])) {
-    this.type = raw["type"] as int;
+  /// Creates na instance of [Interaction]
+  Interaction(this.client, RawApiMap raw) : super(Snowflake(raw["id"])) {
+    type = raw["type"] as int;
 
     if (raw["guild_id"] != null) {
-      this.guild = CacheUtility.createCacheableGuild(
-        _client,
+      guild = GuildCacheable(
+        client,
         Snowflake(raw["guild_id"]),
       );
     } else {
-      this.guild = null;
+      guild = null;
     }
 
-    this.channel = CacheUtility.createCacheableTextChannel(
-      _client,
+    channel = CacheableTextChannel(
+      client,
       Snowflake(raw["channel_id"]),
     );
 
     if (raw["member"] != null) {
-      this.memberAuthor = EntityUtility.createGuildMember(_client, Snowflake(raw["guild_id"]), raw["member"] as RawApiMap);
-      this.memberAuthorPermissions = Permissions.fromInt(int.parse(raw["member"]["permissions"] as String));
+      memberAuthor = Member(client, raw["member"] as RawApiMap, Snowflake(raw["guild_id"]));
+      memberAuthorPermissions = Permissions(int.parse(raw["member"]["permissions"] as String));
     } else {
-      this.memberAuthor = null;
-      this.memberAuthorPermissions = null;
+      memberAuthor = null;
+      memberAuthorPermissions = null;
     }
 
     if (raw["user"] != null) {
-      this.userAuthor = EntityUtility.createUser(_client, raw["user"] as RawApiMap);
+      userAuthor = User(client, raw["user"] as RawApiMap);
     } else if (raw["member"]["user"] != null) {
-      this.userAuthor = EntityUtility.createUser(_client, raw["member"]["user"] as RawApiMap);
+      userAuthor = User(client, raw["member"]["user"] as RawApiMap);
     } else {
-      this.userAuthor = null;
+      userAuthor = null;
     }
 
-    this.token = raw["token"] as String;
-    this.version = raw["version"] as int;
+    token = raw["token"] as String;
+    version = raw["version"] as int;
   }
 }
 
-/// Interaction for slash command
-class SlashCommandInteraction extends Interaction {
+abstract class ISlashCommandInteraction implements Interaction {
   /// Name of interaction
-  late final String name;
+  String get name;
 
   /// Args of the interaction
-  late final Iterable<InteractionOption> options;
+  Iterable<IInteractionOption> get options;
 
   /// Id of command
   late final Snowflake commandId;
 
   /// Additional data for command
-  late final InteractionDataResolved? resolved;
+  late final IInteractionDataResolved? resolved;
+}
 
-  SlashCommandInteraction._new(Nyxx client, RawApiMap raw) : super._new(client, raw) {
-    this.name = raw["data"]["name"] as String;
-    this.options = [
+/// Interaction for slash command
+class SlashCommandInteraction extends Interaction implements ISlashCommandInteraction {
+  /// Name of interaction
+  @override
+  late final String name;
+
+  /// Args of the interaction
+  @override
+  late final Iterable<IInteractionOption> options;
+
+  /// Id of command
+  @override
+  late final Snowflake commandId;
+
+  /// Additional data for command
+  @override
+  late final IInteractionDataResolved? resolved;
+
+  /// Creates na instance of [SlashCommandInteraction]
+  SlashCommandInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    name = raw["data"]["name"] as String;
+    options = [
       if (raw["data"]["options"] != null)
-        for (final option in raw["data"]["options"] as List<dynamic>) InteractionOption._new(option as RawApiMap)
+        for (final option in raw["data"]["options"] as List<dynamic>) InteractionOption(option as RawApiMap)
     ];
-    this.commandId = Snowflake(raw["data"]["id"]);
+    commandId = Snowflake(raw["data"]["id"]);
 
-    this.resolved = raw["data"]["resolved"] != null ? InteractionDataResolved._new(raw["data"]["resolved"] as RawApiMap, this.guild?.id, client) : null;
+    resolved = raw["data"]["resolved"] != null ? InteractionDataResolved(raw["data"]["resolved"] as RawApiMap, guild?.id, client) : null;
   }
 
   /// Allows to fetch argument value by argument name
   dynamic getArg(String name) {
     try {
-      return this.options.firstWhere((element) => element.name == name).value;
+      return options.firstWhere((element) => element.name == name).value;
     } on Error {
       return null;
     }
   }
 }
 
-/// Interaction for button, dropdown, etc.
-abstract class ComponentInteraction extends Interaction {
+abstract class IComponentInteraction implements IInteraction {
   /// Custom id of component interaction
+  String get customId;
+
+  /// The message that the button was pressed on.
+  IMessage? get message;
+}
+
+/// Interaction for button, dropdown, etc.
+abstract class ComponentInteraction extends Interaction implements IComponentInteraction {
+  /// Custom id of component interaction
+  @override
   late final String customId;
 
   /// The message that the button was pressed on.
-  late final Message? message;
+  @override
+  late final IMessage? message;
 
-  ComponentInteraction._new(Nyxx client, RawApiMap raw) : super._new(client, raw) {
-    this.customId = raw["data"]["custom_id"] as String;
+  /// Creates na instance of [ComponentInteraction]
+  ComponentInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    customId = raw["data"]["custom_id"] as String;
 
     // Discord doesn't include guild's id in the message object even if its a guild message but is included in the data so its been added to the object so that guild message can be used if the interaction is from a guild.
-    this.message = EntityUtility.createMessage(_client, {...raw["message"], if (guild != null) "guild_id": guild!.id.toString()});
+    message = Message(client, {...raw["message"], if (guild != null) "guild_id": guild!.id.toString()});
   }
 }
 
+abstract class IButtonInteraction implements IComponentInteraction {}
+
 /// Interaction invoked when button is pressed
-class ButtonInteraction extends ComponentInteraction {
-  ButtonInteraction._new(Nyxx client, Map<String, dynamic> raw) : super._new(client, raw);
+class ButtonInteraction extends ComponentInteraction implements IButtonInteraction {
+  ButtonInteraction(INyxx client, Map<String, dynamic> raw) : super(client, raw);
+}
+
+abstract class IMultiselectInteraction implements IComponentInteraction {
+  /// Values selected by the user
+  List<String> get values;
 }
 
 /// Interaction when multi select is triggered
-class MultiselectInteraction extends ComponentInteraction {
+class MultiselectInteraction extends ComponentInteraction implements IMultiselectInteraction {
   /// Values selected by the user
+  @override
   late final List<String> values;
 
-  MultiselectInteraction._new(Nyxx client, Map<String, dynamic> raw) : super._new(client, raw) {
-    this.values = (raw["data"]["values"] as List<dynamic>).cast<String>();
+  /// Creates na instance of [MultiselectInteraction]
+  MultiselectInteraction(INyxx client, Map<String, dynamic> raw) : super(client, raw) {
+    values = (raw["data"]["values"] as List<dynamic>).cast<String>();
   }
 }

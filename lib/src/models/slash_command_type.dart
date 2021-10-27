@@ -1,4 +1,4 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
 
 /// Type of the slash command. Since context menus reuses slash commands
 /// backed, slash commands cna have different types based on context.

@@ -1,41 +1,83 @@
-part of nyxx_interactions;
+import 'dart:async';
 
-class _EventController implements Disposable {
-  /// Emitted when a a slash command is sent.
-  late final StreamController<SlashCommandInteractionEvent> onSlashCommand;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/events/interaction_event.dart';
+import 'package:nyxx_interactions/src/models/slash_command.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
+
+abstract class IEventController implements Disposable {
+  /// Emitted when a slash command is sent.
+  Stream<SlashCommandInteractionEvent> get onSlashCommand;
+
+  /// Emitted when a button interaction is received.
+  Stream<ButtonInteractionEvent> get onButtonEvent;
+
+  /// Emitted when a dropdown interaction is received.
+  Stream<MultiselectInteractionEvent> get onMultiselectEvent;
+
+  /// Emitted when a slash command is created by the user.
+  Stream<SlashCommand> get onSlashCommandCreated;
+
+  /// Emitted when a slash command is created by the user.
+  Stream<AutocompleteInteractionEvent> get onAutocompleteEvent;
+}
+
+class EventController implements IEventController {
+  /// Emitted when a slash command is sent.
+  late final Stream<SlashCommandInteractionEvent> onSlashCommand;
+
+  /// Emitted when a button interaction is received.
+  late final Stream<ButtonInteractionEvent> onButtonEvent;
+
+  /// Emitted when a dropdown interaction is received.
+  late final Stream<MultiselectInteractionEvent> onMultiselectEvent;
+
+  /// Emitted when a slash command is created by the user.
+  late final Stream<SlashCommand> onSlashCommandCreated;
+
+  /// Emitted when a slash command is created by the user.
+  late final Stream<AutocompleteInteractionEvent> onAutocompleteEvent;
 
   /// Emitted when a a slash command is sent.
-  late final StreamController<SlashCommand> onSlashCommandCreated;
+  late final StreamController<SlashCommandInteractionEvent> onSlashCommandController;
+
+  /// Emitted when a a slash command is sent.
+  late final StreamController<SlashCommand> onSlashCommandCreatedController;
 
   /// Emitted when button event is sent
-  late final StreamController<ButtonInteractionEvent> onButtonEvent;
+  late final StreamController<ButtonInteractionEvent> onButtonEventController;
 
   /// Emitted when dropdown event is sent
-  late final StreamController<MultiselectInteractionEvent> onMultiselectEvent;
+  late final StreamController<MultiselectInteractionEvent> onMultiselectEventController;
 
   /// Emitted when autocomplete interaction event is sent
-  late final StreamController<AutocompleteInteractionEvent> onAutocompleteEvent;
+  late final StreamController<AutocompleteInteractionEvent> onAutocompleteEventController;
 
-  _EventController(Interactions _client) {
-    this.onSlashCommand = StreamController.broadcast();
-    _client.onSlashCommand = this.onSlashCommand.stream;
+  /// Creates na instance of [EventController]
+  EventController() {
+    onSlashCommandController = StreamController.broadcast();
+    onSlashCommand = onSlashCommandController.stream;
 
-    this.onSlashCommandCreated = StreamController.broadcast();
-    _client.onSlashCommandCreated = this.onSlashCommandCreated.stream;
+    onSlashCommandCreatedController = StreamController.broadcast();
+    onSlashCommandCreated = onSlashCommandCreatedController.stream;
 
-    this.onButtonEvent = StreamController.broadcast();
-    _client.onButtonEvent = this.onButtonEvent.stream;
+    onButtonEventController = StreamController.broadcast();
+    onButtonEvent = onButtonEventController.stream;
 
-    this.onMultiselectEvent = StreamController.broadcast();
-    _client.onMultiselectEvent = this.onMultiselectEvent.stream;
+    onMultiselectEventController = StreamController.broadcast();
+    onMultiselectEvent = onMultiselectEventController.stream;
 
-    this.onAutocompleteEvent = StreamController.broadcast();
-    _client.onAutocompleteEvent = this.onAutocompleteEvent.stream;
+    onAutocompleteEventController = StreamController.broadcast();
+    onAutocompleteEvent = onAutocompleteEventController.stream;
   }
 
   @override
   Future<void> dispose() async {
-    await this.onSlashCommand.close();
-    await this.onSlashCommandCreated.close();
+    await onSlashCommandController.close();
+    await onSlashCommandCreatedController.close();
+    await onButtonEventController.close();
+    await onMultiselectEventController.close();
+    await onAutocompleteEventController.close();
   }
 }

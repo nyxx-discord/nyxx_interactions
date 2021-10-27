@@ -1,237 +1,286 @@
-part of nyxx_interactions;
+import 'dart:async';
+import 'dart:collection';
 
-/// Function that will handle execution of slash command interaction event
-typedef SlashCommandHandler = FutureOr<void> Function(SlashCommandInteractionEvent);
+import 'package:logging/logging.dart';
+import 'package:nyxx/nyxx.dart';
 
-/// Function that will handle execution of button interaction event
-typedef ButtonInteractionHandler = FutureOr<void> Function(ButtonInteractionEvent);
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/internal/interaction_endpoints.dart';
+import 'package:nyxx_interactions/src/internal/event_controller.dart';
+import 'package:nyxx_interactions/src/models/slash_command.dart';
+import 'package:nyxx_interactions/src/internal/sync/commands_sync.dart';
+import 'package:nyxx_interactions/src/internal/sync/manual_command_sync.dart';
+import 'package:nyxx_interactions/src/internal/utils.dart';
+import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/typedefs.dart';
 
-/// Function that will handle execution of dropdown event
-typedef MultiselectInteractionHandler = FutureOr<void> Function(MultiselectInteractionEvent);
-
-/// Function that will handle execution of button interaction event
-typedef AutocompleteInteractionHandler = FutureOr<void> Function(AutocompleteInteractionEvent);
-
-/// Interaction extension for Nyxx. Allows use of: Slash Commands.
-class Interactions {
-  static const _interactionCreateCommand = "INTERACTION_CREATE";
-
-  late final _EventController _events;
-  final Logger _logger = Logger("Interactions");
+abstract class IInteractions {
+  IEventController get events;
 
   /// Reference to client
-  final Nyxx _client;
+  INyxx get client;
 
+  /// Commands registered by bot
+  Iterable<ISlashCommand> get commands;
+
+  /// All interaction endpoints that can be accessed.
+  IInteractionsEndpoints get interactionsEndpoints;
+
+  /// Syncs commands builders with discord after client is ready.
+  void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()});
+
+  /// Syncs command builders with discord immediately.
+  /// Warning: Client could not be ready at the function execution.
+  /// Use [syncOnReady] for proper behavior
+  Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()});
+
+  /// Registers callback for button event for given [id]
+  void registerAutocompleteHandler(String id, AutocompleteInteractionHandler handler);
+
+  /// Registers callback for button event for given [id]
+  void registerButtonHandler(String id, ButtonInteractionHandler handler);
+
+  /// Register callback for dropdown event for given [id]
+  void registerMultiselectHandler(String id, MultiselectInteractionHandler handler);
+
+  /// Allows to register new [SlashCommandBuilder]
+  void registerSlashCommand(SlashCommandBuilder slashCommandBuilder);
+
+  /// Register callback for slash command event for given [id]
+  void registerSlashCommandHandler(String id, SlashCommandHandler handler);
+
+  /// Deletes global command
+  Future<void> deleteGlobalCommand(Snowflake commandId);
+
+  /// Deletes guild command
+  Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId);
+
+  /// Fetches all global bots command
+  Stream<ISlashCommand> fetchGlobalCommands();
+
+  /// Fetches all guild commands for given guild
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId);
+}
+
+/// Interaction extension for Nyxx. Allows use of: Slash Commands.
+class Interactions implements IInteractions {
+  static const _interactionCreateCommand = "INTERACTION_CREATE";
+
+  final Logger _logger = Logger("Interactions");
   final _commandBuilders = <SlashCommandBuilder>[];
-  final _commands = <SlashCommand>[];
+  final _commands = <ISlashCommand>[];
   final _commandHandlers = <String, SlashCommandHandler>{};
   final _buttonHandlers = <String, ButtonInteractionHandler>{};
   final _autocompleteHandlers = <String, AutocompleteInteractionHandler>{};
   final _multiselectHandlers = <String, MultiselectInteractionHandler>{};
 
+  @override
+  late final IEventController events;
+
+  /// Reference to client
+  @override
+  final INyxx client;
+
   /// Commands registered by bot
-  Iterable<SlashCommand> get commands => UnmodifiableListView(this._commands);
-
-  /// Emitted when a slash command is sent.
-  late final Stream<SlashCommandInteractionEvent> onSlashCommand;
-
-  /// Emitted when a button interaction is received.
-  late final Stream<ButtonInteractionEvent> onButtonEvent;
-
-  /// Emitted when a dropdown interaction is received.
-  late final Stream<MultiselectInteractionEvent> onMultiselectEvent;
-
-  /// Emitted when a slash command is created by the user.
-  late final Stream<SlashCommand> onSlashCommandCreated;
-
-  /// Emitted when a slash command is created by the user.
-  late final Stream<AutocompleteInteractionEvent> onAutocompleteEvent;
+  @override
+  Iterable<ISlashCommand> get commands => UnmodifiableListView(_commands);
 
   /// All interaction endpoints that can be accessed.
+  @override
   late final IInteractionsEndpoints interactionsEndpoints;
 
   /// Create new instance of the interactions class.
-  Interactions(this._client) {
-    _events = _EventController(this);
-    _client.options.dispatchRawShardEvent = true;
-    this.interactionsEndpoints = _InteractionsEndpoints(_client);
+  Interactions(this.client) {
+    events = EventController();
+    client.options.dispatchRawShardEvent = true;
+    interactionsEndpoints = InteractionsEndpoints(client);
 
     _logger.info("Interactions ready");
 
-    _client.onReady.listen((event) async {
-      _client.shardManager.rawEvent.listen((event) {
-        if (event.rawData["op"] == OPCodes.dispatch && event.rawData["t"] == _interactionCreateCommand) {
-          this._logger.fine("Received interaction event: [${event.rawData}]");
-
-          final type = event.rawData["d"]["type"] as int;
-
-          switch (type) {
-            case 2:
-              _events.onSlashCommand.add(SlashCommandInteractionEvent._new(this, event.rawData["d"] as RawApiMap));
-              break;
-            case 3:
-              final componentType = event.rawData["d"]["data"]["component_type"] as int;
-
-              switch (componentType) {
-                case 2:
-                  _events.onButtonEvent.add(ButtonInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-                  break;
-                case 3:
-                  _events.onMultiselectEvent.add(MultiselectInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-                  break;
-                default:
-                  this._logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(event.rawData)}");
-              }
-              break;
-            case 4:
-              _events.onAutocompleteEvent.add(AutocompleteInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-              break;
-            default:
-              this._logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(event.rawData)}");
-          }
-        }
-      });
-    });
+    // client.onReady.listen((event) async {
+    //   client.shardManager.rawEvent.listen((event) {
+    //     if (event.rawData["op"] == OPCodes.dispatch && event.rawData["t"] == _interactionCreateCommand) {
+    //       _logger.fine("Received interaction event: [${event.rawData}]");
+    //
+    //       final type = event.rawData["d"]["type"] as int;
+    //
+    //       switch (type) {
+    //         case 2:
+    //           _events.onSlashCommand.add(SlashCommandInteractionEvent._new(this, event.rawData["d"] as RawApiMap));
+    //           break;
+    //         case 3:
+    //           final componentType = event.rawData["d"]["data"]["component_type"] as int;
+    //
+    //           switch (componentType) {
+    //             case 2:
+    //               _events.onButtonEvent.add(ButtonInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+    //               break;
+    //             case 3:
+    //               _events.onMultiselectEvent.add(MultiselectInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+    //               break;
+    //             default:
+    //               _logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(event.rawData)}");
+    //           }
+    //           break;
+    //         case 4:
+    //           _events.onAutocompleteEvent.add(AutocompleteInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
+    //           break;
+    //         default:
+    //           _logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(event.rawData)}");
+    //       }
+    //     }
+    //   });
+    // });
   }
 
   /// Syncs commands builders with discord after client is ready.
+  @override
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()}) {
-    this._client.onReady.listen((_) async {
-      await this.sync(syncRule: syncRule);
-    });
+    // client.onReady.listen((_) async {
+    //   await sync(syncRule: syncRule);
+    // });
   }
 
   /// Syncs command builders with discord immediately.
   /// Warning: Client could not be ready at the function execution.
   /// Use [syncOnReady] for proper behavior
+  @override
   Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()}) async {
-    if (!await syncRule.shouldSync(this._commandBuilders)) {
+    if (!await syncRule.shouldSync(_commandBuilders)) {
       return;
     }
 
-    final commandPartition = _partition<SlashCommandBuilder>(this._commandBuilders, (element) => element.guild == null);
+    final commandPartition = partition<SlashCommandBuilder>(_commandBuilders, (element) => element.guild == null);
     final globalCommands = commandPartition.first;
-    final groupedGuildCommands = _groupSlashCommandBuilders(commandPartition.last);
+    final groupedGuildCommands = groupSlashCommandBuilders(commandPartition.last);
 
-    final globalCommandsResponse = await this.interactionsEndpoints.bulkOverrideGlobalCommands(this._client.app.id, globalCommands).toList();
+    final globalCommandsResponse = await interactionsEndpoints.bulkOverrideGlobalCommands(client.appId, globalCommands).toList();
 
     _extractCommandIds(globalCommandsResponse);
-    this._registerCommandHandlers(globalCommandsResponse, globalCommands);
+    _registerCommandHandlers(globalCommandsResponse, globalCommands);
 
     for (final entry in groupedGuildCommands.entries) {
-      final response = await this.interactionsEndpoints.bulkOverrideGuildCommands(this._client.app.id, entry.key, entry.value).toList();
+      final response = await interactionsEndpoints.bulkOverrideGuildCommands(client.appId, entry.key, entry.value).toList();
 
       _extractCommandIds(response);
-      this._registerCommandHandlers(response, entry.value);
-      await this.interactionsEndpoints.bulkOverrideGuildCommandsPermissions(this._client.app.id, entry.key, entry.value);
+      _registerCommandHandlers(response, entry.value);
+      await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
     }
 
-    this._commandBuilders.clear(); // Cleanup after registering command since we don't need this anymore
-    this._logger.info("Finished bulk overriding slash commands and permissions");
+    _commandBuilders.clear(); // Cleanup after registering command since we don't need this anymore
+    _logger.info("Finished bulk overriding slash commands and permissions");
 
-    if (this._commands.isNotEmpty) {
-      this.onSlashCommand.listen((event) async {
-        final commandHash = _determineInteractionCommandHandler(event.interaction);
+    if (_commands.isNotEmpty) {
+      events.onSlashCommand.listen((event) async {
+        final commandHash = determineInteractionCommandHandler(event.interaction);
 
-        this._logger.info("Executing command with hash [$commandHash]");
-        if (this._commandHandlers.containsKey(commandHash)) {
-          await this._commandHandlers[commandHash]!(event);
+        _logger.info("Executing command with hash [$commandHash]");
+        if (_commandHandlers.containsKey(commandHash)) {
+          await _commandHandlers[commandHash]!(event);
         }
       });
 
-      this._logger.info("Finished registering ${this._commandHandlers.length} commands!");
+      _logger.info("Finished registering ${_commandHandlers.length} commands!");
     }
 
-    if (this._buttonHandlers.isNotEmpty) {
-      this.onButtonEvent.listen((event) {
-        if (this._buttonHandlers.containsKey(event.interaction.customId)) {
-          this._logger.info("Executing button with id [${event.interaction.customId}]");
-          this._buttonHandlers[event.interaction.customId]!(event);
+    if (_buttonHandlers.isNotEmpty) {
+      events.onButtonEvent.listen((event) {
+        if (_buttonHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing button with id [${event.interaction.customId}]");
+          _buttonHandlers[event.interaction.customId]!(event);
         } else {
-          this._logger.warning("Received event for unknown button: ${event.interaction.customId}");
+          _logger.warning("Received event for unknown button: ${event.interaction.customId}");
         }
       });
     }
 
-    if (this._multiselectHandlers.isNotEmpty) {
-      this.onMultiselectEvent.listen((event) {
-        if (this._multiselectHandlers.containsKey(event.interaction.customId)) {
-          this._logger.info("Executing multiselect with id [${event.interaction.customId}]");
-          this._multiselectHandlers[event.interaction.customId]!(event);
+    if (_multiselectHandlers.isNotEmpty) {
+      events.onMultiselectEvent.listen((event) {
+        if (_multiselectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing multiselect with id [${event.interaction.customId}]");
+          _multiselectHandlers[event.interaction.customId]!(event);
         } else {
-          this._logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
+          _logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
         }
       });
     }
 
-    if (this._autocompleteHandlers.isNotEmpty) {
-      this.onAutocompleteEvent.listen((event) {
+    if (_autocompleteHandlers.isNotEmpty) {
+      events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
 
-        if (this._autocompleteHandlers.containsKey(name)) {
-          this._logger.info("Executing autocomplete with id [$name]");
-          this._autocompleteHandlers[name]!(event);
+        if (_autocompleteHandlers.containsKey(name)) {
+          _logger.info("Executing autocomplete with id [$name]");
+          _autocompleteHandlers[name]!(event);
         } else {
-          this._logger.warning("Received event for unknown dropdown: $name");
+          _logger.warning("Received event for unknown dropdown: $name");
         }
       });
     }
   }
 
   /// Registers callback for button event for given [id]
-  void registerAutocompleteHandler(String id, AutocompleteInteractionHandler handler) => this._autocompleteHandlers[id] = handler;
+  @override
+  void registerAutocompleteHandler(String id, AutocompleteInteractionHandler handler) => _autocompleteHandlers[id] = handler;
 
   /// Registers callback for button event for given [id]
-  void registerButtonHandler(String id, ButtonInteractionHandler handler) => this._buttonHandlers[id] = handler;
+  @override
+  void registerButtonHandler(String id, ButtonInteractionHandler handler) => _buttonHandlers[id] = handler;
 
   /// Register callback for dropdown event for given [id]
-  void registerMultiselectHandler(String id, MultiselectInteractionHandler handler) => this._multiselectHandlers[id] = handler;
+  @override
+  void registerMultiselectHandler(String id, MultiselectInteractionHandler handler) => _multiselectHandlers[id] = handler;
 
   /// Allows to register new [SlashCommandBuilder]
-  void registerSlashCommand(SlashCommandBuilder slashCommandBuilder) => this._commandBuilders.add(slashCommandBuilder);
+  @override
+  void registerSlashCommand(SlashCommandBuilder slashCommandBuilder) => _commandBuilders.add(slashCommandBuilder);
 
   /// Register callback for slash command event for given [id]
-  void registerSlashCommandHandler(String id, SlashCommandHandler handler) => this._commandHandlers[id] = handler;
+  @override
+  void registerSlashCommandHandler(String id, SlashCommandHandler handler) => _commandHandlers[id] = handler;
 
   /// Deletes global command
-  Future<void> deleteGlobalCommand(Snowflake commandId) => this.interactionsEndpoints.deleteGlobalCommand(this._client.app.id, commandId);
+  @override
+  Future<void> deleteGlobalCommand(Snowflake commandId) => interactionsEndpoints.deleteGlobalCommand(client.appId, commandId);
 
   /// Deletes guild command
-  Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId) =>
-      this.interactionsEndpoints.deleteGuildCommand(this._client.app.id, commandId, guildId);
+  @override
+  Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId) => interactionsEndpoints.deleteGuildCommand(client.appId, commandId, guildId);
 
   /// Fetches all global bots command
-  Stream<SlashCommand> fetchGlobalCommands() => this.interactionsEndpoints.fetchGlobalCommands(this._client.app.id);
+  @override
+  Stream<ISlashCommand> fetchGlobalCommands() => interactionsEndpoints.fetchGlobalCommands(client.appId);
 
   /// Fetches all guild commands for given guild
-  Stream<SlashCommand> fetchGuildCommands(Snowflake guildId) => this.interactionsEndpoints.fetchGuildCommands(this._client.app.id, guildId);
+  @override
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId) => interactionsEndpoints.fetchGuildCommands(client.appId, guildId);
 
-  void _extractCommandIds(List<SlashCommand> commands) {
+  void _extractCommandIds(List<ISlashCommand> commands) {
     for (final slashCommand in commands) {
-      this._commandBuilders.firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id)._setId(slashCommand.id);
+      _commandBuilders.firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id).setId(slashCommand.id);
     }
   }
 
-  void _registerCommandHandlers(List<SlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
+  void _registerCommandHandlers(List<ISlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
     for (final registeredCommand in registeredSlashCommands) {
       final matchingBuilder = builders.firstWhere((element) => element.name.toLowerCase() == registeredCommand.name);
-      this._assignCommandToHandler(matchingBuilder, registeredCommand);
+      _assignCommandToHandler(matchingBuilder, registeredCommand);
 
-      this._commands.add(registeredCommand);
+      _commands.add(registeredCommand);
     }
   }
 
-  void _assignCommandToHandler(SlashCommandBuilder builder, SlashCommand command) {
+  void _assignCommandToHandler(SlashCommandBuilder builder, ISlashCommand command) {
     final commandHashPrefix = "${command.id}|${command.name}";
 
     final subCommands = builder.options.where((element) => element.type == CommandOptionType.subCommand);
     if (subCommands.isNotEmpty) {
       for (final subCommand in subCommands) {
-        if (subCommand._handler == null) {
+        if (subCommand.handler == null) {
           continue;
         }
 
-        this._commandHandlers["$commandHashPrefix|${subCommand.name}"] = subCommand._handler!;
+        _commandHandlers["$commandHashPrefix|${subCommand.name}"] = subCommand.handler!;
       }
 
       return;
@@ -243,19 +292,19 @@ class Interactions {
         final subCommands = subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
 
         for (final subCommand in subCommands) {
-          if (subCommand._handler == null) {
+          if (subCommand.handler == null) {
             continue;
           }
 
-          this._commandHandlers["$commandHashPrefix|${subCommandGroup.name}|${subCommand.name}"] = subCommand._handler!;
+          _commandHandlers["$commandHashPrefix|${subCommandGroup.name}|${subCommand.name}"] = subCommand.handler!;
         }
       }
 
       return;
     }
 
-    if (builder._handler != null) {
-      this._commandHandlers[commandHashPrefix] = builder._handler!;
+    if (builder.handler != null) {
+      _commandHandlers[commandHashPrefix] = builder.handler!;
     }
   }
 }

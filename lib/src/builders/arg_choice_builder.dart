@@ -1,4 +1,4 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
 
 /// A specified choice for a slash command argument.
 class ArgChoiceBuilder extends Builder {
@@ -16,5 +16,5 @@ class ArgChoiceBuilder extends Builder {
     }
   }
 
-  RawApiMap build() => {"name": this.name, "value": this.value};
+  RawApiMap build() => {"name": name, "value": value};
 }

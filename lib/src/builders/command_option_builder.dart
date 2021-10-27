@@ -1,4 +1,9 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
+import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
+import 'package:nyxx_interactions/src/typedefs.dart';
 
 /// An argument for a [SlashCommandBuilder].
 class CommandOptionBuilder extends Builder {
@@ -39,7 +44,7 @@ class CommandOptionBuilder extends Builder {
   /// Set to true if option should be autocompleted
   bool? autoComplete;
 
-  SlashCommandHandler? _handler;
+  SlashCommandHandler? handler;
 
   /// Used to create an argument for a [SlashCommandBuilder].
   CommandOptionBuilder(this.type, this.name, this.description,
@@ -47,22 +52,22 @@ class CommandOptionBuilder extends Builder {
 
   /// Registers handler for subcommand
   void registerHandler(SlashCommandHandler handler) {
-    if (this.type != CommandOptionType.subCommand) {
+    if (type != CommandOptionType.subCommand) {
       throw StateError("Cannot register handler for command option with type other that subcommand");
     }
 
-    this._handler = handler;
+    handler = handler;
   }
 
   RawApiMap build() => {
-        "type": this.type.value,
-        "name": this.name,
-        "description": this.description,
-        "default": this.defaultArg,
-        "required": this.required,
-        if (this.choices != null) "choices": this.choices!.map((e) => e.build()).toList(),
-        if (this.options != null) "options": this.options!.map((e) => e.build()).toList(),
-        if (this.channelTypes != null && this.type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
-        if (this.autoComplete != null) "autocomplete": this.autoComplete,
+        "type": type.value,
+        "name": name,
+        "description": description,
+        "default": defaultArg,
+        "required": required,
+        if (choices != null) "choices": choices!.map((e) => e.build()).toList(),
+        if (options != null) "options": options!.map((e) => e.build()).toList(),
+        if (channelTypes != null && type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
+        if (autoComplete != null) "autocomplete": autoComplete,
       };
 }

@@ -2,7 +2,7 @@ import "package:nyxx/nyxx.dart";
 import "package:nyxx_interactions/nyxx_interactions.dart";
 
 void main() {
-  final bot = Nyxx("<TOKEN>", GatewayIntents.allUnprivileged);
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
   Interactions(bot)
     ..registerSlashCommand(
         SlashCommandBuilder("itest", "This is test command", [

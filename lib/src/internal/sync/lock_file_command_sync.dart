@@ -1,4 +1,12 @@
-part of nyxx_interactions;
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
+import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
+import 'package:nyxx_interactions/src/internal/sync/commands_sync.dart';
 
 /// Manually define command syncing rules
 class LockFileCommandSync implements ICommandsSync {
@@ -15,7 +23,7 @@ class LockFileCommandSync implements ICommandsSync {
         c.description,
         c.guild,
         c.defaultPermissions,
-        c.permissions?.map((p) => _LockfilePermission(p._type, p.id, p.hasPermission)) ?? [],
+        c.permissions?.map((p) => _LockfilePermission(p.type, p.id, p.hasPermission)) ?? [],
         c.options.map((o) => _LockfileOption(o.type.value, o.name, o.description, o.options ?? [])),
       ).generateHash();
     }
@@ -54,10 +62,7 @@ class _LockfileCommand {
       return false;
     }
 
-    if (other.defaultPermissions != this.defaultPermissions ||
-        other.name != this.name ||
-        other.guild != this.guild ||
-        other.defaultPermissions != this.defaultPermissions) {
+    if (other.defaultPermissions != defaultPermissions || other.name != name || other.guild != guild || other.defaultPermissions != defaultPermissions) {
       return false;
     }
 
@@ -89,7 +94,7 @@ class _LockfileOption {
       return false;
     }
 
-    if (other.type != this.type || other.name != this.name || other.description != this.description) {
+    if (other.type != type || other.name != name || other.description != description) {
       return false;
     }
 
@@ -110,9 +115,7 @@ class _LockfilePermission {
       return false;
     }
 
-    if (other.permissionType != this.permissionType ||
-        other.permissionEntityId != this.permissionEntityId ||
-        other.permissionsGranted != this.permissionsGranted) {
+    if (other.permissionType != permissionType || other.permissionEntityId != permissionEntityId || other.permissionsGranted != permissionsGranted) {
       return false;
     }
 

@@ -1,5 +1,3 @@
-part of nyxx_interactions;
-
 /// Thrown when you haven't sent a response yet
 class ResponseRequiredError implements Error {
   /// Returns a string representation of this object.
