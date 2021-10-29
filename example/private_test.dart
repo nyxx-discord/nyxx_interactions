@@ -6,7 +6,7 @@ import "package:nyxx/nyxx.dart";
 void main() {
   final bot = NyxxFactory.createNyxxWebsocket(Platform.environment["BOT_TOKEN"]!, GatewayIntents.allUnprivileged);
 
-  Interactions(bot)
+  Interactions(WebsocketInteractionBackend(bot))
     // ..registerSlashCommand(SlashCommandBuilder("test", "This is command group test", [
     //   CommandOptionBuilder(CommandOptionType.string, "group1", "this is subcommand group", autoComplete: true)
     // ], guild: 302360552993456135.toSnowflake()))

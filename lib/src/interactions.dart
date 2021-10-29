@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:logging/logging.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_interactions/src/backend/interaction_backend.dart';
 
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 import 'package:nyxx_interactions/src/internal/interaction_endpoints.dart';
@@ -13,12 +15,15 @@ import 'package:nyxx_interactions/src/internal/sync/manual_command_sync.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
+import 'package:nyxx_interactions/src/events/interaction_event.dart';
 
 abstract class IInteractions {
   IEventController get events;
 
   /// Reference to client
   INyxx get client;
+
+  InteractionBackend get backend;
 
   /// Commands registered by bot
   Iterable<ISlashCommand> get commands;
@@ -79,7 +84,10 @@ class Interactions implements IInteractions {
 
   /// Reference to client
   @override
-  final INyxx client;
+   INyxx get client => backend.client;
+
+  @override
+  final InteractionBackend backend;
 
   /// Commands registered by bot
   @override
@@ -90,47 +98,44 @@ class Interactions implements IInteractions {
   late final IInteractionsEndpoints interactionsEndpoints;
 
   /// Create new instance of the interactions class.
-  Interactions(this.client) {
+  Interactions(this.backend) {
     events = EventController();
-    client.options.dispatchRawShardEvent = true;
     interactionsEndpoints = InteractionsEndpoints(client);
 
     _logger.info("Interactions ready");
 
-    // client.onReady.listen((event) async {
-    //   client.shardManager.rawEvent.listen((event) {
-    //     if (event.rawData["op"] == OPCodes.dispatch && event.rawData["t"] == _interactionCreateCommand) {
-    //       _logger.fine("Received interaction event: [${event.rawData}]");
-    //
-    //       final type = event.rawData["d"]["type"] as int;
-    //
-    //       switch (type) {
-    //         case 2:
-    //           _events.onSlashCommand.add(SlashCommandInteractionEvent._new(this, event.rawData["d"] as RawApiMap));
-    //           break;
-    //         case 3:
-    //           final componentType = event.rawData["d"]["data"]["component_type"] as int;
-    //
-    //           switch (componentType) {
-    //             case 2:
-    //               _events.onButtonEvent.add(ButtonInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-    //               break;
-    //             case 3:
-    //               _events.onMultiselectEvent.add(MultiselectInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-    //               break;
-    //             default:
-    //               _logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(event.rawData)}");
-    //           }
-    //           break;
-    //         case 4:
-    //           _events.onAutocompleteEvent.add(AutocompleteInteractionEvent._new(this, event.rawData["d"] as Map<String, dynamic>));
-    //           break;
-    //         default:
-    //           _logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(event.rawData)}");
-    //       }
-    //     }
-    //   });
-    // });
+    backend.getStream().listen((rawData) {
+      if (rawData["op"] == 0 && rawData["t"] == _interactionCreateCommand) {
+        _logger.fine("Received interaction event: [$rawData]");
+
+        final type = rawData["d"]["type"] as int;
+
+        switch (type) {
+          case 2:
+            (events as EventController).onSlashCommandController.add(SlashCommandInteractionEvent(this, rawData["d"] as RawApiMap));
+            break;
+          case 3:
+            final componentType = rawData["d"]["data"]["component_type"] as int;
+
+            switch (componentType) {
+              case 2:
+                (events as EventController).onButtonEventController.add(ButtonInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
+                break;
+              case 3:
+                (events as EventController).onMultiselectEventController.add(MultiselectInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
+                break;
+              default:
+                _logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(rawData)}");
+            }
+            break;
+          case 4:
+            (events as EventController).onAutocompleteEventController.add(AutocompleteInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
+            break;
+          default:
+            _logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(rawData)}");
+        }
+      }
+    });
   }
 
   /// Syncs commands builders with discord after client is ready.

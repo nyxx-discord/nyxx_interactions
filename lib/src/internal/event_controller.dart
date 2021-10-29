@@ -4,7 +4,6 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/events/interaction_event.dart';
 import 'package:nyxx_interactions/src/models/slash_command.dart';
-import 'package:nyxx_interactions/src/interactions.dart';
 
 abstract class IEventController implements Disposable {
   /// Emitted when a slash command is sent.

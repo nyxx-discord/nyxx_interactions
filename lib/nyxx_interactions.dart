@@ -36,3 +36,6 @@ export 'src/models/slash_command_type.dart' show SlashCommandType;
 
 export 'src/interactions.dart' show IInteractions, Interactions;
 export 'src/typedefs.dart' show AutocompleteInteractionHandler, ButtonInteractionHandler, MultiselectInteractionHandler, SlashCommandHandler;
+
+export 'src/backend/interaction_backend.dart' show InteractionBackend;
+export 'src/backend/nyxx_backend.dart' show WebsocketInteractionBackend;
