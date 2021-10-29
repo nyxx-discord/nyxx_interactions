@@ -298,7 +298,6 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
   }
 
-  @override
   Future<void> bulkOverrideGlobalCommandsPermissions(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async {
     final globalBody = builders
         .where((builder) => builder.permissions != null && builder.permissions!.isNotEmpty)

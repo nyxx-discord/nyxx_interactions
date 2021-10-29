@@ -16,5 +16,6 @@ class ArgChoiceBuilder extends Builder {
     }
   }
 
+  @override
   RawApiMap build() => {"name": name, "value": value};
 }

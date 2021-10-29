@@ -24,18 +24,23 @@ abstract class IEventController implements Disposable {
 
 class EventController implements IEventController {
   /// Emitted when a slash command is sent.
+  @override
   late final Stream<SlashCommandInteractionEvent> onSlashCommand;
 
   /// Emitted when a button interaction is received.
+  @override
   late final Stream<ButtonInteractionEvent> onButtonEvent;
 
   /// Emitted when a dropdown interaction is received.
+  @override
   late final Stream<MultiselectInteractionEvent> onMultiselectEvent;
 
   /// Emitted when a slash command is created by the user.
+  @override
   late final Stream<SlashCommand> onSlashCommandCreated;
 
   /// Emitted when a slash command is created by the user.
+  @override
   late final Stream<AutocompleteInteractionEvent> onAutocompleteEvent;
 
   /// Emitted when a a slash command is sent.

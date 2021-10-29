@@ -2,7 +2,6 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
-import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 
 /// An argument for a [SlashCommandBuilder].
@@ -59,6 +58,7 @@ class CommandOptionBuilder extends Builder {
     handler = handler;
   }
 
+  @override
   RawApiMap build() => {
         "type": type.value,
         "name": name,
