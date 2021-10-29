@@ -84,7 +84,7 @@ class Interactions implements IInteractions {
 
   /// Reference to client
   @override
-   INyxx get client => backend.client;
+  INyxx get client => backend.client;
 
   @override
   final InteractionBackend backend;
