@@ -1,19 +1,19 @@
 .PHONY: help
-help:
+help: ## Shows this
 	@fgrep -h "##" $(MAKEFILE_LIST) | sed -e 's/\(\:.*\#\#\)/\:\ /' | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-.PHONY: app-check ## Run basic format checks and then generate code coverage
-app-check: format-check generate-coverage
+.PHONY: app-check
+app-check: format-check generate-coverage ## Run basic format checks and then generate code coverage
 
-.PHONY: format-check ## Check basic format
-format-check: format analyze
+.PHONY: format-check
+format-check: format analyze ## Check basic format
 
 .PHONY: generate-coverage
 generate-coverage: unit-tests coverage-format coverage-gen-html ## Run all test and generate html code coverage
 
 .PHONY: unit-tests
 unit-tests: ## Run unit tests with coverage
-	(timeout 10s dart run test --coverage="coverage" --timeout=none test/**; exit 0)
+	(timeout 10s dart run test --coverage="coverage" --timeout=none test/unit/**; exit 0)
 
 .PHONY: coverage-format
 coverage-format: ## Format dart coverage output to lcov
