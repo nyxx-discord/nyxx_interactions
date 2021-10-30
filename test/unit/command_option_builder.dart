@@ -10,7 +10,6 @@ main() {
     expect(builder.handler, isA<SlashCommandHandler>());
   }, skip: 'Currently broken due bug in nyxx');
 
-
   test('.registerHandler failure', () {
     final builder = CommandOptionBuilder(CommandOptionType.user, 'test', 'test');
 
@@ -18,18 +17,14 @@ main() {
   });
 
   test('.build', () {
-    final builder = CommandOptionBuilder(
-        CommandOptionType.channel,
-        'test',
-        'test',
-        choices:  [
+    final builder = CommandOptionBuilder(CommandOptionType.channel, 'test', 'test',
+        choices: [
           ArgChoiceBuilder("arg1", "val1"),
         ],
-        channelTypes:  [
+        channelTypes: [
           ChannelType.text,
         ],
-        autoComplete: true
-    );
+        autoComplete: true);
 
     final expectedResult = {
       "type": CommandOptionType.channel.value,
@@ -38,14 +33,9 @@ main() {
       'default': false,
       'required': false,
       'choices': [
-        {
-          'name': 'arg1',
-          'value': 'val1'
-        }
+        {'name': 'arg1', 'value': 'val1'}
       ],
-      'channel_types': [
-        ChannelType.text
-      ],
+      'channel_types': [ChannelType.text],
       'autocomplete': true
     };
 

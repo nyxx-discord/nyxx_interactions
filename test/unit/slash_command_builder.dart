@@ -37,9 +37,7 @@ void main() {
   });
 
   test('.registerHandler failure', () {
-    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", [
-      CommandOptionBuilder(CommandOptionType.subCommand, "test", 'test')
-    ]);
+    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", [CommandOptionBuilder(CommandOptionType.subCommand, "test", 'test')]);
 
     expect(() => slashCommandBuilder.registerHandler((p0) async => null), throwsA(isA<ArgumentError>()));
   });
