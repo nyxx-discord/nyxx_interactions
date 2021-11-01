@@ -156,7 +156,7 @@ class ButtonBuilder extends ButtonBuilderAbstract {
   /// Creates instance of [ButtonBuilder]
   ButtonBuilder(String label, this.customId, ComponentStyle style, {bool disabled = false, IEmoji? emoji})
       : super(label, style, disabled: disabled, emoji: emoji) {
-    if (this.label.length > 100) {
+    if (customId.length > 100) {
       throw ArgumentError("customId for button cannot have more than 100 characters");
     }
   }
@@ -176,29 +176,29 @@ class ComponentRowBuilder {
 /// Extended [MessageBuilder] with support for buttons
 class ComponentMessageBuilder extends MessageBuilder {
   /// Set of buttons to attach to message. Message can only have 5 rows with 5 buttons each.
-  List<List<ComponentBuilderAbstract>>? components;
+  List<List<ComponentBuilderAbstract>>? componentRows;
 
   /// Allows to add
   void addComponentRow(ComponentRowBuilder componentRowBuilder) {
-    components ??= [];
+    componentRows ??= [];
 
     if (componentRowBuilder._components.length > 5 || componentRowBuilder._components.isEmpty) {
       throw ArgumentError("Component row cannot be empty or have more than 5 components");
     }
 
-    if (components!.length == 5) {
-      throw ArgumentError("There cannot be more that 5 rows of components");
+    if (componentRows!.length == 5) {
+      throw ArgumentError("Maximum number of component rows is 5");
     }
 
-    components!.add(componentRowBuilder._components);
+    componentRows!.add(componentRowBuilder._components);
   }
 
   @override
   RawApiMap build(INyxx client) => {
         ...super.build(client),
-        if (components != null)
+        if (componentRows != null)
           "components": [
-            for (final row in components!)
+            for (final row in componentRows!)
               {
                 "type": ComponentType.row.value,
                 "components": [for (final component in row) component.build()]
