@@ -240,6 +240,8 @@ class Interactions {
   void _assignCommandToHandler(SlashCommandBuilder builder, SlashCommand command) {
     final commandHashPrefix = "${command.id}|${command.name}";
 
+    var allowRootHandler = true;
+
     final subCommands = builder.options.where((element) => element.type == CommandOptionType.subCommand);
     if (subCommands.isNotEmpty) {
       for (final subCommand in subCommands) {
@@ -250,7 +252,7 @@ class Interactions {
         this._commandHandlers["$commandHashPrefix|${subCommand.name}"] = subCommand._handler!;
       }
 
-      return;
+      allowRootHandler = false;
     }
 
     final subCommandGroups = builder.options.where((element) => element.type == CommandOptionType.subCommandGroup);
@@ -268,6 +270,10 @@ class Interactions {
         }
       }
 
+      allowRootHandler = false;
+    }
+
+    if (!allowRootHandler) {
       return;
     }
 
