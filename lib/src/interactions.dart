@@ -296,8 +296,7 @@ class Interactions implements IInteractions {
     final subCommandGroups = builder.options.where((element) => element.type == CommandOptionType.subCommandGroup);
     if (subCommandGroups.isNotEmpty) {
       for (final subCommandGroup in subCommandGroups) {
-        final subCommands =
-            subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
+        final subCommands = subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
 
         for (final subCommand in subCommands) {
           if (subCommand.handler == null) {
