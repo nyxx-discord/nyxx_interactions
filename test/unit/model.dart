@@ -10,10 +10,7 @@ import '../mocks/nyxx_rest.mocks.dart';
 
 main() {
   test('ArgChoice', () {
-    final entity = ArgChoice({
-      "name": "test",
-      "value": "test1"
-    });
+    final entity = ArgChoice({"name": "test", "value": "test1"});
 
     expect(entity.value, equals("test1"));
     expect(entity.name, equals("test"));
@@ -29,7 +26,7 @@ main() {
         {"name": "test", "value": "test1"}
       ],
       'options': [
-        { 'type': 4, 'name': 'subOption', 'description': 'test' }
+        {'type': 4, 'name': 'subOption', 'description': 'test'}
       ],
     });
 
@@ -51,7 +48,7 @@ main() {
       'description': 'testdesc',
       'type': SlashCommandType.chat.value,
       'options': [
-        { 'type': 4, 'name': 'subOption', 'description': 'test' }
+        {'type': 4, 'name': 'subOption', 'description': 'test'}
       ],
     }, client);
 
@@ -72,7 +69,7 @@ main() {
       'type': CommandOptionType.boolean.value,
       'focused': false,
       'options': [
-        { 'type': 4, 'name': 'subOption', 'description': 'test' }
+        {'type': 4, 'name': 'subOption', 'description': 'test'}
       ],
     });
 

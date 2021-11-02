@@ -28,6 +28,4 @@ class ShardManagerMock extends Fake implements IShardManager {
   Stream<IRawEvent> get rawEvent => Stream.value(RawEvent(ShardMock(), {}));
 }
 
-class ShardMock extends Fake implements IShard {
-
-}
+class ShardMock extends Fake implements IShard {}

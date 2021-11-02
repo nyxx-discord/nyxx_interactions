@@ -52,19 +52,27 @@ main() {
   });
 
   test("MultiselectOptionBuilder emoji unicode", () {
-    final builder = MultiselectOptionBuilder("test", 'test')
-        ..emoji = UnicodeEmoji('😂');
+    final builder = MultiselectOptionBuilder("test", 'test')..emoji = UnicodeEmoji('😂');
 
-    final expectedResult = {'label': 'test', 'value': 'test', 'default': false, 'emoji': {'name': '😂'}};
+    final expectedResult = {
+      'label': 'test',
+      'value': 'test',
+      'default': false,
+      'emoji': {'name': '😂'}
+    };
 
     expect(builder.build(), equals(expectedResult));
   });
 
   test("MultiselectOptionBuilder emoji unicode", () {
-    final builder = MultiselectOptionBuilder("test", 'test')
-      ..emoji = IBaseGuildEmoji.fromId(Snowflake.zero());
+    final builder = MultiselectOptionBuilder("test", 'test')..emoji = IBaseGuildEmoji.fromId(Snowflake.zero());
 
-    final expectedResult = {'label': 'test', 'value': 'test', 'default': false, 'emoji': { 'id': '0' }};
+    final expectedResult = {
+      'label': 'test',
+      'value': 'test',
+      'default': false,
+      'emoji': {'id': '0'}
+    };
 
     expect(builder.build(), equals(expectedResult));
   }, skip: "Skipped due bug in nyxx");
@@ -85,18 +93,24 @@ main() {
   });
 
   test("ButtonBuilder label length", () {
-    expect(() => ButtonBuilder('Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', 'test', ComponentStyle.secondary), throwsA(isA<ArgumentError>()));
+    expect(
+        () => ButtonBuilder(
+            'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', 'test', ComponentStyle.secondary),
+        throwsA(isA<ArgumentError>()));
   });
 
   test("ButtonBuilder customId length", () {
-    expect(() => ButtonBuilder('test', 'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', ComponentStyle.secondary), throwsA(isA<ArgumentError>()));
+    expect(
+        () => ButtonBuilder(
+            'test', 'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', ComponentStyle.secondary),
+        throwsA(isA<ArgumentError>()));
   });
 
   test('MultiselectBuilder', () {
-    expect(() => MultiselectBuilder('Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.'), throwsA(isA<ArgumentError>()));
+    expect(() => MultiselectBuilder('Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.'),
+        throwsA(isA<ArgumentError>()));
 
-    final builder = MultiselectBuilder("test")
-      ..addOption(MultiselectOptionBuilder("label", "value"));
+    final builder = MultiselectBuilder("test")..addOption(MultiselectOptionBuilder("label", "value"));
 
     expect(builder.options, hasLength(1));
   });
@@ -111,10 +125,9 @@ Suspendisse aliquet volutpat ante eu ornare. Etiam ante erat, pulvinar vel justo
   });
 
   test("ButtonBuilder emoji", () {
-    final builder = ButtonBuilder("label", "customId", ComponentStyle.primary)
-        ..emoji = UnicodeEmoji('😂');
+    final builder = ButtonBuilder("label", "customId", ComponentStyle.primary)..emoji = UnicodeEmoji('😂');
 
-    final expectedResult =  {
+    final expectedResult = {
       'type': 2,
       'label': 'label',
       'style': 1,
