@@ -278,6 +278,8 @@ class Interactions implements IInteractions {
   void _assignCommandToHandler(SlashCommandBuilder builder, ISlashCommand command) {
     final commandHashPrefix = "${command.id}|${command.name}";
 
+    var allowRootHandler = true;
+
     final subCommands = builder.options.where((element) => element.type == CommandOptionType.subCommand);
     if (subCommands.isNotEmpty) {
       for (final subCommand in subCommands) {
@@ -288,13 +290,14 @@ class Interactions implements IInteractions {
         _commandHandlers["$commandHashPrefix|${subCommand.name}"] = subCommand.handler!;
       }
 
-      return;
+      allowRootHandler = false;
     }
 
     final subCommandGroups = builder.options.where((element) => element.type == CommandOptionType.subCommandGroup);
     if (subCommandGroups.isNotEmpty) {
       for (final subCommandGroup in subCommandGroups) {
-        final subCommands = subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
+        final subCommands =
+            subCommandGroup.options?.where((element) => element.type == CommandOptionType.subCommand) ?? [];
 
         for (final subCommand in subCommands) {
           if (subCommand.handler == null) {
@@ -305,6 +308,10 @@ class Interactions implements IInteractions {
         }
       }
 
+      allowRootHandler = false;
+    }
+
+    if (!allowRootHandler) {
       return;
     }
 
