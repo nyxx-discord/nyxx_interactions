@@ -81,6 +81,6 @@ class SlashCommandBuilder extends Builder {
       throw ArgumentError("Cannot register handler for slash command if command have subcommand or subcommandgroup");
     }
 
-    handler = handler;
+    this.handler = handler;
   }
 }

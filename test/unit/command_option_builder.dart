@@ -8,7 +8,7 @@ main() {
 
     builder.registerHandler((p0) async => null);
     expect(builder.handler, isA<SlashCommandHandler>());
-  }, skip: 'Currently broken due bug in nyxx');
+  });
 
   test('.registerHandler failure', () {
     final builder = CommandOptionBuilder(CommandOptionType.user, 'test', 'test');

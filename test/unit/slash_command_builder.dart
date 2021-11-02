@@ -47,7 +47,7 @@ void main() {
 
     slashCommandBuilder.registerHandler((p0) async => null);
     expect(slashCommandBuilder.handler, isA<SlashCommandHandler>());
-  }, skip: 'Currently broken due bug in nyxx');
+  });
 
   test('.build', () {
     final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", []);

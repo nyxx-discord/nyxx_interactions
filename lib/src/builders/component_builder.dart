@@ -38,7 +38,7 @@ class MultiselectOptionBuilder extends Builder {
         "default": isDefault,
         if (emoji != null)
           "emoji": {
-            if (emoji is IGuildEmoji) "id": (emoji as IGuildEmoji).id,
+            if (emoji is IBaseGuildEmoji) "id": (emoji as IBaseGuildEmoji).id.toString(),
             if (emoji is UnicodeEmoji) "name": (emoji as UnicodeEmoji).code,
             if (emoji is IGuildEmoji) "animated": (emoji as IGuildEmoji).animated,
           },

@@ -75,7 +75,7 @@ main() {
     };
 
     expect(builder.build(), equals(expectedResult));
-  }, skip: "Skipped due bug in nyxx");
+  });
 
   test('ComponentMessageBuilder component rows', () {
     final messageBuilder = ComponentMessageBuilder();

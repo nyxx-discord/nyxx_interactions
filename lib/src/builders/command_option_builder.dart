@@ -55,7 +55,7 @@ class CommandOptionBuilder extends Builder {
       throw StateError("Cannot register handler for command option with type other that subcommand");
     }
 
-    handler = handler;
+    this.handler = handler;
   }
 
   @override
