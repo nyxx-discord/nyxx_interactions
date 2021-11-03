@@ -1,7 +1,12 @@
-## 2.0.2
-_02.11.2021_
+## 2.0.3
+_03.11.2021_
 
 - allow handlers on different nesting layers, closes nyxx#233 (664fd7cdab23ccbf037e4d29ead92178de7e7660) @abitofevrything
+
+## 2.0.2
+_15.10.2021_
+
+- Move to Apache 2 license
 
 ## 2.0.1
 _03.10.2021_
