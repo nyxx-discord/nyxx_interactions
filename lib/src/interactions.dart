@@ -102,6 +102,8 @@ class Interactions implements IInteractions {
     events = EventController();
     interactionsEndpoints = InteractionsEndpoints(client);
 
+    backend.setup();
+
     _logger.info("Interactions ready");
 
     backend.getStream().listen((rawData) {
