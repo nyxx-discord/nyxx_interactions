@@ -3,3 +3,4 @@
 .dart_tool
 pubspec.lock
 .packages
+private_test.dart
