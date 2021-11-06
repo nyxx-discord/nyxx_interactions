@@ -198,8 +198,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Stream<ISlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async* {
     final response = await _client.httpEndpoints
-        .sendRawRequest("/applications/${'_client.app.id'}/guilds/$guildId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
-// TODO: fix client.app.id
+        .sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
     }

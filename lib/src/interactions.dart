@@ -143,9 +143,9 @@ class Interactions implements IInteractions {
   /// Syncs commands builders with discord after client is ready.
   @override
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()}) {
-    // client.onReady.listen((_) async {
-    //   await sync(syncRule: syncRule);
-    // });
+    client.onReady.listen((_) async {
+      await sync(syncRule: syncRule);
+    });
   }
 
   /// Syncs command builders with discord immediately.
