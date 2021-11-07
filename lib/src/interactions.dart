@@ -144,7 +144,7 @@ class Interactions implements IInteractions {
     client.onReady.listen((_) async {
       await sync(syncRule: syncRule);
 
-      if (_commandHandlers  .isNotEmpty) {
+      if (_commandHandlers.isNotEmpty) {
         events.onSlashCommand.listen((event) async {
           final commandHash = determineInteractionCommandHandler(event.interaction);
 
