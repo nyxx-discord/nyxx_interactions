@@ -143,6 +143,56 @@ class Interactions implements IInteractions {
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()}) {
     client.onReady.listen((_) async {
       await sync(syncRule: syncRule);
+
+      if (_commandHandlers  .isNotEmpty) {
+        events.onSlashCommand.listen((event) async {
+          final commandHash = determineInteractionCommandHandler(event.interaction);
+
+          _logger.info("Executing command with hash [$commandHash]");
+          if (_commandHandlers.containsKey(commandHash)) {
+            await _commandHandlers[commandHash]!(event);
+          }
+        });
+
+        _logger.info("Finished registering ${_commandHandlers.length} commands!");
+      }
+
+      if (_buttonHandlers.isNotEmpty) {
+        events.onButtonEvent.listen((event) {
+          if (_buttonHandlers.containsKey(event.interaction.customId)) {
+            _logger.info("Executing button with id [${event.interaction.customId}]");
+            _buttonHandlers[event.interaction.customId]!(event);
+          } else {
+            _logger.warning("Received event for unknown button: ${event.interaction.customId}");
+          }
+        });
+      }
+
+      if (_multiselectHandlers.isNotEmpty) {
+        events.onMultiselectEvent.listen((event) {
+          if (_multiselectHandlers.containsKey(event.interaction.customId)) {
+            _logger.info("Executing multiselect with id [${event.interaction.customId}]");
+            _multiselectHandlers[event.interaction.customId]!(event);
+          } else {
+            _logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
+          }
+        });
+      }
+
+      if (_autocompleteHandlers.isNotEmpty) {
+        events.onAutocompleteEvent.listen((event) {
+          final name = event.focusedOption.name;
+          final commandHash = determineInteractionCommandHandler(event.interaction);
+          final autocompleteHash = "$commandHash$name";
+
+          if (_autocompleteHandlers.containsKey(autocompleteHash)) {
+            _logger.info("Executing autocomplete with id [$autocompleteHash]");
+            _autocompleteHandlers[autocompleteHash]!(event);
+          } else {
+            _logger.warning("Received event for unknown dropdown: $autocompleteHash");
+          }
+        });
+      }
     });
   }
 
@@ -151,79 +201,44 @@ class Interactions implements IInteractions {
   /// Use [syncOnReady] for proper behavior
   @override
   Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()}) async {
-    if (!await syncRule.shouldSync(_commandBuilders)) {
-      return;
-    }
+    final shouldSync = await syncRule.shouldSync(_commandBuilders);
 
     final commandPartition = partition<SlashCommandBuilder>(_commandBuilders, (element) => element.guild == null);
     final globalCommands = commandPartition.first;
     final groupedGuildCommands = groupSlashCommandBuilders(commandPartition.last);
 
-    final globalCommandsResponse = await interactionsEndpoints.bulkOverrideGlobalCommands(client.appId, globalCommands).toList();
+    if (shouldSync) {
+      final globalCommandsResponse = await interactionsEndpoints.bulkOverrideGlobalCommands(client.appId, globalCommands).toList();
+      _extractCommandIds(globalCommandsResponse);
 
-    _extractCommandIds(globalCommandsResponse);
-    _registerCommandHandlers(globalCommandsResponse, globalCommands);
+      for (final command in globalCommandsResponse) {
+        _commands.add(command);
+      }
+    }
+
+    for (final globalCommandBuilder in globalCommands) {
+      _assignCommandToHandler(globalCommandBuilder);
+    }
 
     for (final entry in groupedGuildCommands.entries) {
-      final response = await interactionsEndpoints.bulkOverrideGuildCommands(client.appId, entry.key, entry.value).toList();
+      if (shouldSync) {
+        final response = await interactionsEndpoints.bulkOverrideGuildCommands(client.appId, entry.key, entry.value).toList();
+        _extractCommandIds(response);
 
-      _extractCommandIds(response);
-      _registerCommandHandlers(response, entry.value);
+        for (final command in response) {
+          _commands.add(command);
+        }
+      }
+
+      for (final globalCommandBuilder in entry.value) {
+        _assignCommandToHandler(globalCommandBuilder);
+      }
+
       await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
     }
 
     _commandBuilders.clear(); // Cleanup after registering command since we don't need this anymore
     _logger.info("Finished bulk overriding slash commands and permissions");
-
-    if (_commands.isNotEmpty) {
-      events.onSlashCommand.listen((event) async {
-        final commandHash = determineInteractionCommandHandler(event.interaction);
-
-        _logger.info("Executing command with hash [$commandHash]");
-        if (_commandHandlers.containsKey(commandHash)) {
-          await _commandHandlers[commandHash]!(event);
-        }
-      });
-
-      _logger.info("Finished registering ${_commandHandlers.length} commands!");
-    }
-
-    if (_buttonHandlers.isNotEmpty) {
-      events.onButtonEvent.listen((event) {
-        if (_buttonHandlers.containsKey(event.interaction.customId)) {
-          _logger.info("Executing button with id [${event.interaction.customId}]");
-          _buttonHandlers[event.interaction.customId]!(event);
-        } else {
-          _logger.warning("Received event for unknown button: ${event.interaction.customId}");
-        }
-      });
-    }
-
-    if (_multiselectHandlers.isNotEmpty) {
-      events.onMultiselectEvent.listen((event) {
-        if (_multiselectHandlers.containsKey(event.interaction.customId)) {
-          _logger.info("Executing multiselect with id [${event.interaction.customId}]");
-          _multiselectHandlers[event.interaction.customId]!(event);
-        } else {
-          _logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
-        }
-      });
-    }
-
-    if (_autocompleteHandlers.isNotEmpty) {
-      events.onAutocompleteEvent.listen((event) {
-        final name = event.focusedOption.name;
-        final commandHash = determineInteractionCommandHandler(event.interaction);
-        final autocompleteHash = "$commandHash$name";
-
-        if (_autocompleteHandlers.containsKey(autocompleteHash)) {
-          _logger.info("Executing autocomplete with id [$autocompleteHash]");
-          _autocompleteHandlers[autocompleteHash]!(event);
-        } else {
-          _logger.warning("Received event for unknown dropdown: $autocompleteHash");
-        }
-      });
-    }
   }
 
   /// Registers callback for button event for given [id]
@@ -264,14 +279,14 @@ class Interactions implements IInteractions {
     }
   }
 
-  void _registerCommandHandlers(List<ISlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
-    for (final registeredCommand in registeredSlashCommands) {
-      final matchingBuilder = builders.firstWhere((element) => element.name.toLowerCase() == registeredCommand.name);
-      _assignCommandToHandler(matchingBuilder, registeredCommand);
-
-      _commands.add(registeredCommand);
-    }
-  }
+  // void _registerCommandHandlers(List<ISlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
+  //   for (final registeredCommand in registeredSlashCommands) {
+  //     final matchingBuilder = builders.firstWhere((element) => element.name.toLowerCase() == registeredCommand.name);
+  //     _assignCommandToHandler(matchingBuilder);
+  //
+  //     _commands.add(registeredCommand);
+  //   }
+  // }
 
   void _assignAutoCompleteHandler(String commandHash, Iterable<CommandOptionBuilder> options) {
     for (final option in options) {
@@ -283,8 +298,8 @@ class Interactions implements IInteractions {
     }
   }
 
-  void _assignCommandToHandler(SlashCommandBuilder builder, ISlashCommand command) {
-    final commandHashPrefix = "${command.id}|${command.name}";
+  void _assignCommandToHandler(SlashCommandBuilder builder) {
+    final commandHashPrefix = builder.name;
 
     var allowRootHandler = true;
 

@@ -26,7 +26,7 @@ Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate)
 
 /// Determine what handler should be executed based on [interaction]
 String determineInteractionCommandHandler(ISlashCommandInteraction interaction) {
-  final commandHash = "${interaction.commandId}|${interaction.name}";
+  final commandHash = interaction.name;
 
   try {
     final subCommandGroup = interaction.options.firstWhere((element) => element.type == CommandOptionType.subCommandGroup);
