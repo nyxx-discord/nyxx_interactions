@@ -16,6 +16,7 @@ import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 import 'package:nyxx_interactions/src/events/interaction_event.dart';
+import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
 
 abstract class IInteractions {
   IEventController get events;
@@ -38,9 +39,6 @@ abstract class IInteractions {
   /// Warning: Client could not be ready at the function execution.
   /// Use [syncOnReady] for proper behavior
   Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()});
-
-  /// Registers callback for button event for given [id]
-  void registerAutocompleteHandler(String id, AutocompleteInteractionHandler handler);
 
   /// Registers callback for button event for given [id]
   void registerButtonHandler(String id, ButtonInteractionHandler handler);
@@ -215,20 +213,18 @@ class Interactions implements IInteractions {
     if (_autocompleteHandlers.isNotEmpty) {
       events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
+        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final autocompleteHash = "$commandHash$name";
 
-        if (_autocompleteHandlers.containsKey(name)) {
-          _logger.info("Executing autocomplete with id [$name]");
-          _autocompleteHandlers[name]!(event);
+        if (_autocompleteHandlers.containsKey(autocompleteHash)) {
+          _logger.info("Executing autocomplete with id [$autocompleteHash]");
+          _autocompleteHandlers[autocompleteHash]!(event);
         } else {
-          _logger.warning("Received event for unknown dropdown: $name");
+          _logger.warning("Received event for unknown dropdown: $autocompleteHash");
         }
       });
     }
   }
-
-  /// Registers callback for button event for given [id]
-  @override
-  void registerAutocompleteHandler(String id, AutocompleteInteractionHandler handler) => _autocompleteHandlers[id] = handler;
 
   /// Registers callback for button event for given [id]
   @override
@@ -277,6 +273,16 @@ class Interactions implements IInteractions {
     }
   }
 
+  void _assignAutoCompleteHandler(String commandHash, Iterable<CommandOptionBuilder> options) {
+    for (final option in options) {
+      if (!option.autoComplete || option.autocompleteHandler == null) {
+        continue;
+      }
+
+      _autocompleteHandlers['$commandHash${option.name}'] = option.autocompleteHandler!;
+    }
+  }
+
   void _assignCommandToHandler(SlashCommandBuilder builder, ISlashCommand command) {
     final commandHashPrefix = "${command.id}|${command.name}";
 
@@ -289,7 +295,9 @@ class Interactions implements IInteractions {
           continue;
         }
 
-        _commandHandlers["$commandHashPrefix|${subCommand.name}"] = subCommand.handler!;
+        final hash = "$commandHashPrefix|${subCommand.name}";
+        _commandHandlers[hash] = subCommand.handler!;
+        _assignAutoCompleteHandler(hash, subCommand.options ?? []);
       }
 
       allowRootHandler = false;
@@ -305,7 +313,9 @@ class Interactions implements IInteractions {
             continue;
           }
 
-          _commandHandlers["$commandHashPrefix|${subCommandGroup.name}|${subCommand.name}"] = subCommand.handler!;
+          final hash = "$commandHashPrefix|${subCommandGroup.name}|${subCommand.name}";
+          _commandHandlers[hash] = subCommand.handler!;
+          _assignAutoCompleteHandler(hash, subCommand.options ?? []);
         }
       }
 
@@ -318,6 +328,7 @@ class Interactions implements IInteractions {
 
     if (builder.handler != null) {
       _commandHandlers[commandHashPrefix] = builder.handler!;
+      _assignAutoCompleteHandler(commandHashPrefix, builder.options);
     }
   }
 }

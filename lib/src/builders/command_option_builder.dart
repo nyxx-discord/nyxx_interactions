@@ -41,13 +41,15 @@ class CommandOptionBuilder extends Builder {
   List<ChannelType>? channelTypes;
 
   /// Set to true if option should be autocompleted
-  bool? autoComplete;
+  bool autoComplete;
 
   SlashCommandHandler? handler;
 
+  AutocompleteInteractionHandler? autocompleteHandler;
+
   /// Used to create an argument for a [SlashCommandBuilder].
   CommandOptionBuilder(this.type, this.name, this.description,
-      {this.defaultArg = false, this.required = false, this.choices, this.options, this.channelTypes, this.autoComplete});
+      {this.defaultArg = false, this.required = false, this.choices, this.options, this.channelTypes, this.autoComplete = false});
 
   /// Registers handler for subcommand
   void registerHandler(SlashCommandHandler handler) {
@@ -56,6 +58,15 @@ class CommandOptionBuilder extends Builder {
     }
 
     this.handler = handler;
+  }
+
+  void registerAutocompleteHandler(AutocompleteInteractionHandler handler) {
+    if (choices != null || options != null) {
+      throw ArgumentError("Autocomplete cannot be set if choices or options are present");
+    }
+
+    autocompleteHandler = handler;
+    autoComplete = true;
   }
 
   @override
@@ -68,6 +79,6 @@ class CommandOptionBuilder extends Builder {
         if (choices != null) "choices": choices!.map((e) => e.build()).toList(),
         if (options != null) "options": options!.map((e) => e.build()).toList(),
         if (channelTypes != null && type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
-        if (autoComplete != null) "autocomplete": autoComplete,
+        "autocomplete": autoComplete,
       };
 }

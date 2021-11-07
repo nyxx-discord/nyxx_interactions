@@ -54,6 +54,9 @@ abstract class IAutocompleteInteractionEvent implements InteractionEventAbstract
   /// Returns focused option of autocomplete
   IInteractionOption get focusedOption;
 
+  /// List of autocomplete options
+  late final Iterable<IInteractionOption> options;
+
   /// Responds to interaction
   Future<void> respond(List<ArgChoiceBuilder> builders);
 }
@@ -62,15 +65,17 @@ class AutocompleteInteractionEvent extends InteractionEventAbstract<ISlashComman
   @override
   late final ISlashCommandInteraction interaction;
 
-  /// Returns focused option of autocomplete
   @override
-  IInteractionOption get focusedOption => extractArgs(interaction.options).firstWhere((element) => element.isFocused);
+  IInteractionOption get focusedOption => options.firstWhere((element) => element.isFocused);
+
+  @override
+  late final Iterable<IInteractionOption> options;
 
   AutocompleteInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions) {
     interaction = SlashCommandInteraction(client, raw);
+    options = extractArgs(interaction.options);
   }
 
-  /// Responds to interaction
   @override
   Future<void> respond(List<ArgChoiceBuilder> builders) async {
     if (DateTime.now().difference(receivedAt).inSeconds > 3) {
