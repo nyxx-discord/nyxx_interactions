@@ -238,7 +238,7 @@ class Interactions implements IInteractions {
     }
 
     _commandBuilders.clear(); // Cleanup after registering command since we don't need this anymore
-    _logger.info("Finished bulk overriding slash commands and permissions");
+    _logger.info("Finished registering commands");
   }
 
   /// Registers callback for button event for given [id]
