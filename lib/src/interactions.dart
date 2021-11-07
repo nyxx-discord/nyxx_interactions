@@ -35,11 +35,6 @@ abstract class IInteractions {
   /// Syncs commands builders with discord after client is ready.
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()});
 
-  /// Syncs command builders with discord immediately.
-  /// Warning: Client could not be ready at the function execution.
-  /// Use [syncOnReady] for proper behavior
-  Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()});
-
   /// Registers callback for button event for given [id]
   void registerButtonHandler(String id, ButtonInteractionHandler handler);
 
@@ -199,7 +194,6 @@ class Interactions implements IInteractions {
   /// Syncs command builders with discord immediately.
   /// Warning: Client could not be ready at the function execution.
   /// Use [syncOnReady] for proper behavior
-  @override
   Future<void> sync({ICommandsSync syncRule = const ManualCommandSync()}) async {
     final shouldSync = await syncRule.shouldSync(_commandBuilders);
 
