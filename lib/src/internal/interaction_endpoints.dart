@@ -97,11 +97,11 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> deleteFollowup(String token, Snowflake applicationId, Snowflake messageId) =>
-      _client.httpEndpoints.sendRawRequest("webhooks/$applicationId/$token/IMessages/$messageId", "DELETE");
+      _client.httpEndpoints.sendRawRequest("webhooks/$applicationId/$token/messages/$messageId", "DELETE");
 
   @override
   Future<void> deleteOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
-    final url = "/webhooks/$applicationId/$token/IMessages/@original";
+    final url = "/webhooks/$applicationId/$token/messages/@original";
     const method = "DELETE";
 
     final response = await _client.httpEndpoints.sendRawRequest(url, method);
@@ -112,7 +112,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> editFollowup(String token, Snowflake applicationId, Snowflake messageId, MessageBuilder builder) async {
-    final url = "/webhooks/$applicationId/$token/IMessages/$messageId";
+    final url = "/webhooks/$applicationId/$token/messages/$messageId";
     final body = builder.build(_client);
 
     final response = await _client.httpEndpoints.sendRawRequest(url, "PATCH", body: body);
@@ -125,7 +125,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> editOriginalResponse(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/IMessages/@original", "PATCH", body: builder.build(_client));
+    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH", body: builder.build(_client));
 
     if (response is IHttpResponseError) {
       return Future.error(response);
@@ -136,7 +136,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> fetchOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/IMessages/@original", "GET");
+    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "GET");
 
     if (response is IHttpResponseError) {
       return Future.error(response);
@@ -147,7 +147,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/IMessages/@original", "PATCH",
+    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH",
         body: {if (hidden) "flags": 1 << 6, ...builder.build(_client)}, files: builder.files ?? []);
 
     if (response is IHttpResponseError) {
@@ -324,7 +324,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> fetchFollowup(String token, Snowflake applicationId, Snowflake messageId) async {
-    final result = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/IMessages/${messageId.toString()}", "GET");
+    final result = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/${messageId.toString()}", "GET");
 
     if (result is IHttpResponseError) {
       return Future.error(result);
