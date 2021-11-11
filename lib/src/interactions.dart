@@ -58,6 +58,8 @@ abstract class IInteractions {
 
   /// Fetches all guild commands for given guild
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId);
+
+  static IInteractions create(InteractionBackend backend) => Interactions(backend);
 }
 
 /// Interaction extension for Nyxx. Allows use of: Slash Commands.

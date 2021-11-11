@@ -57,7 +57,7 @@ Future<void> multiselectHandlerHandler(IMultiselectInteractionEvent event) async
 
 void main() {
   final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
-  Interactions(WebsocketInteractionBackend(bot))
+  IInteractions.create(WebsocketInteractionBackend(bot))
     ..registerSlashCommand(singleCommand) // Register created before slash command
     ..registerButtonHandler("thisisid", buttonHandler) // register handler for button with id: thisisid
     ..registerMultiselectHandler("customId", multiselectHandlerHandler) // register handler for multiselect with id: customId
