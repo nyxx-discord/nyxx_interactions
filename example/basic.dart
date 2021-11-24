@@ -35,7 +35,12 @@ final subCommandFlipGame = CommandOptionBuilder(CommandOptionType.subCommand, "c
   });
 
 void main() {
-  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged)
+    ..registerPlugin(Logging()) // Default logging plugin
+    ..registerPlugin(CliIntegration()) // Cli integration for nyxx allows stopping application via SIGTERM and SIGKILl
+    ..registerPlugin(IgnoreExceptions()) // Plugin that handles uncaught exceptions that may occur
+    ..connect();
+
   IInteractions.create(WebsocketInteractionBackend(bot))
     ..registerSlashCommand(singleCommand) // Register created before slash command
     ..syncOnReady(); // This is needed if you want to sync commands on bot startup.
