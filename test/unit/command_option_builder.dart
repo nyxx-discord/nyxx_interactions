@@ -6,14 +6,14 @@ main() {
   test('.registerHandler success', () {
     final builder = CommandOptionBuilder(CommandOptionType.subCommand, 'test', 'test');
 
-    builder.registerHandler((p0) async => null);
+    builder.registerHandler((p0) => Future.value());
     expect(builder.handler, isA<SlashCommandHandler>());
   });
 
   test('.registerHandler failure', () {
     final builder = CommandOptionBuilder(CommandOptionType.user, 'test', 'test');
 
-    expect(() => builder.registerHandler((p0) async => null), throwsA(isA<StateError>()));
+    expect(() => builder.registerHandler((p0) => Future.value()), throwsA(isA<StateError>()));
   });
 
   test('.build', () {

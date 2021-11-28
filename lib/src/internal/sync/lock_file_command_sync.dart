@@ -68,6 +68,9 @@ class _LockfileCommand {
 
     return true;
   }
+
+  @override
+  int get hashCode => name.hashCode + guild.hashCode + defaultPermissions.hashCode + permissions.hashCode + description.hashCode + options.hashCode;
 }
 
 class _LockfileOption {
@@ -100,6 +103,9 @@ class _LockfileOption {
 
     return true;
   }
+
+  @override
+  int get hashCode => type.hashCode + name.hashCode + description.hashCode;
 }
 
 class _LockfilePermission {
@@ -121,4 +127,7 @@ class _LockfilePermission {
 
     return true;
   }
+
+  @override
+  int get hashCode => permissionType.hashCode + permissionEntityId.hashCode + permissionsGranted.hashCode;
 }
