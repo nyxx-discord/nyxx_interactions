@@ -11,4 +11,6 @@ abstract class InteractionBackend {
 
   Stream<ApiData> getStream();
   StreamController<ApiData> getStreamController();
+
+  Stream<void> getReadyStream();
 }

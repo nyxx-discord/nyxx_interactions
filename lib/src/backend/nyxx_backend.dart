@@ -19,7 +19,7 @@ class WebsocketInteractionBackend implements InteractionBackend {
     _stream = _streamController.stream;
 
     client.options.dispatchRawShardEvent = true;
-    client.eventsWs.onReady.first.then((_) {
+    getReadyStream().listen((_) {
       client.shardManager.rawEvent.map((event) => event.rawData).pipe(_streamController);
     });
   }
@@ -29,4 +29,7 @@ class WebsocketInteractionBackend implements InteractionBackend {
 
   @override
   StreamController<ApiData> getStreamController() => _streamController;
+
+  @override
+  Stream<void> getReadyStream() => client.eventsWs.onReady;
 }

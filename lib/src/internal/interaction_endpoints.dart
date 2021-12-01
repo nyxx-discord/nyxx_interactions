@@ -184,7 +184,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Stream<ISlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async* {
     final response =
-        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
+        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "PUT", body: [for (final builder in builders) builder.build()], auth: true);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -198,7 +198,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Stream<ISlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async* {
     final response = await _client.httpEndpoints
-        .sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "PUT", body: [for (final builder in builders) builder.build()]);
+        .sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "PUT", body: [for (final builder in builders) builder.build()], auth: true);
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
     }
@@ -210,7 +210,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> deleteGlobalCommand(Snowflake applicationId, Snowflake commandId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "DELETE");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "DELETE", auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -219,7 +219,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<void> deleteGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "DELETE");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "DELETE", auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -228,7 +228,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<ISlashCommand> editGlobalCommand(Snowflake applicationId, Snowflake commandId, SlashCommandBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "PATCH", body: builder.build());
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "PATCH", body: builder.build(), auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -240,7 +240,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Future<ISlashCommand> editGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, SlashCommandBuilder builder) async {
     final response =
-        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", body: builder.build());
+        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", body: builder.build(), auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -251,7 +251,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<ISlashCommand> fetchGlobalCommand(Snowflake applicationId, Snowflake commandId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "GET");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/$commandId", "GET", auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -262,7 +262,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET", auth: true);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -275,7 +275,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -286,7 +286,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET");
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET", auth: true);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -306,7 +306,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
             })
         .toList();
 
-    await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/permissions", "PUT", body: globalBody);
+    await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands/permissions", "PUT", body: globalBody, auth: true);
   }
 
   @override
@@ -319,12 +319,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
             })
         .toList();
 
-    await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/permissions", "PUT", body: guildBody);
+    await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/permissions", "PUT", body: guildBody, auth: true);
   }
 
   @override
   Future<IMessage> fetchFollowup(String token, Snowflake applicationId, Snowflake messageId) async {
-    final result = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/${messageId.toString()}", "GET");
+    final result = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/${messageId.toString()}", "GET", auth: true);
 
     if (result is IHttpResponseError) {
       return Future.error(result);

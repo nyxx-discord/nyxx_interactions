@@ -138,7 +138,7 @@ class Interactions implements IInteractions {
   /// Syncs commands builders with discord after client is ready.
   @override
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()}) {
-    client.onReady.listen((_) async {
+    backend.getReadyStream().listen((_) async {
       await sync(syncRule: syncRule);
 
       if (_commandHandlers.isNotEmpty) {
@@ -274,15 +274,6 @@ class Interactions implements IInteractions {
       _commandBuilders.firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id).setId(slashCommand.id);
     }
   }
-
-  // void _registerCommandHandlers(List<ISlashCommand> registeredSlashCommands, Iterable<SlashCommandBuilder> builders) {
-  //   for (final registeredCommand in registeredSlashCommands) {
-  //     final matchingBuilder = builders.firstWhere((element) => element.name.toLowerCase() == registeredCommand.name);
-  //     _assignCommandToHandler(matchingBuilder);
-  //
-  //     _commands.add(registeredCommand);
-  //   }
-  // }
 
   void _assignAutoCompleteHandler(String commandHash, Iterable<CommandOptionBuilder> options) {
     for (final option in options) {
