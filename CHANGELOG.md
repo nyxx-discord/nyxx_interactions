@@ -1,3 +1,8 @@
+## 3.0.0-dev.1
+__04.12.2021__
+
+- Fix critical bug preventing commands from being registered
+
 ## 3.0.0-dev.0
 __24.11.2021__
 
