@@ -183,8 +183,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<ISlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async* {
-    final response =
-        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "PUT", body: [for (final builder in builders) builder.build()], auth: true);
+    final response = await _client.httpEndpoints
+        .sendRawRequest("/applications/$applicationId/commands", "PUT", body: [for (final builder in builders) builder.build()], auth: true);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -239,8 +239,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<ISlashCommand> editGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, SlashCommandBuilder builder) async {
-    final response =
-        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", body: builder.build(), auth: true);
+    final response = await _client.httpEndpoints
+        .sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", body: builder.build(), auth: true);
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
