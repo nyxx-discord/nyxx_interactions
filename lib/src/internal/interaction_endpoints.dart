@@ -7,7 +7,7 @@ import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 
 abstract class IInteractionsEndpoints {
   /// Sends followup for interaction with given [token]. IMessage will be created with [builder]
-  Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder);
+  Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder, {bool hidden = false});
 
   /// Fetches followup message from API
   Future<IMessage> fetchFollowup(String token, Snowflake applicationId, Snowflake messageId);
@@ -170,9 +170,13 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response =
-        await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token", "POST", body: builder.build(_client), files: builder.files ?? []);
+  Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder, {bool hidden = false}) async {
+    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token", "POST",
+        body: {
+          ...builder.build(_client),
+          if (hidden) 'flags': 1 << 6,
+        },
+        files: builder.files ?? []);
 
     if (response is IHttpResponseError) {
       return Future.error(response);

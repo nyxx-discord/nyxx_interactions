@@ -88,7 +88,7 @@ class AutocompleteInteractionEvent extends InteractionEventAbstract<ISlashComman
 
 abstract class IInteractionEventWithAcknowledge<T extends IInteraction> implements IInteractionEvent<T> {
   /// Create a followup message for an Interaction
-  Future<IMessage> sendFollowup(MessageBuilder builder);
+  Future<IMessage> sendFollowup(MessageBuilder builder, {bool hidden = false});
 
   /// Edits followup message
   Future<IMessage> editFollowup(Snowflake messageId, MessageBuilder builder);
@@ -132,13 +132,13 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
 
   /// Create a followup message for an Interaction
   @override
-  Future<IMessage> sendFollowup(MessageBuilder builder) async {
+  Future<IMessage> sendFollowup(MessageBuilder builder, {bool hidden = false}) async {
     if (!_hasAcked) {
       return Future.error(ResponseRequiredError());
     }
     logger.fine("Sending followup for for interaction: ${interaction.id}");
 
-    return interactions.interactionsEndpoints.sendFollowup(interaction.token, client.appId, builder);
+    return interactions.interactionsEndpoints.sendFollowup(interaction.token, client.appId, builder, hidden: hidden);
   }
 
   /// Edits followup message
