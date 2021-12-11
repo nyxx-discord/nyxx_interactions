@@ -145,56 +145,6 @@ class Interactions implements IInteractions {
   void syncOnReady({ICommandsSync syncRule = const ManualCommandSync()}) {
     backend.getReadyStream().listen((_) async {
       await sync(syncRule: syncRule);
-
-      if (_commandHandlers.isNotEmpty) {
-        events.onSlashCommand.listen((event) async {
-          final commandHash = determineInteractionCommandHandler(event.interaction);
-
-          _logger.info("Executing command with hash [$commandHash]");
-          if (_commandHandlers.containsKey(commandHash)) {
-            await _commandHandlers[commandHash]!(event);
-          }
-        });
-
-        _logger.info("Finished registering ${_commandHandlers.length} commands!");
-      }
-
-      if (_buttonHandlers.isNotEmpty) {
-        events.onButtonEvent.listen((event) {
-          if (_buttonHandlers.containsKey(event.interaction.customId)) {
-            _logger.info("Executing button with id [${event.interaction.customId}]");
-            _buttonHandlers[event.interaction.customId]!(event);
-          } else {
-            _logger.warning("Received event for unknown button: ${event.interaction.customId}");
-          }
-        });
-      }
-
-      if (_multiselectHandlers.isNotEmpty) {
-        events.onMultiselectEvent.listen((event) {
-          if (_multiselectHandlers.containsKey(event.interaction.customId)) {
-            _logger.info("Executing multiselect with id [${event.interaction.customId}]");
-            _multiselectHandlers[event.interaction.customId]!(event);
-          } else {
-            _logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
-          }
-        });
-      }
-
-      if (_autocompleteHandlers.isNotEmpty) {
-        events.onAutocompleteEvent.listen((event) {
-          final name = event.focusedOption.name;
-          final commandHash = determineInteractionCommandHandler(event.interaction);
-          final autocompleteHash = "$commandHash$name";
-
-          if (_autocompleteHandlers.containsKey(autocompleteHash)) {
-            _logger.info("Executing autocomplete with id [$autocompleteHash]");
-            _autocompleteHandlers[autocompleteHash]!(event);
-          } else {
-            _logger.warning("Received event for unknown dropdown: $autocompleteHash");
-          }
-        });
-      }
     });
   }
 
@@ -237,6 +187,56 @@ class Interactions implements IInteractions {
       }
 
       await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
+    }
+
+    if (_commandHandlers.isNotEmpty) {
+      events.onSlashCommand.listen((event) async {
+        final commandHash = determineInteractionCommandHandler(event.interaction);
+
+        _logger.info("Executing command with hash [$commandHash]");
+        if (_commandHandlers.containsKey(commandHash)) {
+          await _commandHandlers[commandHash]!(event);
+        }
+      });
+
+      _logger.info("Finished registering ${_commandHandlers.length} commands!");
+    }
+
+    if (_buttonHandlers.isNotEmpty) {
+      events.onButtonEvent.listen((event) {
+        if (_buttonHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing button with id [${event.interaction.customId}]");
+          _buttonHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown button: ${event.interaction.customId}");
+        }
+      });
+    }
+
+    if (_multiselectHandlers.isNotEmpty) {
+      events.onMultiselectEvent.listen((event) {
+        if (_multiselectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing multiselect with id [${event.interaction.customId}]");
+          _multiselectHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown dropdown: ${event.interaction.customId}");
+        }
+      });
+    }
+
+    if (_autocompleteHandlers.isNotEmpty) {
+      events.onAutocompleteEvent.listen((event) {
+        final name = event.focusedOption.name;
+        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final autocompleteHash = "$commandHash$name";
+
+        if (_autocompleteHandlers.containsKey(autocompleteHash)) {
+          _logger.info("Executing autocomplete with id [$autocompleteHash]");
+          _autocompleteHandlers[autocompleteHash]!(event);
+        } else {
+          _logger.warning("Received event for unknown dropdown: $autocompleteHash");
+        }
+      });
     }
 
     _commandBuilders.clear(); // Cleanup after registering command since we don't need this anymore
