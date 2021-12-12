@@ -22,13 +22,17 @@ Simple, robust framework for creating discord bots for Dart language.
 Slash commands:
 ```dart
 void main() {
-  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged);
-  final interactions = Interactions(WebsocketInteractionBackend(bot))
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged)
+    ..registerPlugin(Logging()) // Default logging plugin
+    ..registerPlugin(CliIntegration()) // Cli integration for nyxx allows stopping application via SIGTERM and SIGKILl
+    ..registerPlugin(IgnoreExceptions()) // Plugin that handles uncaught exceptions that may occur
+    ..connect();
 
-  interactions
+  IInteractions.create(WebsocketInteractionBackend(bot))
     ..registerHandler("test", "This is test command", [], handler: (event) async {
       await event.reply(MessageBuilder.content("This is example message result"));
-    });
+    })
+    ..syncOnReady();
 }
 ```
 
