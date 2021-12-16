@@ -281,7 +281,7 @@ class Interactions implements IInteractions {
   @override
   Future<void> deleteGuildCommands(List<Snowflake> guildIds) async {
     await Future.wait(
-      guildIds.map((guildId) => interactionsEndpoints.bulkOverrideGuildCommands(client.appId, guildId, []))
+      guildIds.map((guildId) => interactionsEndpoints.bulkOverrideGuildCommands(client.appId, guildId, []).toList())
     );
   }
 
