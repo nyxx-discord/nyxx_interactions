@@ -113,7 +113,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Future<IMessage> editFollowup(String token, Snowflake applicationId, Snowflake messageId, MessageBuilder builder) async {
     final url = "/webhooks/$applicationId/$token/messages/$messageId";
-    final body = builder.build(_client);
+    final body = builder.build(_client.options.allowedMentions);
 
     final response = await _client.httpEndpoints.sendRawRequest(url, "PATCH", body: body);
     if (response is IHttpResponseError) {
@@ -125,7 +125,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> editOriginalResponse(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH", body: builder.build(_client));
+    final response = await _client.httpEndpoints
+        .sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH", body: builder.build(_client.options.allowedMentions));
 
     if (response is IHttpResponseError) {
       return Future.error(response);
@@ -148,7 +149,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden) async {
     final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token/messages/@original", "PATCH",
-        body: {if (hidden) "flags": 1 << 6, ...builder.build(_client)}, files: builder.files ?? []);
+        body: {if (hidden) "flags": 1 << 6, ...builder.build(_client.options.allowedMentions)}, files: builder.files ?? []);
 
     if (response is IHttpResponseError) {
       return Future.error(response);
@@ -160,7 +161,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     final response = await _client.httpEndpoints.sendRawRequest("/interactions/${interactionId.toString()}/$token/callback", "POST",
         body: {
           "type": respondOpCode,
-          "data": {if (hidden) "flags": 1 << 6, ...builder.build(_client)},
+          "data": {if (hidden) "flags": 1 << 6, ...builder.build(_client.options.allowedMentions)},
         },
         files: builder.files ?? []);
 
@@ -173,7 +174,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder, {bool hidden = false}) async {
     final response = await _client.httpEndpoints.sendRawRequest("/webhooks/$applicationId/$token", "POST",
         body: {
-          ...builder.build(_client),
+          ...builder.build(_client.options.allowedMentions),
           if (hidden) 'flags': 1 << 6,
         },
         files: builder.files ?? []);

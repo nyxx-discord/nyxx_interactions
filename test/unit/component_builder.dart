@@ -2,11 +2,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:test/test.dart';
 
-import '../mocks/nyxx_rest.mocks.dart';
-
 main() {
-  final client = NyxxRestMock();
-
   test("components", () {
     final customButton = ButtonBuilder("label", "customId", ComponentStyle.secondary);
     final linkButton = LinkButtonBuilder("label2", "discord://-/");
@@ -48,7 +44,7 @@ main() {
       ]
     };
 
-    expect(messageBuilder.build(client), equals(expectedResult));
+    expect(messageBuilder.build(), equals(expectedResult));
   });
 
   test("MultiselectOptionBuilder emoji unicode", () {

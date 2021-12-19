@@ -194,8 +194,8 @@ class ComponentMessageBuilder extends MessageBuilder {
   }
 
   @override
-  RawApiMap build(INyxx client) => {
-        ...super.build(client),
+  RawApiMap build([AllowedMentions? defaultAllowedMentions]) => {
+        ...super.build(allowedMentions),
         if (componentRows != null)
           "components": [
             for (final row in componentRows!)
