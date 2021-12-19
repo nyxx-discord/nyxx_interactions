@@ -1,7 +1,7 @@
 import "dart:math";
 
 import "package:nyxx/nyxx.dart";
-import "package:nyxx_interactions/interactions.dart";
+import "package:nyxx_interactions/nyxx_interactions.dart";
 
 // Creates instance of slash command builder with name, description and sub options.
 // Its used to synchronise commands with discord and also to be able to respond to them.
@@ -35,8 +35,13 @@ final subCommandFlipGame = CommandOptionBuilder(CommandOptionType.subCommand, "c
   });
 
 void main() {
-  final bot = Nyxx("<TOKEN>", GatewayIntents.allUnprivileged);
-  Interactions(bot)
+  final bot = NyxxFactory.createNyxxWebsocket("<TOKEN>", GatewayIntents.allUnprivileged)
+    ..registerPlugin(Logging()) // Default logging plugin
+    ..registerPlugin(CliIntegration()) // Cli integration for nyxx allows stopping application via SIGTERM and SIGKILl
+    ..registerPlugin(IgnoreExceptions()) // Plugin that handles uncaught exceptions that may occur
+    ..connect();
+
+  IInteractions.create(WebsocketInteractionBackend(bot))
     ..registerSlashCommand(singleCommand) // Register created before slash command
     ..syncOnReady(); // This is needed if you want to sync commands on bot startup.
 }
