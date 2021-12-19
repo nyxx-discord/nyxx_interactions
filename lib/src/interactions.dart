@@ -55,8 +55,14 @@ abstract class IInteractions {
   /// Deletes global command
   Future<void> deleteGlobalCommand(Snowflake commandId);
 
+  /// Deletes all global commands
+  Future<void> deleteGlobalCommands();
+
   /// Deletes guild command
   Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId);
+
+  /// Deletes all guild commands for the specified guilds
+  Future<void> deleteGuildCommands(List<Snowflake> guildIds);
 
   /// Fetches all global bots command
   Stream<ISlashCommand> fetchGlobalCommands();
@@ -263,9 +269,19 @@ class Interactions implements IInteractions {
   @override
   Future<void> deleteGlobalCommand(Snowflake commandId) => interactionsEndpoints.deleteGlobalCommand(client.appId, commandId);
 
+  /// Deletes all global commands
+  @override
+  Future<void> deleteGlobalCommands() async => interactionsEndpoints.bulkOverrideGlobalCommands(client.appId, []);
+
   /// Deletes guild command
   @override
   Future<void> deleteGuildCommand(Snowflake commandId, Snowflake guildId) => interactionsEndpoints.deleteGuildCommand(client.appId, commandId, guildId);
+
+  /// Deletes all guild commands for the specified guilds
+  @override
+  Future<void> deleteGuildCommands(List<Snowflake> guildIds) async {
+    await Future.wait(guildIds.map((guildId) => interactionsEndpoints.bulkOverrideGuildCommands(client.appId, guildId, []).toList()));
+  }
 
   /// Fetches all global bots command
   @override
