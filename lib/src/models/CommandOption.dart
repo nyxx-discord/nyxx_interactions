@@ -18,10 +18,10 @@ class CommandOptionType extends IEnum<int> {
   static const channel = const CommandOptionType(7);
   /// Specify an arg as a role e.g. @RoleName
   static const role = const CommandOptionType(8);
-	/// Specify an arg as a mentionable user or role
-	static const mentionable = const CommandOptionType(9);
-	/// Specify an arg as a double
-	static const number = const CommandOptionType(10);
+  /// Specify an arg as a mentionable user or role
+  static const mentionable = const CommandOptionType(9);
+  /// Specify an arg as a double
+  static const number = const CommandOptionType(10);
 
   /// Create new instance of CommandArgType
   const CommandOptionType(int value) : super(value);
