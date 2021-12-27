@@ -1,14 +1,19 @@
-part of nyxx_interactions;
+import 'package:nyxx/nyxx.dart';
+
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/models/interaction_option.dart';
+import 'package:nyxx_interactions/src/models/interaction.dart';
 
 /// Slash command names and subcommands names have to match this regex
 final RegExp slashCommandNameRegex = RegExp(r"^[\w-]{1,32}$");
 
-Iterable<Iterable<T>> _partition<T>(Iterable<T> list, bool Function(T) predicate) {
+Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate) {
   final matches = <T>[];
   final nonMatches = <T>[];
 
-  for(final e in list) {
-    if(predicate(e)) {
+  for (final e in list) {
+    if (predicate(e)) {
       matches.add(e);
       continue;
     }
@@ -20,8 +25,8 @@ Iterable<Iterable<T>> _partition<T>(Iterable<T> list, bool Function(T) predicate
 }
 
 /// Determine what handler should be executed based on [interaction]
-String _determineInteractionCommandHandler(SlashCommandInteraction interaction) {
-  final commandHash = "${interaction.commandId}|${interaction.name}";
+String determineInteractionCommandHandler(ISlashCommandInteraction interaction) {
+  final commandHash = interaction.name;
 
   try {
     final subCommandGroup = interaction.options.firstWhere((element) => element.type == CommandOptionType.subCommandGroup);
@@ -29,22 +34,22 @@ String _determineInteractionCommandHandler(SlashCommandInteraction interaction) 
 
     return "$commandHash|${subCommandGroup.name}|${subCommand.name}";
     // ignore: empty_catches
-  } on StateError { }
+  } on StateError {}
 
   try {
     final subCommand = interaction.options.firstWhere((element) => element.type == CommandOptionType.subCommand);
     return "$commandHash|${subCommand.name}";
     // ignore: empty_catches
-  } on StateError { }
+  } on StateError {}
 
   return commandHash;
 }
 
 /// Groups [SlashCommandBuilder] for registering them later in bulk
-Map<Snowflake, Iterable<SlashCommandBuilder>> _groupSlashCommandBuilders(Iterable<SlashCommandBuilder> commands) {
+Map<Snowflake, Iterable<SlashCommandBuilder>> groupSlashCommandBuilders(Iterable<SlashCommandBuilder> commands) {
   final commandsMap = <Snowflake, List<SlashCommandBuilder>>{};
 
-  for(final slashCommand in commands) {
+  for (final slashCommand in commands) {
     final id = slashCommand.guild!;
 
     if (commandsMap.containsKey(id)) {
@@ -58,13 +63,9 @@ Map<Snowflake, Iterable<SlashCommandBuilder>> _groupSlashCommandBuilders(Iterabl
   return commandsMap;
 }
 
-Iterable<InteractionOption> _extractArgs(Iterable<InteractionOption> args) {
-  if (args.length == 1
-      && (args.first.type == CommandOptionType.subCommand
-          || args.first.type == CommandOptionType.subCommandGroup
-      )
-  ) {
-    return _extractArgs(args.first.options);
+Iterable<IInteractionOption> extractArgs(Iterable<IInteractionOption> args) {
+  if (args.length == 1 && (args.first.type == CommandOptionType.subCommand || args.first.type == CommandOptionType.subCommandGroup)) {
+    return extractArgs(args.first.options);
   }
 
   return args;
