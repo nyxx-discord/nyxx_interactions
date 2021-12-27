@@ -28,6 +28,12 @@ class CommandOptionType extends IEnum<int> {
   /// Specify an arg as a role e.g. @RoleName
   static const role = CommandOptionType(8);
 
+  /// Specify an arg as a mentionable user or role
+  static const mentionable = CommandOptionType(9);
+
+  /// Specify an arg as a double
+  static const number = CommandOptionType(10);
+
   /// Create new instance of CommandArgType
   const CommandOptionType(int value) : super(value);
 }

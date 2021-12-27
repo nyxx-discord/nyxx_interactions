@@ -1,3 +1,8 @@
+## 3.1.0
+__27.12_2021__
+
+- Add missing command option types (#4) @HarryET 
+
 ## 3.0.0
 __19.12.2021__
 
