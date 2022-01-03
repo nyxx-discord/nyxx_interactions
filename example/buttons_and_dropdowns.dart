@@ -56,7 +56,7 @@ Future<void> multiselectHandlerHandler(IMultiselectInteractionEvent event) async
 
   // Send followup to button click with id of button
   await event.sendFollowup(MessageBuilder.content(
-      "Option chosen with value: ${event.interaction.values}")
+      "Option chosen with values: ${event.interaction.values}")
   );
 }
 
