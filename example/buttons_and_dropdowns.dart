@@ -6,6 +6,8 @@ final singleCommand = SlashCommandBuilder("help", "This is example help command"
     // All "magic" happens via ComponentMessageBuilder class that extends MessageBuilder
     // from main nyxx package. This new builder allows to create message with components.
     final componentMessageBuilder = ComponentMessageBuilder();
+    // Start by setting the content, this is the text that shows at the top of the message.
+    componentMessageBuilder.content = "Try some of the components below!";
 
     // There are two types of button - regular ones that can be responded to an interaction
     // and url button that only redirects to specified url.
@@ -15,9 +17,10 @@ final singleCommand = SlashCommandBuilder("help", "This is example help command"
     //
     // Adding selects is as easy as adding buttons. Use MultiselectBuilder with custom id
     // and list of multiselect options.
-    final componentRow = ComponentRowBuilder()
+    final firstRow = ComponentRowBuilder()
       ..addComponent(ButtonBuilder("This is button label", "thisisid", ComponentStyle.success))
-      ..addComponent(ButtonBuilder("This is another button", "thisisid2", ComponentStyle.success))
+      ..addComponent(ButtonBuilder("This is another button label", "thisisid2", ComponentStyle.success));
+    final secondRow = ComponentRowBuilder()
       ..addComponent(MultiselectBuilder("customId", [
         MultiselectOptionBuilder("example option 1", "option1"),
         MultiselectOptionBuilder("example option 2", "option2"),
@@ -25,7 +28,9 @@ final singleCommand = SlashCommandBuilder("help", "This is example help command"
       ]));
 
     // Then component row can be added to message builder and sent to user.
-    componentMessageBuilder.addComponentRow(componentRow);
+    componentMessageBuilder
+      ..addComponentRow(firstRow)
+      ..addComponentRow(secondRow);
     await event.respond(componentMessageBuilder);
   });
 
@@ -39,7 +44,7 @@ Future<void> buttonHandler(IButtonInteractionEvent event) async {
 
   // Send followup to button click with id of button
   await event.sendFollowup(MessageBuilder.content(
-      "Button presed with id: ${event.interaction.customId}")
+      "Button pressed with id: ${event.interaction.customId}")
   );
 }
 
@@ -51,7 +56,7 @@ Future<void> multiselectHandlerHandler(IMultiselectInteractionEvent event) async
 
   // Send followup to button click with id of button
   await event.sendFollowup(MessageBuilder.content(
-      "Options chosen with values: ${event.interaction.values}")
+      "Option chosen with values: ${event.interaction.values}")
   );
 }
 
