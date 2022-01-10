@@ -7,56 +7,56 @@ import 'package:nyxx_interactions/src/models/slash_command.dart';
 
 abstract class IEventController implements Disposable {
   /// Emitted when a slash command is sent.
-  Stream<SlashCommandInteractionEvent> get onSlashCommand;
+  Stream<ISlashCommandInteractionEvent> get onSlashCommand;
 
   /// Emitted when a button interaction is received.
-  Stream<ButtonInteractionEvent> get onButtonEvent;
+  Stream<IButtonInteractionEvent> get onButtonEvent;
 
   /// Emitted when a dropdown interaction is received.
-  Stream<MultiselectInteractionEvent> get onMultiselectEvent;
+  Stream<IMultiselectInteractionEvent> get onMultiselectEvent;
 
   /// Emitted when a slash command is created by the user.
-  Stream<SlashCommand> get onSlashCommandCreated;
+  Stream<ISlashCommand> get onSlashCommandCreated;
 
   /// Emitted when a slash command is created by the user.
-  Stream<AutocompleteInteractionEvent> get onAutocompleteEvent;
+  Stream<IAutocompleteInteractionEvent> get onAutocompleteEvent;
 }
 
 class EventController implements IEventController {
   /// Emitted when a slash command is sent.
   @override
-  late final Stream<SlashCommandInteractionEvent> onSlashCommand;
+  late final Stream<ISlashCommandInteractionEvent> onSlashCommand;
 
   /// Emitted when a button interaction is received.
   @override
-  late final Stream<ButtonInteractionEvent> onButtonEvent;
+  late final Stream<IButtonInteractionEvent> onButtonEvent;
 
   /// Emitted when a dropdown interaction is received.
   @override
-  late final Stream<MultiselectInteractionEvent> onMultiselectEvent;
+  late final Stream<IMultiselectInteractionEvent> onMultiselectEvent;
 
   /// Emitted when a slash command is created by the user.
   @override
-  late final Stream<SlashCommand> onSlashCommandCreated;
+  late final Stream<ISlashCommand> onSlashCommandCreated;
 
   /// Emitted when a slash command is created by the user.
   @override
-  late final Stream<AutocompleteInteractionEvent> onAutocompleteEvent;
+  late final Stream<IAutocompleteInteractionEvent> onAutocompleteEvent;
 
   /// Emitted when a a slash command is sent.
-  late final StreamController<SlashCommandInteractionEvent> onSlashCommandController;
+  late final StreamController<ISlashCommandInteractionEvent> onSlashCommandController;
 
   /// Emitted when a a slash command is sent.
-  late final StreamController<SlashCommand> onSlashCommandCreatedController;
+  late final StreamController<ISlashCommand> onSlashCommandCreatedController;
 
   /// Emitted when button event is sent
-  late final StreamController<ButtonInteractionEvent> onButtonEventController;
+  late final StreamController<IButtonInteractionEvent> onButtonEventController;
 
   /// Emitted when dropdown event is sent
-  late final StreamController<MultiselectInteractionEvent> onMultiselectEventController;
+  late final StreamController<IMultiselectInteractionEvent> onMultiselectEventController;
 
   /// Emitted when autocomplete interaction event is sent
-  late final StreamController<AutocompleteInteractionEvent> onAutocompleteEventController;
+  late final StreamController<IAutocompleteInteractionEvent> onAutocompleteEventController;
 
   /// Creates na instance of [EventController]
   EventController() {
