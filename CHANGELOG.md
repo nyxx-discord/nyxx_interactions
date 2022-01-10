@@ -1,3 +1,9 @@
+## 3.1.1
+__10.01_2022__
+
+- Fix invalid stream declarations of events in IEventController (#20)
+- Fixup example and typos (#16 and #18)
+
 ## 3.1.0
 __27.12_2021__
 
