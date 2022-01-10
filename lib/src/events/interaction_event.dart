@@ -136,7 +136,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     if (!_hasAcked) {
       return Future.error(ResponseRequiredError());
     }
-    logger.fine("Sending followup for for interaction: ${interaction.id}");
+    logger.fine("Sending followup for interaction: ${interaction.id}");
 
     return interactions.interactionsEndpoints.sendFollowup(interaction.token, client.appId, builder, hidden: hidden);
   }
