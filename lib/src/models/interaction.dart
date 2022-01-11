@@ -125,7 +125,7 @@ class Interaction extends SnowflakeEntity implements IInteraction {
   }
 }
 
-abstract class ISlashCommandInteraction implements Interaction {
+abstract class ISlashCommandInteraction implements IInteraction {
   /// Name of interaction
   String get name;
 
