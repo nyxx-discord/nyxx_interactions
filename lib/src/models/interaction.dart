@@ -38,6 +38,9 @@ abstract class IInteraction implements SnowflakeEntity {
 
   /// Version of interactions api
   int get version;
+
+  /// The selected language of the invoking user
+  String? get locale;
 }
 
 /// The Interaction data. e.g channel, guild and member
@@ -79,6 +82,9 @@ class Interaction extends SnowflakeEntity implements IInteraction {
   @override
   late final int version;
 
+  @override
+  late final String? locale;
+
   /// Creates na instance of [Interaction]
   Interaction(this.client, RawApiMap raw) : super(Snowflake(raw["id"])) {
     type = raw["type"] as int;
@@ -115,10 +121,11 @@ class Interaction extends SnowflakeEntity implements IInteraction {
 
     token = raw["token"] as String;
     version = raw["version"] as int;
+    locale = raw['locale'] as String?;
   }
 }
 
-abstract class ISlashCommandInteraction implements Interaction {
+abstract class ISlashCommandInteraction implements IInteraction {
   /// Name of interaction
   String get name;
 

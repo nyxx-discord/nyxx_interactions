@@ -1,3 +1,9 @@
+## 3.2.0
+__12.01.2022__
+
+- feature: implement interaction locale (#25)
+- bug: fix problem with emojis in buttons (#24)
+
 ## 3.1.1
 __10.01_2022__
 
