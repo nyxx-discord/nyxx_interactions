@@ -1,3 +1,8 @@
+## 3.3.0
+__13.01.2022__
+
+- feature: Add target_id field to Interaction data (#28)
+
 ## 3.2.0
 __12.01.2022__
 
