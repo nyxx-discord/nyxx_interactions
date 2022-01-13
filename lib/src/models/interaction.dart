@@ -137,6 +137,9 @@ abstract class ISlashCommandInteraction implements IInteraction {
 
   /// Additional data for command
   late final IInteractionDataResolved? resolved;
+
+  /// Id of the target entity (only present in message or user interactions)
+  Snowflake? get targetId;
 }
 
 /// Interaction for slash command
@@ -157,6 +160,9 @@ class SlashCommandInteraction extends Interaction implements ISlashCommandIntera
   @override
   late final IInteractionDataResolved? resolved;
 
+  @override
+  late final Snowflake? targetId;
+
   /// Creates na instance of [SlashCommandInteraction]
   SlashCommandInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     name = raw["data"]["name"] as String;
@@ -167,6 +173,8 @@ class SlashCommandInteraction extends Interaction implements ISlashCommandIntera
     commandId = Snowflake(raw["data"]["id"]);
 
     resolved = raw["data"]["resolved"] != null ? InteractionDataResolved(raw["data"]["resolved"] as RawApiMap, guild?.id, client) : null;
+
+    targetId = raw["data"]["target_id"] != null ? Snowflake(raw["data"]["target_id"]) : null;
   }
 
   /// Allows to fetch argument value by argument name
