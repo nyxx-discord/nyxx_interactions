@@ -25,4 +25,4 @@ dependency_overrides:
   nyxx:
     git:
       url: 'git@github.com:l7ssha/nyxx.git'
-      ref: next
+      ref: feature/interaction-modals
