@@ -20,6 +20,9 @@ abstract class IEventController implements Disposable {
 
   /// Emitted when a slash command is created by the user.
   Stream<IAutocompleteInteractionEvent> get onAutocompleteEvent;
+
+  /// Emitted when a modal interaction is received.
+  Stream<IModalInteractionEvent> get onModalEvent;
 }
 
 class EventController implements IEventController {
@@ -39,24 +42,19 @@ class EventController implements IEventController {
   @override
   late final Stream<ISlashCommand> onSlashCommandCreated;
 
+  @override
+  late final Stream<IModalInteractionEvent> onModalEvent;
+
   /// Emitted when a slash command is created by the user.
   @override
   late final Stream<IAutocompleteInteractionEvent> onAutocompleteEvent;
 
-  /// Emitted when a a slash command is sent.
   late final StreamController<ISlashCommandInteractionEvent> onSlashCommandController;
-
-  /// Emitted when a a slash command is sent.
   late final StreamController<ISlashCommand> onSlashCommandCreatedController;
-
-  /// Emitted when button event is sent
   late final StreamController<IButtonInteractionEvent> onButtonEventController;
-
-  /// Emitted when dropdown event is sent
   late final StreamController<IMultiselectInteractionEvent> onMultiselectEventController;
-
-  /// Emitted when autocomplete interaction event is sent
   late final StreamController<IAutocompleteInteractionEvent> onAutocompleteEventController;
+  late final StreamController<IModalInteractionEvent> onModalEventController;
 
   /// Creates na instance of [EventController]
   EventController() {
@@ -74,6 +72,9 @@ class EventController implements IEventController {
 
     onAutocompleteEventController = StreamController.broadcast();
     onAutocompleteEvent = onAutocompleteEventController.stream;
+
+    onModalEventController = StreamController.broadcast();
+    onModalEvent = onModalEventController.stream;
   }
 
   @override

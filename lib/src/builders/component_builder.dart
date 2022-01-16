@@ -101,8 +101,8 @@ abstract class ButtonBuilderAbstract extends ComponentBuilderAbstract {
   /// Label for button. Max 80 characters.
   final String label;
 
-  /// Style of button. See [ComponentStyle]
-  final ComponentStyle style;
+  /// Style of button. See [ButtonStyle]
+  final ButtonStyle style;
 
   /// True if emoji is disabled
   bool disabled = false;
@@ -138,7 +138,7 @@ class LinkButtonBuilder extends ButtonBuilderAbstract {
   final String url;
 
   /// Creates instance of [LinkButtonBuilder]
-  LinkButtonBuilder(String label, this.url, {bool disabled = false, IEmoji? emoji}) : super(label, ComponentStyle.link, disabled: disabled, emoji: emoji) {
+  LinkButtonBuilder(String label, this.url, {bool disabled = false, IEmoji? emoji}) : super(label, ButtonStyle.link, disabled: disabled, emoji: emoji) {
     if (url.length > 512) {
       throw ArgumentError("Url for button cannot have more than 512 characters");
     }
@@ -154,7 +154,7 @@ class ButtonBuilder extends ButtonBuilderAbstract {
   String customId;
 
   /// Creates instance of [ButtonBuilder]
-  ButtonBuilder(String label, this.customId, ComponentStyle style, {bool disabled = false, IEmoji? emoji})
+  ButtonBuilder(String label, this.customId, ButtonStyle style, {bool disabled = false, IEmoji? emoji})
       : super(label, style, disabled: disabled, emoji: emoji) {
     if (customId.length > 100) {
       throw ArgumentError("customId for button cannot have more than 100 characters");
@@ -165,18 +165,68 @@ class ButtonBuilder extends ButtonBuilderAbstract {
   RawApiMap build() => {...super.build(), "custom_id": customId};
 }
 
+class TextInputStyle extends IEnum<int> {
+  static const short = TextInputStyle(1);
+  static const paragraph = TextInputStyle(2);
+
+  const TextInputStyle(int value) : super(value);
+  TextInputStyle.from(int value) : super(value);
+}
+
+class TextInputBuilder extends ComponentBuilderAbstract {
+  @override
+  ComponentType get type => ComponentType.text;
+
+  TextInputStyle style;
+
+  String customId;
+
+  String label;
+
+  String? placeholder;
+
+  String? value;
+
+  bool? required;
+
+  int? minLength;
+
+  int? maxLength;
+
+  TextInputBuilder(this.customId, this.style, this.label);
+
+  @override
+  RawApiMap build() => {
+        ...super.build(),
+        "style": style.value,
+        "custom_id": customId,
+        "label": label,
+        "placeholder": placeholder,
+        "value": value,
+        "required": required,
+        "min_length": minLength,
+        "max_length": maxLength,
+      };
+}
+
 /// Helper builder to provide fluid api for building component rows
-class ComponentRowBuilder {
+class ComponentRowBuilder implements Builder {
   final List<ComponentBuilderAbstract> _components = [];
 
   /// Adds component to row
   void addComponent(ComponentBuilderAbstract componentBuilder) => _components.add(componentBuilder);
+
+  @override
+  RawApiMap build() => {
+        "type": ComponentType.row.value,
+        "components": [for (final component in _components) component.build()]
+      };
 }
 
 /// Extended [MessageBuilder] with support for buttons
 class ComponentMessageBuilder extends MessageBuilder {
   /// Set of buttons to attach to message. Message can only have 5 rows with 5 buttons each.
-  List<List<ComponentBuilderAbstract>>? componentRows;
+  List<ComponentRowBuilder>? componentRows;
 
   /// Allows to add
   void addComponentRow(ComponentRowBuilder componentRowBuilder) {
@@ -190,19 +240,12 @@ class ComponentMessageBuilder extends MessageBuilder {
       throw ArgumentError("Maximum number of component rows is 5");
     }
 
-    componentRows!.add(componentRowBuilder._components);
+    componentRows!.add(componentRowBuilder);
   }
 
   @override
   RawApiMap build([AllowedMentions? defaultAllowedMentions]) => {
         ...super.build(allowedMentions),
-        if (componentRows != null)
-          "components": [
-            for (final row in componentRows!)
-              {
-                "type": ComponentType.row.value,
-                "components": [for (final component in row) component.build()]
-              }
-          ]
+        if (componentRows != null) "components": [for (final row in componentRows!) row.build()]
       };
 }

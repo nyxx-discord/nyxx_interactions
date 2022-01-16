@@ -1,5 +1,6 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/message/message.dart';
+import 'package:nyxx_interactions/src/builders/modal_builder.dart';
 
 import 'package:nyxx_interactions/src/models/slash_command.dart';
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
@@ -17,11 +18,14 @@ abstract class IInteractionsEndpoints {
   /// (slash command, button...) [opCode] is used.
   Future<void> acknowledge(String token, String interactionId, bool hidden, int opCode);
 
-  /// Response to interaction by editing original response. Used when interaction was acked before.
+  /// Respond to interaction by editing original response. Used when interaction was acked before.
   Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden);
 
-  /// Response to interaction by creating response. Used when interaction wasn't acked before.
+  /// Respond to interaction by creating response. Used when interaction wasn't acked before.
   Future<void> respondCreateResponse(String token, String interactionId, MessageBuilder builder, bool hidden, int respondOpCode);
+
+  /// Respond to interaction with modal
+  Future<void> respondModal(String token, String interactionId, ModalBuilder builder);
 
   /// Fetch original interaction response.
   Future<IMessage> fetchOriginalResponse(String token, Snowflake applicationId, String interactionId);
@@ -349,6 +353,18 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
     if (result is IHttpResponseError) {
       return Future.error(result);
+    }
+  }
+
+  @override
+  Future<void> respondModal(String token, String interactionId, ModalBuilder builder) async {
+    final response = await _client.httpEndpoints.sendRawRequest("/interactions/${interactionId.toString()}/$token/callback", "POST", body: {
+      "type": 9,
+      "data": {...builder.build()},
+    });
+
+    if (response is IHttpResponseError) {
+      return Future.error(response);
     }
   }
 }
