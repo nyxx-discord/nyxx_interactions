@@ -309,10 +309,6 @@ class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselect
   }
 }
 
-// abstract class IModalInteractionEvent implements IInteractionEventWithAcknowledge<> {
-//
-// }
-
 mixin IModalResponseMixin {
   IInteractions get interactions;
   IInteraction get interaction;
