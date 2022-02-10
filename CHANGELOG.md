@@ -1,3 +1,8 @@
+## 4.0.0-dev.0.1
+__10.2.2022__
+
+- bug: Fix guild slash command permissions being overridden even if the sync rule denies sync
+
 ## 4.0.0-dev.0
 
 - feature: Implement modals
