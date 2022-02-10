@@ -3,6 +3,8 @@ import 'package:nyxx/src/core/permissions/permissions.dart';
 import 'package:nyxx/src/core/user/user.dart';
 import 'package:nyxx/src/core/user/member.dart';
 import 'package:nyxx/src/core/guild/role.dart';
+import 'package:nyxx/src/core/message/message.dart';
+import 'package:nyxx/src/core/message/attachment.dart';
 
 abstract class IPartialChannel implements SnowflakeEntity {
   /// Channel name
@@ -47,27 +49,35 @@ abstract class IInteractionDataResolved {
   /// Resolved [Role]s
   Iterable<IRole> get roles;
 
-  ///  Resolved [PartialChannel]s
+  /// Resolved [PartialChannel]s
   Iterable<IPartialChannel> get channels;
+
+  /// Resolved [IMessage] objects
+  Iterable<IMessage> get messages;
+
+  /// Resolved [IAttachment] objects
+  Iterable<IAttachment> get attachments;
 }
 
 /// Additional data for slash command
 class InteractionDataResolved implements IInteractionDataResolved {
-  /// Resolved [User]s
   @override
   late final Iterable<IUser> users;
 
-  /// Resolved [Member]s
   @override
   late final Iterable<IMember> members;
 
-  /// Resolved [Role]s
   @override
   late final Iterable<IRole> roles;
 
-  ///  Resolved [PartialChannel]s
   @override
   late final Iterable<IPartialChannel> channels;
+
+  @override
+  late final Iterable<IMessage> messages;
+
+  @override
+  late final Iterable<IAttachment> attachments;
 
   /// Creates na instance of [InteractionDataResolved]
   InteractionDataResolved(RawApiMap raw, Snowflake? guildId, INyxx client) {
@@ -96,6 +106,16 @@ class InteractionDataResolved implements IInteractionDataResolved {
     channels = [
       if (raw["channels"] != null)
         for (final rawChannelEntry in (raw["channels"] as RawApiMap).entries) PartialChannel(rawChannelEntry.value as RawApiMap)
+    ];
+
+    messages = [
+      if (raw['messages'] != null)
+        for (final rawMessageEntry in (raw['messages'] as RawApiMap).entries) Message(client, rawMessageEntry.value as RawApiMap)
+    ];
+
+    attachments = [
+      if (raw['attachments'] != null)
+        for (final rawAttachmentEntry in (raw['attachments'] as RawApiMap).entries) Attachment(rawAttachmentEntry.value as RawApiMap)
     ];
   }
 }
