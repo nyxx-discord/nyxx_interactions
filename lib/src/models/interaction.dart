@@ -6,6 +6,7 @@ import 'package:nyxx/src/core/guild/guild.dart';
 import 'package:nyxx/src/internal/cache/cacheable.dart';
 import 'package:nyxx/src/core/channel/cacheable_text_channel.dart';
 import 'package:nyxx/src/core/message/message.dart';
+import 'package:nyxx/src/core/message/components/message_component.dart';
 
 import 'package:nyxx_interactions/src/models/interaction_option.dart';
 import 'package:nyxx_interactions/src/models/interaction_data_resolved.dart';
@@ -41,6 +42,9 @@ abstract class IInteraction implements SnowflakeEntity {
 
   /// The selected language of the invoking user
   String? get locale;
+
+  /// The preferred locale of the guild this interaction was created in, if any.
+  String? get guildLocale;
 }
 
 /// The Interaction data. e.g channel, guild and member
@@ -85,6 +89,9 @@ class Interaction extends SnowflakeEntity implements IInteraction {
   @override
   late final String? locale;
 
+  @override
+  late final String? guildLocale;
+
   /// Creates na instance of [Interaction]
   Interaction(this.client, RawApiMap raw) : super(Snowflake(raw["id"])) {
     type = raw["type"] as int;
@@ -122,6 +129,37 @@ class Interaction extends SnowflakeEntity implements IInteraction {
     token = raw["token"] as String;
     version = raw["version"] as int;
     locale = raw['locale'] as String?;
+
+    guildLocale = raw['guild_locale'] as String?;
+  }
+}
+
+abstract class IModalInteraction implements IInteraction {
+  /// Custom id of modal
+  String get customId;
+
+  /// List of components submitted
+  List<List<IMessageComponent>> get components;
+}
+
+class ModalInteraction extends Interaction implements IModalInteraction {
+  @override
+  late final List<List<IMessageComponent>> components;
+
+  @override
+  late final String customId;
+
+  ModalInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    customId = raw['data']['custom_id'] as String;
+
+    if (raw['data']["components"] != null) {
+      components = [
+        for (final rawRow in raw['data']["components"])
+          [for (final componentRaw in rawRow["components"]) MessageComponent.deserialize(componentRaw as RawApiMap)]
+      ];
+    } else {
+      components = [];
+    }
   }
 }
 
