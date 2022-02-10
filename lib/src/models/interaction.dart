@@ -42,6 +42,9 @@ abstract class IInteraction implements SnowflakeEntity {
 
   /// The selected language of the invoking user
   String? get locale;
+
+  /// The preferred locale of the guild this interaction was created in, if any.
+  String? get guildLocale;
 }
 
 /// The Interaction data. e.g channel, guild and member
@@ -86,6 +89,9 @@ class Interaction extends SnowflakeEntity implements IInteraction {
   @override
   late final String? locale;
 
+  @override
+  late final String? guildLocale;
+
   /// Creates na instance of [Interaction]
   Interaction(this.client, RawApiMap raw) : super(Snowflake(raw["id"])) {
     type = raw["type"] as int;
@@ -123,6 +129,8 @@ class Interaction extends SnowflakeEntity implements IInteraction {
     token = raw["token"] as String;
     version = raw["version"] as int;
     locale = raw['locale'] as String?;
+
+    guildLocale = raw['guild_locale'] as String?;
   }
 }
 
