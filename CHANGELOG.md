@@ -1,3 +1,9 @@
+## 4.0.0-dev.0
+
+- feature: Implement modals
+- feature: Implement attachment option types
+- bug: Add missing `messages` field from slash commands resolved data
+
 ## 3.3.0
 __13.01.2022__
 
