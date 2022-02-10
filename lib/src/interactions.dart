@@ -189,13 +189,13 @@ class Interactions implements IInteractions {
         for (final command in response) {
           _commands.add(command);
         }
+
+        await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
       }
 
       for (final globalCommandBuilder in entry.value) {
         _assignCommandToHandler(globalCommandBuilder);
       }
-
-      await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
     }
 
     if (_commandHandlers.isNotEmpty) {
