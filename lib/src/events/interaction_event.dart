@@ -239,7 +239,10 @@ class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<Slash
   @override
   List<IInteractionOption> get args => UnmodifiableListView(extractArgs(interaction.options));
 
-  /// Searches for arg with [name] in this interaction
+  /// Searches for arg with [name] in this interaction.
+  ///
+  /// Throws if [name] was not found in this interaction; if you want to look up the value of [name] and return `null` if it was not provided, use
+  /// [interaction.getArg] instead.
   @override
   IInteractionOption getArg(String name) => args.firstWhere((element) => element.name == name);
 
