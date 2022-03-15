@@ -1,3 +1,11 @@
+## 4.0.0
+__14.03.2022__
+
+- feature: Implement modals
+- feature: Implement attachment option types
+- bug: Add missing `messages` field from slash commands resolved data
+- bug: Fix guild slash command permissions being overridden even if the sync rule denies sync
+
 ## 4.0.0-dev.0.1
 __10.2.2022__
 
