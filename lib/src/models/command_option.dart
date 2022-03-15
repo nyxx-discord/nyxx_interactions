@@ -34,6 +34,9 @@ class CommandOptionType extends IEnum<int> {
   /// Specify an arg as a double
   static const number = CommandOptionType(10);
 
+  /// Specify an arg as an attachment
+  static const attachment = CommandOptionType(11);
+
   /// Create new instance of CommandArgType
   const CommandOptionType(int value) : super(value);
 }

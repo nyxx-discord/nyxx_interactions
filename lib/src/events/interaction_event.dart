@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:logging/logging.dart';
+import 'package:nyxx_interactions/src/builders/modal_builder.dart';
 import 'package:nyxx_interactions/src/models/interaction.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
@@ -40,11 +41,28 @@ abstract class InteractionEventAbstract<T extends IInteraction> implements IInte
 
   /// The DateTime the interaction was received by the Nyxx Client.
   @override
-  final DateTime receivedAt = DateTime.now();
+  DateTime get receivedAt => interaction.id.timestamp;
 
   final Logger logger = Logger("Interaction Event");
 
   InteractionEventAbstract(this.interactions);
+}
+
+abstract class IModalInteractionEvent implements InteractionEventWithAcknowledge<IModalInteraction> {}
+
+class ModalInteractionEvent extends InteractionEventWithAcknowledge<IModalInteraction> implements IModalInteractionEvent {
+  @override
+  late final IModalInteraction interaction;
+
+  @override
+  int get _acknowledgeOpCode => 5;
+
+  @override
+  int get _respondOpcode => 4;
+
+  ModalInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions) {
+    interaction = ModalInteraction(interactions.client, raw);
+  }
 }
 
 abstract class IAutocompleteInteractionEvent implements InteractionEventAbstract<ISlashCommandInteraction> {
@@ -215,7 +233,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
       interactions.interactionsEndpoints.editOriginalResponse(interaction.token, client.appId, builder);
 }
 
-abstract class ISlashCommandInteractionEvent implements InteractionEventWithAcknowledge<SlashCommandInteraction> {
+abstract class ISlashCommandInteractionEvent with IModalResponseMixin implements InteractionEventWithAcknowledge<SlashCommandInteraction> {
   /// Returns args of interaction
   List<IInteractionOption> get args;
 
@@ -224,7 +242,9 @@ abstract class ISlashCommandInteractionEvent implements InteractionEventWithAckn
 }
 
 /// Event for slash commands
-class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<SlashCommandInteraction> implements ISlashCommandInteractionEvent {
+class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<SlashCommandInteraction>
+    with ModalResponseMixin
+    implements ISlashCommandInteractionEvent {
   /// Interaction data for slash command
   @override
   late final SlashCommandInteraction interaction;
@@ -239,7 +259,10 @@ class SlashCommandInteractionEvent extends InteractionEventWithAcknowledge<Slash
   @override
   List<IInteractionOption> get args => UnmodifiableListView(extractArgs(interaction.options));
 
-  /// Searches for arg with [name] in this interaction
+  /// Searches for arg with [name] in this interaction.
+  ///
+  /// Throws if [name] was not found in this interaction; if you want to look up the value of [name] and return `null` if it was not provided, use
+  /// [interaction.getArg] instead.
   @override
   IInteractionOption getArg(String name) => args.firstWhere((element) => element.name == name);
 
@@ -265,10 +288,10 @@ abstract class ComponentInteractionEvent<T extends IComponentInteraction> extend
   ComponentInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions);
 }
 
-abstract class IButtonInteractionEvent implements IComponentInteractionEvent<IButtonInteraction> {}
+abstract class IButtonInteractionEvent with IModalResponseMixin implements IComponentInteractionEvent<IButtonInteraction> {}
 
 /// Interaction event for button events
-class ButtonInteractionEvent extends ComponentInteractionEvent<IButtonInteraction> implements IButtonInteractionEvent {
+class ButtonInteractionEvent extends ComponentInteractionEvent<IButtonInteraction> with ModalResponseMixin implements IButtonInteractionEvent {
   @override
   late final IButtonInteraction interaction;
 
@@ -287,4 +310,16 @@ class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselect
   MultiselectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
     interaction = MultiselectInteraction(client, raw);
   }
+}
+
+mixin IModalResponseMixin {
+  IInteractions get interactions;
+  IInteraction get interaction;
+
+  Future<void> respondModal(ModalBuilder builder);
+}
+
+mixin ModalResponseMixin implements IModalResponseMixin {
+  @override
+  Future<void> respondModal(ModalBuilder builder) => interactions.interactionsEndpoints.respondModal(interaction.token, interaction.id.toString(), builder);
 }

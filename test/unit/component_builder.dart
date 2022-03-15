@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 main() {
   test("components", () {
-    final customButton = ButtonBuilder("label", "customId", ComponentStyle.secondary);
+    final customButton = ButtonBuilder("label", "customId", ButtonStyle.secondary);
     final linkButton = LinkButtonBuilder("label2", "discord://-/");
     final multiselect = MultiselectBuilder("customId2", [MultiselectOptionBuilder("label1", "value1", true)]);
 
@@ -91,14 +91,14 @@ main() {
   test("ButtonBuilder label length", () {
     expect(
         () => ButtonBuilder(
-            'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', 'test', ComponentStyle.secondary),
+            'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', 'test', ButtonStyle.secondary),
         throwsA(isA<ArgumentError>()));
   });
 
   test("ButtonBuilder customId length", () {
     expect(
         () => ButtonBuilder(
-            'test', 'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', ComponentStyle.secondary),
+            'test', 'Fusce accumsan sit amet neque vitae viverra. Sed leo est, finibus ut velit at, commodo vestibulum nulla metus.', ButtonStyle.secondary),
         throwsA(isA<ArgumentError>()));
   });
 
@@ -121,7 +121,7 @@ Suspendisse aliquet volutpat ante eu ornare. Etiam ante erat, pulvinar vel justo
   });
 
   test("ButtonBuilder emoji", () {
-    final builder = ButtonBuilder("label", "customId", ComponentStyle.primary)..emoji = UnicodeEmoji('😂');
+    final builder = ButtonBuilder("label", "customId", ButtonStyle.primary)..emoji = UnicodeEmoji('😂');
 
     final expectedResult = {
       'type': 2,

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:nyxx_interactions/src/events/interaction_event.dart';
 
 /// Function that will handle execution of slash command interaction event
 typedef SlashCommandHandler = FutureOr<void> Function(ISlashCommandInteractionEvent);

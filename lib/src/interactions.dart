@@ -139,6 +139,9 @@ class Interactions implements IInteractions {
           case 4:
             (events as EventController).onAutocompleteEventController.add(AutocompleteInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
             break;
+          case 5:
+            (events as EventController).onModalEventController.add(ModalInteractionEvent(this, rawData['d'] as Map<String, dynamic>));
+            break;
           default:
             _logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(rawData)}");
         }
@@ -186,13 +189,13 @@ class Interactions implements IInteractions {
         for (final command in response) {
           _commands.add(command);
         }
+
+        await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
       }
 
       for (final globalCommandBuilder in entry.value) {
         _assignCommandToHandler(globalCommandBuilder);
       }
-
-      await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
     }
 
     if (_commandHandlers.isNotEmpty) {
