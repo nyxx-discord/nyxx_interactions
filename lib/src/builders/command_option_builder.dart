@@ -47,9 +47,26 @@ class CommandOptionBuilder extends Builder {
 
   AutocompleteInteractionHandler? autocompleteHandler;
 
+  /// If this is a number option ([CommandOptionType.integer] or [CommandOptionType.number]), the minimum value the user can input.
+  num? min;
+
+  /// If this is a number option ([CommandOptionType.integer] or [CommandOptionType.number]), the minimum value the user can input.
+  num? max;
+
   /// Used to create an argument for a [SlashCommandBuilder].
-  CommandOptionBuilder(this.type, this.name, this.description,
-      {this.defaultArg = false, this.required = false, this.choices, this.options, this.channelTypes, this.autoComplete = false});
+  CommandOptionBuilder(
+    this.type,
+    this.name,
+    this.description, {
+    this.defaultArg = false,
+    this.required = false,
+    this.choices,
+    this.options,
+    this.channelTypes,
+    this.autoComplete = false,
+    this.min,
+    this.max,
+  });
 
   /// Registers handler for subcommand
   void registerHandler(SlashCommandHandler handler) {
@@ -79,6 +96,8 @@ class CommandOptionBuilder extends Builder {
         if (choices != null) "choices": choices!.map((e) => e.build()).toList(),
         if (options != null) "options": options!.map((e) => e.build()).toList(),
         if (channelTypes != null && type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
+        if (min != null) "min_value": min,
+        if (max != null) "max_value": max,
         "autocomplete": autoComplete,
       };
 }
