@@ -68,6 +68,9 @@ class MultiselectBuilder extends ComponentBuilderAbstract {
   /// Default: 1, min: 1, max: 25
   int? maxValues;
 
+  /// Whether disable the select menu.
+  bool? disabled;
+
   /// Creates instance of [MultiselectBuilder]
   MultiselectBuilder(this.customId, [Iterable<MultiselectOptionBuilder>? options]) {
     if (customId.length > 100) {
@@ -90,6 +93,7 @@ class MultiselectBuilder extends ComponentBuilderAbstract {
         if (placeholder != null) "placeholder": placeholder,
         if (minValues != null) "min_values": minValues,
         if (maxValues != null) "max_values": maxValues,
+        if (disabled != null) "disabled": disabled,
       };
 }
 
