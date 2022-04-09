@@ -1,3 +1,9 @@
+## 4.1.0
+__09.04.2022__
+
+- feature: Add disabled option to `MultiselectBuilder` (#39)
+- feature: Add support for minimum and maximum values in CommandOptionBuilder
+
 ## 4.0.0
 __14.03.2022__
 
