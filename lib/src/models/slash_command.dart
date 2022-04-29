@@ -25,7 +25,18 @@ abstract class ISlashCommand implements SnowflakeEntity {
   Cacheable<Snowflake, IGuild>? get guild;
 
   /// Whether the command is enabled by default when the app is added to a guild
+  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
   bool get defaultPermissions;
+
+  /// Whether this slash command can be used in a DM channel with the bot.
+  bool get canBeUsedInDm;
+
+  /// A set of permissions required by users in guilds to execute this command.
+  ///
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
+  /// will require *all* of the permissions to execute the command.
+  // TODO: rename to `permissions` once the current `permissions` is removed.
+  int get requiresPermissions;
 }
 
 /// Represents slash command that is returned from Discord API.
@@ -56,7 +67,20 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
 
   /// Whether the command is enabled by default when the app is added to a guild
   @override
+  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
   late final bool defaultPermissions;
+
+  /// Whether this slash command can be used in a DM channel with the bot.
+  @override
+  late final bool canBeUsedInDm;
+
+  /// A set of permissions required by users in guilds to execute this command.
+  ///
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
+  /// will require *all* of the permissions to execute the command.
+  // TODO: rename to `permissions` once the current `permissions` is removed.
+  @override
+  late final int requiresPermissions;
 
   /// Creates na instance of [SlashCommand]
   SlashCommand(RawApiMap raw, INyxx client) : super(Snowflake(raw["id"])) {
@@ -65,6 +89,9 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
     description = raw["description"] as String;
     type = SlashCommandType(raw["type"] as int? ?? 1);
     guild = raw["guild_id"] != null ? GuildCacheable(client, Snowflake(raw["guild_id"])) : null;
+    canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
+    requiresPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
+
     defaultPermissions = raw["default_permission"] as bool? ?? true;
 
     options = [

@@ -190,7 +190,13 @@ class Interactions implements IInteractions {
           _commands.add(command);
         }
 
-        await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
+        if (entry.value.any((element) => element.permissions?.isNotEmpty ?? false)) {
+          _logger.warning(
+            'Using deprecated permissions endpoint. To fix, use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions'
+            ' instead of SlashCommandBuilder.permissions',
+          );
+          await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
+        }
       }
 
       for (final globalCommandBuilder in entry.value) {

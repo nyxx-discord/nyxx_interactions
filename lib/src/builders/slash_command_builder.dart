@@ -21,6 +21,7 @@ class SlashCommandBuilder extends Builder {
   final String? description;
 
   /// If people can use the command by default or if they need permissions to use it.
+  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
   final bool defaultPermissions;
 
   /// The guild that the slash Command is registered in. This can be null if its a global command.
@@ -30,6 +31,7 @@ class SlashCommandBuilder extends Builder {
   List<CommandOptionBuilder> options;
 
   /// Permission overrides for the command
+  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
   List<CommandPermissionBuilderAbstract>? permissions;
 
   /// Target of slash command if different that SlashCommandTarget.chat - slash command will
@@ -39,9 +41,28 @@ class SlashCommandBuilder extends Builder {
   /// Handler for SlashCommandBuilder
   SlashCommandHandler? handler;
 
+  /// Whether this slash command can be used in a DM channel with the bot.
+  final bool canBeUsedInDm;
+
+  /// A set of permissions required by users in guilds to execute this command.
+  ///
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
+  /// will require *all* of the permissions to execute the command.
+  // TODO: rename to `permissions` once the current `permissions` is removed.
+  final int requiredPermissions;
+
   /// A slash command, can only be instantiated through a method on [Interactions]
-  SlashCommandBuilder(this.name, this.description, this.options,
-      {this.defaultPermissions = true, this.permissions, this.guild, this.type = SlashCommandType.chat}) {
+  SlashCommandBuilder(
+    this.name,
+    this.description,
+    this.options, {
+    this.canBeUsedInDm = true,
+    this.requiredPermissions = 0, // 0 = no permissions required
+    this.guild,
+    this.type = SlashCommandType.chat,
+    this.defaultPermissions = true,
+    this.permissions,
+  }) {
     if (!slashCommandNameRegex.hasMatch(name)) {
       throw ArgumentError("Command name has to match regex: ${slashCommandNameRegex.pattern}");
     }
@@ -59,9 +80,11 @@ class SlashCommandBuilder extends Builder {
   RawApiMap build() => {
         "name": name,
         if (type == SlashCommandType.chat) "description": description,
-        "default_permission": defaultPermissions,
         if (options.isNotEmpty) "options": options.map((e) => e.build()).toList(),
         "type": type.value,
+        "dm_permission": canBeUsedInDm,
+        "default_member_permissions": requiredPermissions.toString(),
+        "default_permission": defaultPermissions,
       };
 
   void setId(Snowflake id) => _id = id;
@@ -69,6 +92,7 @@ class SlashCommandBuilder extends Builder {
   Snowflake get id => _id;
 
   /// Register a permission
+  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
   void addPermission(CommandPermissionBuilderAbstract permission) {
     permissions ??= [];
 

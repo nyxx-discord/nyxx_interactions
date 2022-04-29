@@ -73,6 +73,8 @@ abstract class IInteractionsEndpoints {
   Stream<ISlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders);
 
   /// Overrides permissions for guild commands
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders);
 
   /// Responds to autocomplete interaction
@@ -306,6 +308,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
   }
 
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGlobalCommandsPermissions(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async {
     final globalBody = builders
         .where((builder) => builder.permissions != null && builder.permissions!.isNotEmpty)
@@ -319,6 +323,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async {
     final guildBody = builders
         .where((b) => b.permissions != null && b.permissions!.isNotEmpty)

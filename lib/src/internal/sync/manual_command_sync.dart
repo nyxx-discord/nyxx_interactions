@@ -5,7 +5,7 @@ import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 
 /// Manually define command syncing rules
 class ManualCommandSync implements ICommandsSync {
-  /// If commands & permissions should be overridden on next run.
+  /// If commands should be overridden on next run.
   final bool sync;
 
   /// Manually define command syncing rules
