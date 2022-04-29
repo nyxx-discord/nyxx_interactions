@@ -38,7 +38,7 @@ abstract class ISlashCommand implements SnowflakeEntity {
   /// operator, they will be allowed to execute the command.
   int get requiredPermissions;
 
-  Cacheable<Snowflake, ISlashCommandPermissionOverrides> get permissionOverrides;
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides>? get permissionOverrides;
 }
 
 /// Represents slash command that is returned from Discord API.
@@ -84,7 +84,7 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
   late final int requiredPermissions;
 
   @override
-  late final Cacheable<Snowflake, ISlashCommandPermissionOverrides> permissionOverrides;
+  late final Cacheable<Snowflake, ISlashCommandPermissionOverrides>? permissionOverrides;
 
   /// Creates an instance of [SlashCommand]
   SlashCommand(RawApiMap raw, Interactions interactions) : super(Snowflake(raw["id"])) {
@@ -95,7 +95,10 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
     guild = raw["guild_id"] != null ? GuildCacheable(interactions.client, Snowflake(raw["guild_id"])) : null;
     canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
     requiredPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
-    permissionOverrides = SlashCommandPermissionOverridesCacheable(id, Snowflake(raw["guild_id"]), interactions);
+
+    if (guild != null) {
+      permissionOverrides = SlashCommandPermissionOverridesCacheable(id, guild!.id, interactions);
+    }
 
     defaultPermissions = raw["default_permission"] as bool? ?? true;
 
