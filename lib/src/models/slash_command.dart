@@ -1,9 +1,10 @@
 import 'package:nyxx/nyxx.dart';
 // ignore: implementation_imports
 import 'package:nyxx/src/internal/cache/cacheable.dart';
+import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
-
-import 'package:nyxx_interactions/src/models/slash_command_type.dart';
+import 'package:nyxx_interactions/src/models/slash_command_permission.dart';
 
 abstract class ISlashCommand implements SnowflakeEntity {
   /// Unique id of the parent application
@@ -36,6 +37,8 @@ abstract class ISlashCommand implements SnowflakeEntity {
   /// The integer to use for a permission can be obtained by using [PermissionsConstants]. If a member has any of the permissions combined with the bitwise OR
   /// operator, they will be allowed to execute the command.
   int get requiredPermissions;
+
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> get permissionOverrides;
 }
 
 /// Represents slash command that is returned from Discord API.
@@ -80,15 +83,19 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
   @override
   late final int requiredPermissions;
 
-  /// Creates na instance of [SlashCommand]
-  SlashCommand(RawApiMap raw, INyxx client) : super(Snowflake(raw["id"])) {
+  @override
+  late final Cacheable<Snowflake, ISlashCommandPermissionOverrides> permissionOverrides;
+
+  /// Creates an instance of [SlashCommand]
+  SlashCommand(RawApiMap raw, Interactions interactions) : super(Snowflake(raw["id"])) {
     applicationId = Snowflake(raw["application_id"]);
     name = raw["name"] as String;
     description = raw["description"] as String;
     type = SlashCommandType(raw["type"] as int? ?? 1);
-    guild = raw["guild_id"] != null ? GuildCacheable(client, Snowflake(raw["guild_id"])) : null;
+    guild = raw["guild_id"] != null ? GuildCacheable(interactions.client, Snowflake(raw["guild_id"])) : null;
     canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
     requiredPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
+    permissionOverrides = SlashCommandPermissionOverridesCacheable(id, Snowflake(raw["guild_id"]), interactions);
 
     defaultPermissions = raw["default_permission"] as bool? ?? true;
 

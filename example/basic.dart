@@ -21,9 +21,7 @@ final singleCommand = SlashCommandBuilder("help", "This is example help command"
 // for main handler because only sub commands will be invokable.
 // In list for options you can create new instances of sub commands with
 // commands handlers that command could be responded by bot.
-final subCommand = SlashCommandBuilder("game", "This is example game command", [
-  subCommandFlipGame
-]);
+final subCommand = SlashCommandBuilder("game", "This is example game command", [subCommandFlipGame]);
 
 // Subcommand event handler receives same SlashCommandInteraction parameter with all
 // info and tools need to respond to an interaction

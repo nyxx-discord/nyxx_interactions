@@ -43,6 +43,7 @@ export 'src/models/interaction.dart'
     show IComponentInteraction, IInteraction, IButtonInteraction, IMultiselectInteraction, ISlashCommandInteraction, IModalInteraction;
 export 'src/models/interaction_data_resolved.dart' show IInteractionDataResolved, IPartialChannel;
 export 'src/models/interaction_option.dart' show IInteractionOption;
+export 'src/models/slash_command_permission.dart' show ISlashCommandPermissionOverride, ISlashCommandPermissionOverrides, SlashCommandPermissionType;
 export 'src/models/slash_command.dart' show ISlashCommand;
 export 'src/models/slash_command_type.dart' show SlashCommandType;
 

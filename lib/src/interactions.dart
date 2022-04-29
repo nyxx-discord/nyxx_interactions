@@ -14,6 +14,7 @@ import 'package:nyxx_interactions/src/internal/sync/commands_sync.dart';
 import 'package:nyxx_interactions/src/internal/sync/manual_command_sync.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/models/slash_command_permission.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 import 'package:nyxx_interactions/src/events/interaction_event.dart';
 import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
@@ -76,6 +77,7 @@ abstract class IInteractions {
 /// Interaction extension for Nyxx. Allows use of: Slash Commands.
 class Interactions implements IInteractions {
   static const _interactionCreateCommand = "INTERACTION_CREATE";
+  static const _commandPermissionsUpdate = "APPLICATION_COMMAND_PERMISSIONS_UPDATE";
 
   final Logger _logger = Logger("Interactions");
   final _commandBuilders = <SlashCommandBuilder>[];
@@ -84,6 +86,8 @@ class Interactions implements IInteractions {
   final _buttonHandlers = <String, ButtonInteractionHandler>{};
   final _autocompleteHandlers = <String, AutocompleteInteractionHandler>{};
   final _multiselectHandlers = <String, MultiselectInteractionHandler>{};
+
+  final permissionOverridesCache = <Snowflake, Map<Snowflake, SlashCommandPermissionOverrides>>{};
 
   @override
   late final IEventController events;
@@ -106,7 +110,7 @@ class Interactions implements IInteractions {
   /// Create new instance of the interactions class.
   Interactions(this.backend) {
     events = EventController();
-    interactionsEndpoints = InteractionsEndpoints(client);
+    interactionsEndpoints = InteractionsEndpoints(client, this);
 
     backend.setup();
 
@@ -145,6 +149,14 @@ class Interactions implements IInteractions {
           default:
             _logger.warning("Unknown interaction type: [$type]; Payload: ${jsonEncode(rawData)}");
         }
+      } else if (rawData["op"] == 0 && rawData["t"] == _commandPermissionsUpdate) {
+        final overrides = SlashCommandPermissionOverrides(rawData["d"] as RawApiMap, client);
+
+        Snowflake guildId = Snowflake(rawData["d"]["guild_id"]);
+        Snowflake commandId = Snowflake(rawData["d"]["id"]);
+
+        permissionOverridesCache[guildId] ??= {};
+        permissionOverridesCache[guildId]![commandId] = overrides;
       }
     });
   }
