@@ -1,10 +1,10 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/message/message.dart';
-import 'package:nyxx_interactions/src/builders/modal_builder.dart';
+import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
 
 import 'package:nyxx_interactions/src/models/slash_command.dart';
-import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
-import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
+import 'package:nyxx_interactions/src/models/slash_command_permission.dart';
 
 abstract class IInteractionsEndpoints {
   /// Sends followup for interaction with given [token]. IMessage will be created with [builder]
@@ -73,16 +73,22 @@ abstract class IInteractionsEndpoints {
   Stream<ISlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders);
 
   /// Overrides permissions for guild commands
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders);
 
   /// Responds to autocomplete interaction
   Future<void> respondToAutocomplete(Snowflake interactionId, String token, List<ArgChoiceBuilder> builders);
+
+  /// Fetch the command permission overrides for a command in a guild.
+  Future<ISlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId);
 }
 
 class InteractionsEndpoints implements IInteractionsEndpoints {
   final INyxx _client;
+  final Interactions _interactions;
 
-  InteractionsEndpoints(this._client);
+  InteractionsEndpoints(this._client, this._interactions);
 
   @override
   Future<void> acknowledge(String token, String interactionId, bool hidden, int opCode) async {
@@ -200,7 +206,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
 
     for (final rawRes in (response as IHttpResponseSucess).jsonBody as List<dynamic>) {
-      yield SlashCommand(rawRes as RawApiMap, _client);
+      yield SlashCommand(rawRes as RawApiMap, _interactions);
     }
   }
 
@@ -213,7 +219,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
 
     for (final rawRes in (response as IHttpResponseSucess).jsonBody as List<dynamic>) {
-      yield SlashCommand(rawRes as RawApiMap, _client);
+      yield SlashCommand(rawRes as RawApiMap, _interactions);
     }
   }
 
@@ -243,7 +249,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       return Future.error(response);
     }
 
-    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _client);
+    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _interactions);
   }
 
   @override
@@ -255,7 +261,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       return Future.error(response);
     }
 
-    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _client);
+    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _interactions);
   }
 
   @override
@@ -266,7 +272,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       return Future.error(response);
     }
 
-    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _client);
+    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _interactions);
   }
 
   @override
@@ -278,7 +284,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
 
     for (final commandSlash in (response as IHttpResponseSucess).jsonBody as List<dynamic>) {
-      yield SlashCommand(commandSlash as RawApiMap, _client);
+      yield SlashCommand(commandSlash as RawApiMap, _interactions);
     }
   }
 
@@ -290,7 +296,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       return Future.error(response);
     }
 
-    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _client);
+    return SlashCommand((response as IHttpResponseSucess).jsonBody as RawApiMap, _interactions);
   }
 
   @override
@@ -302,10 +308,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
 
     for (final commandSlash in (response as IHttpResponseSucess).jsonBody as List<dynamic>) {
-      yield SlashCommand(commandSlash as RawApiMap, _client);
+      yield SlashCommand(commandSlash as RawApiMap, _interactions);
     }
   }
 
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGlobalCommandsPermissions(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async {
     final globalBody = builders
         .where((builder) => builder.permissions != null && builder.permissions!.isNotEmpty)
@@ -319,6 +327,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
+  @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async {
     final guildBody = builders
         .where((b) => b.permissions != null && b.permissions!.isNotEmpty)
@@ -366,5 +376,17 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     if (response is IHttpResponseError) {
       return Future.error(response);
     }
+  }
+
+  /// Fetch the command permission overrides for a command in a guild.
+  @override
+  Future<SlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId) async {
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands/$commandId/permissions", "GET");
+
+    if (response is IHttpResponseError) {
+      return Future.error(response);
+    }
+
+    return SlashCommandPermissionOverrides((response as IHttpResponseSucess).jsonBody as Map<String, dynamic>, _client);
   }
 }

@@ -1,3 +1,9 @@
+## 4.2.0
+__29.04.2022__
+
+- feature: Add support for the permissions v2 system
+- deprecations: Deprecated all command permission builders, the `defaultPermissions` and `permissions` fields of `SlashCommandBuilder`, the `bulkOverrideGuildCommandsPermissions` endpoint method and `defaultPermissions` from `SlashCommand`.
+
 ## 4.1.0
 __09.04.2022__
 

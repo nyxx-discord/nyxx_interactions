@@ -1,12 +1,13 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/models/arg_choice.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/models/interaction_option.dart';
 import 'package:nyxx_interactions/src/models/slash_command.dart';
 import 'package:test/test.dart';
 
-import '../mocks/nyxx_rest.mocks.dart';
+import '../mocks/nyxx_websocket.mocks.dart';
 
 main() {
   test('ArgChoice', () {
@@ -39,7 +40,8 @@ main() {
   });
 
   test('SlashCommand', () {
-    final client = NyxxRestMock();
+    final client = NyxxWebsocketMock();
+    final interactions = Interactions(WebsocketInteractionBackend(client));
 
     final entity = SlashCommand({
       "id": 123,
@@ -50,7 +52,9 @@ main() {
       'options': [
         {'type': 4, 'name': 'subOption', 'description': 'test'}
       ],
-    }, client);
+      'default_member_permissions': '123',
+      'dm_permission': false,
+    }, interactions);
 
     expect(entity.id, equals(Snowflake(123)));
     expect(entity.applicationId, equals(Snowflake(456)));
@@ -58,8 +62,9 @@ main() {
     expect(entity.description, equals('testdesc'));
     expect(entity.type, equals(SlashCommandType.chat));
     expect(entity.options, hasLength(1));
-    expect(entity.defaultPermissions, isTrue);
     expect(entity.guild, isNull);
+    expect(entity.requiredPermissions, equals(123));
+    expect(entity.canBeUsedInDm, isFalse);
   });
 
   test('InteractionOption options not empty', () {
