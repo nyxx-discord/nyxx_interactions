@@ -40,6 +40,9 @@ abstract class ISlashCommand implements SnowflakeEntity {
 
   /// If this command is a guild command, the permission overrides attached to this command, `null` otherwise.
   Cacheable<Snowflake, ISlashCommandPermissionOverrides>? get permissionOverrides;
+
+  /// Get the permission overrides for this command in a specific guild.
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getPermissionOverridesInGuild(Snowflake guildId);
 }
 
 /// Represents slash command that is returned from Discord API.
@@ -87,18 +90,20 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
   @override
   late final Cacheable<Snowflake, ISlashCommandPermissionOverrides>? permissionOverrides;
 
+  final Interactions _interactions;
+
   /// Creates an instance of [SlashCommand]
-  SlashCommand(RawApiMap raw, Interactions interactions) : super(Snowflake(raw["id"])) {
+  SlashCommand(RawApiMap raw, this._interactions) : super(Snowflake(raw["id"])) {
     applicationId = Snowflake(raw["application_id"]);
     name = raw["name"] as String;
     description = raw["description"] as String;
     type = SlashCommandType(raw["type"] as int? ?? 1);
-    guild = raw["guild_id"] != null ? GuildCacheable(interactions.client, Snowflake(raw["guild_id"])) : null;
+    guild = raw["guild_id"] != null ? GuildCacheable(_interactions.client, Snowflake(raw["guild_id"])) : null;
     canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
     requiredPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
 
     if (guild != null) {
-      permissionOverrides = SlashCommandPermissionOverridesCacheable(id, guild!.id, interactions);
+      permissionOverrides = SlashCommandPermissionOverridesCacheable(id, guild!.id, _interactions);
     }
 
     defaultPermissions = raw["default_permission"] as bool? ?? true;
@@ -108,4 +113,8 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
         for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
     ];
   }
+
+  @override
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getPermissionOverridesInGuild(Snowflake guildId) =>
+      SlashCommandPermissionOverridesCacheable(id, guildId, _interactions);
 }
