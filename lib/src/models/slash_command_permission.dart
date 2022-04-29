@@ -1,19 +1,35 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 
+/// The type of entiity that a command permission override is targeting.
 class SlashCommandPermissionType extends IEnum<int> {
+  /// The permission override applies to a role.
   static const SlashCommandPermissionType role = SlashCommandPermissionType._(1);
+
+  /// The permission override applies to a user.
   static const SlashCommandPermissionType user = SlashCommandPermissionType._(2);
+
+  /// The permission override applies to a channel.
   static const SlashCommandPermissionType channel = SlashCommandPermissionType._(3);
 
   const SlashCommandPermissionType._(int value) : super(value);
 }
 
+/// A single permission override for a command.
 abstract class ISlashCommandPermissionOverride {
+  /// The type of this override.
   SlashCommandPermissionType get type;
+
+  /// The ID of the entity targeted by this override.
   Snowflake get id;
+
+  /// Whether this override allows or denies the command permission.
   bool get allowed;
+
+  /// Whether this override represents all users in a guild.
   bool get isEveryone;
+
+  /// Whether this override represents all channels in a guild.
   bool get isAllChannels;
 }
 
@@ -39,7 +55,9 @@ class SlashCommandPermissionOverride implements ISlashCommandPermissionOverride 
   }
 }
 
+/// A collection of permission overrides attached to a slash command.
 abstract class ISlashCommandPermissionOverrides implements SnowflakeEntity {
+  /// The permissions attached to the command.
   List<SlashCommandPermissionOverride> get permissionOverrides;
 }
 

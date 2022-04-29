@@ -1,12 +1,9 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/message/message.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
-import 'package:nyxx_interactions/src/builders/modal_builder.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 
 import 'package:nyxx_interactions/src/models/slash_command.dart';
-import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
-import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 import 'package:nyxx_interactions/src/models/slash_command_permission.dart';
 
 abstract class IInteractionsEndpoints {
@@ -83,6 +80,7 @@ abstract class IInteractionsEndpoints {
   /// Responds to autocomplete interaction
   Future<void> respondToAutocomplete(Snowflake interactionId, String token, List<ArgChoiceBuilder> builders);
 
+  /// Fetch the command permission overrides for a command in a guild.
   Future<ISlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId);
 }
 
@@ -380,6 +378,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
   }
 
+  /// Fetch the command permission overrides for a command in a guild.
   @override
   Future<SlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId) async {
     final response = await _client.httpEndpoints.sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands/$commandId/permissions", "GET");

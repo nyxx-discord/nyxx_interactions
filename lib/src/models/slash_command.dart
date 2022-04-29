@@ -38,6 +38,7 @@ abstract class ISlashCommand implements SnowflakeEntity {
   /// operator, they will be allowed to execute the command.
   int get requiredPermissions;
 
+  /// If this command is a guild command, the permission overrides attached to this command, `null` otherwise.
   Cacheable<Snowflake, ISlashCommandPermissionOverrides>? get permissionOverrides;
 }
 
