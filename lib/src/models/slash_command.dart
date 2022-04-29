@@ -33,10 +33,9 @@ abstract class ISlashCommand implements SnowflakeEntity {
 
   /// A set of permissions required by users in guilds to execute this command.
   ///
-  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
-  /// will require *all* of the permissions to execute the command.
-  // TODO: rename to `permissions` once the current `permissions` is removed.
-  int get requiresPermissions;
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. If a member has any of the permissions combined with the bitwise OR
+  /// operator, they will be allowed to execute the command.
+  int get requiredPermissions;
 }
 
 /// Represents slash command that is returned from Discord API.
@@ -76,11 +75,10 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
 
   /// A set of permissions required by users in guilds to execute this command.
   ///
-  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
-  /// will require *all* of the permissions to execute the command.
-  // TODO: rename to `permissions` once the current `permissions` is removed.
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. If a member has any of the permissions combined with the bitwise OR
+  /// operator, they will be allowed to execute the command.
   @override
-  late final int requiresPermissions;
+  late final int requiredPermissions;
 
   /// Creates na instance of [SlashCommand]
   SlashCommand(RawApiMap raw, INyxx client) : super(Snowflake(raw["id"])) {
@@ -90,7 +88,7 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
     type = SlashCommandType(raw["type"] as int? ?? 1);
     guild = raw["guild_id"] != null ? GuildCacheable(client, Snowflake(raw["guild_id"])) : null;
     canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
-    requiresPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
+    requiredPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
 
     defaultPermissions = raw["default_permission"] as bool? ?? true;
 

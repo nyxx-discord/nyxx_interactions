@@ -46,10 +46,9 @@ class SlashCommandBuilder extends Builder {
 
   /// A set of permissions required by users in guilds to execute this command.
   ///
-  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. While the bitwise OR operator is used to combine permissions, members
-  /// will require *all* of the permissions to execute the command.
-  // TODO: rename to `permissions` once the current `permissions` is removed.
-  final int requiredPermissions;
+  /// The integer to use for a permission can be obtained by using [PermissionsConstants]. If a member has any of the permissions combined with the bitwise OR
+  /// operator, they will be allowed to execute the command.
+  int? requiredPermissions;
 
   /// A slash command, can only be instantiated through a method on [Interactions]
   SlashCommandBuilder(
@@ -57,7 +56,7 @@ class SlashCommandBuilder extends Builder {
     this.description,
     this.options, {
     this.canBeUsedInDm = true,
-    this.requiredPermissions = 0, // 0 = no permissions required
+    this.requiredPermissions,
     this.guild,
     this.type = SlashCommandType.chat,
     this.defaultPermissions = true,
@@ -83,7 +82,7 @@ class SlashCommandBuilder extends Builder {
         if (options.isNotEmpty) "options": options.map((e) => e.build()).toList(),
         "type": type.value,
         "dm_permission": canBeUsedInDm,
-        "default_member_permissions": requiredPermissions.toString(),
+        if (requiredPermissions != null) "default_member_permissions": requiredPermissions.toString(),
         "default_permission": defaultPermissions,
       };
 
