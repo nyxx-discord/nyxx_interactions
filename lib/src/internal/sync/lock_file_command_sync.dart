@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
 import 'package:nyxx_interactions/src/internal/sync/commands_sync.dart';
@@ -14,120 +14,70 @@ class LockFileCommandSync implements ICommandsSync {
 
   @override
   FutureOr<bool> shouldSync(Iterable<SlashCommandBuilder> commands) async {
-    final lockFile = File("./nyxx_interactions.lock");
-    final lockFileMapData = <String, String>{};
+    File lockFile = File('./nyxx_interactions.lock');
 
-    for (final c in commands) {
-      lockFileMapData[c.name] = _LockfileCommand(
-        c.name,
-        c.description,
-        c.guild,
-        c.defaultPermissions,
-        c.permissions?.map((p) => _LockfilePermission(p.type, p.id, p.hasPermission)) ?? [],
-        c.options.map((o) => _LockfileOption(o.type.value, o.name, o.description, o.options ?? [])),
-      ).generateHash();
-    }
+    Map<String, String> hashes = {
+      for (final command in commands) command.name: generateBuilderHash(command).bytes.map((e) => e.toRadixString(16)).join(),
+    };
 
     if (!lockFile.existsSync()) {
-      await lockFile.writeAsString(jsonEncode(lockFileMapData));
+      lockFile.writeAsStringSync(jsonEncode(hashes));
       return true;
     }
 
-    final lockfileData = jsonDecode(lockFile.readAsStringSync()) as _LockfileCommand;
+    try {
+      Map<String, String> lockFileContents = (jsonDecode(lockFile.readAsStringSync()) as Map<dynamic, dynamic>).cast<String, String>();
 
-    if (lockFileMapData == lockfileData) {
-      return false;
+      for (final entry in hashes.entries) {
+        if (lockFileContents[entry.key] != entry.value) {
+          return false;
+        }
+      }
+    } on FormatException {
+      lockFile.writeAsStringSync(jsonEncode(hashes));
+      return true;
     }
 
-    await lockFile.writeAsString(jsonEncode(lockFileMapData));
-    return true;
+    return false;
   }
 }
 
-class _LockfileCommand {
-  final String name;
-  final Snowflake? guild;
-  final bool defaultPermissions;
-  final Iterable<_LockfilePermission> permissions;
-  final String? description;
-  final Iterable<_LockfileOption> options;
-
-  _LockfileCommand(this.name, this.description, this.guild, this.defaultPermissions, this.permissions, this.options);
-
-  String generateHash() => md5.convert(utf8.encode(jsonEncode(this))).toString();
-
-  @override
-  bool operator ==(Object other) {
-    if (other is! _LockfileCommand) {
-      return false;
-    }
-
-    if (other.defaultPermissions != defaultPermissions || other.name != name || other.guild != guild || other.defaultPermissions != defaultPermissions) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @override
-  int get hashCode => name.hashCode + guild.hashCode + defaultPermissions.hashCode + permissions.hashCode + description.hashCode + options.hashCode;
+Digest generateBuilderHash(SlashCommandBuilder builder) {
+  return sha256.convert([
+    ...utf8.encode(builder.name),
+    0, // Delimiter
+    ...utf8.encode(builder.description ?? ''),
+    0, // Delimiter
+    builder.guild?.id ?? 0,
+    ...builder.options.map((o) => generateOptionHash(o).bytes).expand((e) => e),
+    builder.type.value,
+    builder.canBeUsedInDm ? 0 : 1,
+    builder.requiredPermissions ?? 0,
+  ]);
 }
 
-class _LockfileOption {
-  final int type;
-  final String name;
-  final String? description;
-
-  late final Iterable<_LockfileOption> options;
-
-  _LockfileOption(this.type, this.name, this.description, Iterable<CommandOptionBuilder> options) {
-    this.options = options.map(
-      (o) => _LockfileOption(
-        o.type.value,
-        o.name,
-        o.description,
-        o.options ?? [],
-      ),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (other is! _LockfileOption) {
-      return false;
-    }
-
-    if (other.type != type || other.name != name || other.description != description) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @override
-  int get hashCode => type.hashCode + name.hashCode + description.hashCode;
+Digest generateOptionHash(CommandOptionBuilder builder) {
+  return sha256.convert([
+    ...utf8.encode(builder.name),
+    0,
+    ...utf8.encode(builder.description),
+    0,
+    builder.defaultArg ? 0 : 1,
+    builder.required ? 0 : 1,
+    if (builder.choices != null) ...builder.choices!.map((e) => generateChoicesHash(e).bytes).expand((e) => e),
+    if (builder.options != null) ...builder.options!.map((o) => generateOptionHash(o).bytes).expand((e) => e),
+    if (builder.channelTypes != null) ...builder.channelTypes!.map((e) => e.value),
+    builder.autoComplete ? 0 : 1,
+    if (builder.min != null) builder.min.hashCode,
+    if (builder.max != null) builder.max.hashCode,
+  ]);
 }
 
-class _LockfilePermission {
-  final int permissionType;
-  final Snowflake? permissionEntityId;
-  final bool permissionsGranted;
-
-  const _LockfilePermission(this.permissionType, this.permissionEntityId, this.permissionsGranted);
-
-  @override
-  bool operator ==(Object other) {
-    if (other is! _LockfilePermission) {
-      return false;
-    }
-
-    if (other.permissionType != permissionType || other.permissionEntityId != permissionEntityId || other.permissionsGranted != permissionsGranted) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @override
-  int get hashCode => permissionType.hashCode + permissionEntityId.hashCode + permissionsGranted.hashCode;
+Digest generateChoicesHash(ArgChoiceBuilder builder) {
+  return sha256.convert([
+    ...utf8.encode(builder.name),
+    0,
+    ...utf8.encode(builder.value.toString()),
+    0,
+  ]);
 }

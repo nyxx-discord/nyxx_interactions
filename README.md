@@ -73,7 +73,7 @@ The dartdocs page will always have the documentation for the latest release.
 
 ## Contributing to Nyxx
 
-Read [contributing document](https://github.com/l7ssha/nyxx_interactions/blob/development/CONTRIBUTING.md)
+Read [contributing document](https://github.com/nyxx-discord/nyxx_interactions/blob/dev/CONTRIBUTING.md)
 
 ## Credits
 

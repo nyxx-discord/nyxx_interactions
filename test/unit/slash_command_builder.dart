@@ -25,17 +25,6 @@ void main() {
     expect(slashCommandBuilder.id, equals(Snowflake.zero()));
   });
 
-  test(".addPermission", () {
-    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", []);
-
-    slashCommandBuilder
-      ..addPermission(RoleCommandPermissionBuilder(Snowflake.zero()))
-      ..addPermission(UserCommandPermissionBuilder(Snowflake.bulk()));
-
-    expect(slashCommandBuilder.permissions, isNotNull);
-    expect(slashCommandBuilder.permissions, hasLength(2));
-  });
-
   test('.registerHandler failure', () {
     final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", [CommandOptionBuilder(CommandOptionType.subCommand, "test", 'test')]);
 
@@ -50,13 +39,15 @@ void main() {
   });
 
   test('.build', () {
-    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", []);
+    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", [], requiredPermissions: PermissionsConstants.administrator);
 
     final expectedResult = {
       "name": "invalid-name",
       "description": "test",
       "type": SlashCommandType.chat,
-      "default_permission": true,
+      "default_permission": true, // TODO: remove when default_permission is removed
+      "dm_permission": true,
+      "default_member_permissions": PermissionsConstants.administrator.toString(),
     };
 
     expect(slashCommandBuilder.build(), equals(expectedResult));

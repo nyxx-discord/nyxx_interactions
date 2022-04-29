@@ -1,4 +1,3 @@
-import "package:nyxx_interactions/nyxx_interactions.dart";
 import 'package:nyxx_interactions/src/internal/utils.dart';
 
 import "package:test/test.dart";
