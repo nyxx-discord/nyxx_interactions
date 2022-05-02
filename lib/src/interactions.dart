@@ -71,6 +71,9 @@ abstract class IInteractions {
   /// Fetches all guild commands for given guild
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId);
 
+  /// Returns the global overrides for commands in a guild.
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId);
+
   static IInteractions create(InteractionBackend backend) => Interactions(backend);
 }
 
@@ -311,6 +314,10 @@ class Interactions implements IInteractions {
   /// Fetches all guild commands for given guild
   @override
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId) => interactionsEndpoints.fetchGuildCommands(client.appId, guildId);
+
+  @override
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId) =>
+      SlashCommandPermissionOverridesCacheable(client.appId, guildId, this);
 
   void _extractCommandIds(List<ISlashCommand> commands) {
     for (final slashCommand in commands) {
