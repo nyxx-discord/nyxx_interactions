@@ -1,3 +1,8 @@
+## 4.2.1
+__02.05.2022__
+
+- bug: Allow application level permission overrides
+
 ## 4.2.0
 __29.04.2022__
 
