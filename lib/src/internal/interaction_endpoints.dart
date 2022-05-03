@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/message/message.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
@@ -92,6 +93,8 @@ abstract class IInteractionsEndpoints {
 class InteractionsEndpoints implements IInteractionsEndpoints {
   final INyxx _client;
   final Interactions _interactions;
+
+  final Logger _logger = Logger('Interactions');
 
   InteractionsEndpoints(this._client, this._interactions);
 
@@ -395,10 +398,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
         // 10066 = Unknown application command permissions
         // Means there are no overrides for this command... why is this an error, Discord?
         if (jsonDecode(response.errorMessage)['code'] == 10066) {
+          _logger.finest('Got error code 10066 on permissions for command $commandId in guild $guildId, returning empty permission overrides.');
           return SlashCommandPermissionOverrides.empty(commandId, _client);
         }
       } on Exception {
         // We got invalid JSON. The request is probably invalid, so we ignore it and return an error.
+        _logger.warning('Invalid JSON in response: ${response.errorMessage}');
       }
 
       return Future.error(response);
