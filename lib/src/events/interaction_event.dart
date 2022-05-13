@@ -13,7 +13,7 @@ import 'package:nyxx_interactions/src/exceptions/already_responded.dart';
 import 'package:nyxx/nyxx.dart';
 
 abstract class IInteractionEvent<T extends IInteraction> {
-  /// Reference to [Nyxx]
+  /// Reference to [INyxx]
   INyxx get client;
 
   /// Reference to [Interactions]
@@ -27,7 +27,7 @@ abstract class IInteractionEvent<T extends IInteraction> {
 }
 
 abstract class InteractionEventAbstract<T extends IInteraction> implements IInteractionEvent<T> {
-  /// Reference to [Nyxx]
+  /// Reference to [INyxx]
   @override
   INyxx get client => interactions.client;
 
@@ -222,7 +222,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     _hasAcked = true;
   }
 
-  /// Returns [Message] object of original interaction response
+  /// Returns [IMessage] object of original interaction response
   @override
   Future<IMessage> getOriginalResponse() async =>
       interactions.interactionsEndpoints.fetchOriginalResponse(interaction.token, client.appId, interaction.id.toString());
