@@ -43,7 +43,7 @@ abstract class IInteractionsEndpoints {
   Future<IMessage> editFollowup(String token, Snowflake applicationId, Snowflake messageId, MessageBuilder builder);
 
   /// Fetches global commands of application
-  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId);
+  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = false});
 
   /// Fetches global command with given [commandId]
   Future<ISlashCommand> fetchGlobalCommand(Snowflake applicationId, Snowflake commandId);
@@ -58,10 +58,10 @@ abstract class IInteractionsEndpoints {
   Stream<ISlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders);
 
   /// Fetches all commands for given [guildId]
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId, {bool withLocales = false});
 
   /// Fetches single guild command with given [commandId]
-  Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId);
+  Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, {bool withLocales = false});
 
   /// Edits single guild command with given [commandId]
   Future<ISlashCommand> editGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, SlashCommandBuilder builder);
@@ -276,8 +276,9 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET", auth: true);
+  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = false}) async* {
+    final Map<String, dynamic> queryParams = withLocales ? {'with_locales': 'true'} : {};
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET", auth: true, queryParams: queryParams);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -289,8 +290,11 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true);
+  Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, {bool withLocales = false}) async {
+    final response =
+        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true, queryParams: {
+      'with_localizations': withLocales.toString(),
+    });
 
     if (response is IHttpResponseSucess) {
       return Future.error(response);
@@ -300,8 +304,11 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET", auth: true);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId, {bool withLocales = false}) async* {
+    final Map<String, dynamic> queryParams = withLocales ? {'with_localizations': 'true'} : {};
+
+    final response =
+        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET", auth: true, queryParams: queryParams);
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);

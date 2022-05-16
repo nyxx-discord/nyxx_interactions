@@ -1,17 +1,43 @@
-import 'dart:convert';
-
 import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
 import 'package:nyxx_interactions/src/builders/command_permission_builder.dart';
-
 import 'package:nyxx_interactions/src/models/slash_command_type.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 
-/// A slash command, can only be instantiated through a method on [Interactions]
+/// {@template discord.override.link}
+///
+/// At this time, the localized feature is still in developement, so you you must set [an override] on your discord client.
+///
+/// The override is `feature/web-slash-commands-localization` that you can get [here]
+///
+/// [an override]: https://support.discord.com/hc/de/articles/360030114991
+/// [here]: https://discord.com/__development/link?s=qTpnDQLUm66XsoBawqlEcXO3G9jPncSIJy9OSKnIcSk%3D.eyJ0YXJnZXRCdWlsZE92ZXJyaWRlIjp7ImRpc2NvcmRfd2ViIjp7InR5cGUiOiJicmFuY2giLCJpZCI6ImZlYXR1cmUvd2ViLXNsYXNoLWNvbW1hbmQtbG9jYWxpemF0aW9uIn19LCJyZWxlYXNlQ2hhbm5lbCI6bnVsbCwidmFsaWRGb3JVc2VySWRzIjpbXSwiYWxsb3dMb2dnZWRPdXQiOmZhbHNlLCJleHBpcmVzQXQiOiJGcmksIDIwIE1heSAyMDIyIDE4OjA2OjU5IEdNVCJ9
+/// {@endtemplate}
+
+/// {@template slashcommand.builder.example}
+/// ```dart
+/// final scb = SlashCommandBuilder(
+///   'hello',
+///   'Hello World!',
+///   [],
+///   localizationsName: {
+///     'fr': 'salut',
+///     'de': 'hallo',
+///   },
+///   localizationsDescription: {
+///     'fr': 'Salut le monde !',
+///     'de': 'Hallo Welt!',
+///   },
+/// );
+/// ```
+/// {@endtemplate}
+
+
+/// A slash command, can only be instantiated through a method on [IInteractions]
 class SlashCommandBuilder extends Builder {
   /// The commands ID that is defined on registration and used for permission syncing.
   late final Snowflake _id;
@@ -19,23 +45,31 @@ class SlashCommandBuilder extends Builder {
   /// Command name to be shown to the user in the Slash Command UI
   final String name;
 
-  /// The command names to be shown to the user in the Slash Command UI by locales.
+  /// The command names to be shown to the user in the Slash Command UI by specified locales.
   /// See the [available locales](https://discord.com/developers/docs/reference#locales) for a list of available locales.
   /// The key is the locale and the value is the name of the command in that locale.
-  /// Values follow the same constraints as [name].
+  /// Values follow the same constraints as [name] (`^[\w-]{1,32}$`).
+  ///
+  /// An example:
+  /// {@macro slashcommand.builder.example}
+  /// {@macro discord.override.link}
   final Map<String, String>? localizationsName;
 
   /// Command description shown to the user in the Slash Command UI
   final String? description;
 
-  /// The command descriptions to be shown to the user in the Slash Command UI by locales.
+  /// The command descriptions to be shown to the user in the Slash Command UI by specified locales.
   /// See the [available locales](https://discord.com/developers/docs/reference#locales) for a list of available locales.
   /// The key is the locale and the value is the description of the command in that locale.
   /// Values follow the same constraints as [description].
+  ///
+  /// An example:
+  /// {@macro slashcommand.builder.example}
+  /// {@macro discord.override.link}
   final Map<String, String>? localizationsDescription;
 
   /// If people can use the command by default or if they need permissions to use it.
-  @Deprecated('Use canBeUsedInDm and requiredsPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   final bool defaultPermissions;
 
   /// The guild that the slash Command is registered in. This can be null if its a global command.
@@ -45,7 +79,7 @@ class SlashCommandBuilder extends Builder {
   List<CommandOptionBuilder> options;
 
   /// Permission overrides for the command
-  @Deprecated('Use canBeUsedInDm and requiredsPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   List<CommandPermissionBuilderAbstract>? permissions;
 
   /// Target of slash command if different that SlashCommandTarget.chat - slash command will
@@ -64,7 +98,7 @@ class SlashCommandBuilder extends Builder {
   /// operator, they will be allowed to execute the command.
   int? requiredPermissions;
 
-  /// A slash command, can only be instantiated through a method on [Interactions]
+  /// A slash command, can only be instantiated through a method on [IInteractions]
   SlashCommandBuilder(
     this.name,
     this.description,
@@ -73,8 +107,8 @@ class SlashCommandBuilder extends Builder {
     this.requiredPermissions,
     this.guild,
     this.type = SlashCommandType.chat,
-    this.defaultPermissions = true,
-    this.permissions,
+    @Deprecated('Use canBeUsedInDm and requiredPermissions instead') this.defaultPermissions = true,
+    @Deprecated('Use canBeUsedInDm and requiredPermissions instead') this.permissions,
     this.localizationsName,
     this.localizationsDescription,
   }) {
@@ -99,8 +133,8 @@ class SlashCommandBuilder extends Builder {
         "type": type.value,
         "dm_permission": canBeUsedInDm,
         if (requiredPermissions != null) "default_member_permissions": requiredPermissions.toString(),
-        if (localizationsName != null) "name_localizations": json.encode(localizationsName),
-        if (localizationsDescription != null) "description_localizations": json.encode(localizationsDescription),
+        if (localizationsName != null) "name_localizations": localizationsName,
+        if (localizationsDescription != null) "description_localizations": localizationsDescription,
         "default_permission": defaultPermissions,
       };
 

@@ -66,12 +66,12 @@ abstract class IInteractions {
   Future<void> deleteGuildCommands(List<Snowflake> guildIds);
 
   /// Fetches all global bots command
-  Stream<ISlashCommand> fetchGlobalCommands();
+  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = false});
 
   /// Fetches all guild commands for given guild
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = false});
 
-  static IInteractions create(InteractionBackend backend) => Interactions(backend);
+  factory IInteractions.create(InteractionBackend backend) => Interactions(backend);
 }
 
 /// Interaction extension for Nyxx. Allows use of: Slash Commands.
@@ -204,7 +204,7 @@ class Interactions implements IInteractions {
 
         if (entry.value.any((element) => element.permissions?.isNotEmpty ?? false)) {
           _logger.warning(
-            'Using deprecated permissions endpoint. To fix, use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions'
+            'Using deprecated permissions endpoint. To fix, use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions'
             ' instead of SlashCommandBuilder.permissions',
           );
           await interactionsEndpoints.bulkOverrideGuildCommandsPermissions(client.appId, entry.key, entry.value);
@@ -306,11 +306,12 @@ class Interactions implements IInteractions {
 
   /// Fetches all global bots command
   @override
-  Stream<ISlashCommand> fetchGlobalCommands() => interactionsEndpoints.fetchGlobalCommands(client.appId);
+  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = false}) => interactionsEndpoints.fetchGlobalCommands(client.appId, withLocales: withLocales);
 
   /// Fetches all guild commands for given guild
   @override
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId) => interactionsEndpoints.fetchGuildCommands(client.appId, guildId);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = false}) =>
+      interactionsEndpoints.fetchGuildCommands(client.appId, guildId, withLocales: withLocales);
 
   void _extractCommandIds(List<ISlashCommand> commands) {
     for (final slashCommand in commands) {
