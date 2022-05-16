@@ -8,35 +8,6 @@ import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 
-/// {@template discord.override.link}
-///
-/// At this time, the localized feature is still in developement, so you you must set [an override] on your discord client.
-///
-/// The override is `feature/web-slash-commands-localization` that you can get [here]
-///
-/// [an override]: https://support.discord.com/hc/de/articles/360030114991
-/// [here]: https://discord.com/__development/link?s=qTpnDQLUm66XsoBawqlEcXO3G9jPncSIJy9OSKnIcSk%3D.eyJ0YXJnZXRCdWlsZE92ZXJyaWRlIjp7ImRpc2NvcmRfd2ViIjp7InR5cGUiOiJicmFuY2giLCJpZCI6ImZlYXR1cmUvd2ViLXNsYXNoLWNvbW1hbmQtbG9jYWxpemF0aW9uIn19LCJyZWxlYXNlQ2hhbm5lbCI6bnVsbCwidmFsaWRGb3JVc2VySWRzIjpbXSwiYWxsb3dMb2dnZWRPdXQiOmZhbHNlLCJleHBpcmVzQXQiOiJGcmksIDIwIE1heSAyMDIyIDE4OjA2OjU5IEdNVCJ9
-/// {@endtemplate}
-
-/// {@template slashcommand.builder.example}
-/// ```dart
-/// final scb = SlashCommandBuilder(
-///   'hello',
-///   'Hello World!',
-///   [],
-///   localizationsName: {
-///     'fr': 'salut',
-///     'de': 'hallo',
-///   },
-///   localizationsDescription: {
-///     'fr': 'Salut le monde !',
-///     'de': 'Hallo Welt!',
-///   },
-/// );
-/// ```
-/// {@endtemplate}
-
-
 /// A slash command, can only be instantiated through a method on [IInteractions]
 class SlashCommandBuilder extends Builder {
   /// The commands ID that is defined on registration and used for permission syncing.
@@ -51,8 +22,33 @@ class SlashCommandBuilder extends Builder {
   /// Values follow the same constraints as [name] (`^[\w-]{1,32}$`).
   ///
   /// An example:
-  /// {@macro slashcommand.builder.example}
-  /// {@macro discord.override.link}
+  /// {@template slashcommand.builder.example}
+  /// ```dart
+  /// final scb = SlashCommandBuilder(
+  ///   'hello',
+  ///   'Hello World!',
+  ///   [],
+  ///   localizationsName: {
+  ///     'fr': 'salut',
+  ///     'de': 'hallo',
+  ///   },
+  ///   localizationsDescription: {
+  ///     'fr': 'Salut le monde !',
+  ///     'de': 'Hallo Welt!',
+  ///   },
+  /// );
+  /// ```
+  /// {@endtemplate}
+  /// {@template discord.override.link}
+  ///
+  /// At this time, the localized feature is still in developement, so you you must set [an override] on your discord client.
+  ///
+  /// The override is `feature/web-slash-commands-localization` that you can get [here].
+  ///
+  /// [an override]: https://support.discord.com/hc/de/articles/360030114991
+  /// [here]: https://discord.com/__development/link?s=qTpnDQLUm66XsoBawqlEcXO3G9jPncSIJy9OSKnIcSk%3D.eyJ0YXJnZXRCdWlsZE92ZXJyaWRlIjp7ImRpc2NvcmRfd2ViIjp7InR5cGUiOiJicmFuY2giLCJpZCI6ImZlYXR1cmUvd2ViLXNsYXNoLWNvbW1hbmQtbG9jYWxpemF0aW9uIn19LCJyZWxlYXNlQ2hhbm5lbCI6bnVsbCwidmFsaWRGb3JVc2VySWRzIjpbXSwiYWxsb3dMb2dnZWRPdXQiOmZhbHNlLCJleHBpcmVzQXQiOiJGcmksIDIwIE1heSAyMDIyIDE4OjA2OjU5IEdNVCJ9
+  /// {@endtemplate}
+  /// 
   final Map<String, String>? localizationsName;
 
   /// Command description shown to the user in the Slash Command UI
