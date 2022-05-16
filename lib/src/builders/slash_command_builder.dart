@@ -48,7 +48,7 @@ class SlashCommandBuilder extends Builder {
   /// [an override]: https://support.discord.com/hc/de/articles/360030114991
   /// [here]: https://discord.com/__development/link?s=qTpnDQLUm66XsoBawqlEcXO3G9jPncSIJy9OSKnIcSk%3D.eyJ0YXJnZXRCdWlsZE92ZXJyaWRlIjp7ImRpc2NvcmRfd2ViIjp7InR5cGUiOiJicmFuY2giLCJpZCI6ImZlYXR1cmUvd2ViLXNsYXNoLWNvbW1hbmQtbG9jYWxpemF0aW9uIn19LCJyZWxlYXNlQ2hhbm5lbCI6bnVsbCwidmFsaWRGb3JVc2VySWRzIjpbXSwiYWxsb3dMb2dnZWRPdXQiOmZhbHNlLCJleHBpcmVzQXQiOiJGcmksIDIwIE1heSAyMDIyIDE4OjA2OjU5IEdNVCJ9
   /// {@endtemplate}
-  /// 
+  ///
   final Map<String, String>? localizationsName;
 
   /// Command description shown to the user in the Slash Command UI
