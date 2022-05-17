@@ -277,7 +277,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = false}) async* {
-    final Map<String, dynamic> queryParams = withLocales ? {'with_locales': 'true'} : {};
+    final Map<String, dynamic> queryParams = withLocales ? {'with_localizations': 'true'} : {};
     final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET", auth: true, queryParams: queryParams);
 
     if (response is IHttpResponseError) {
