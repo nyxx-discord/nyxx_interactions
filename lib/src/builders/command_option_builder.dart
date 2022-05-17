@@ -2,6 +2,7 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/models/locale.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 
@@ -25,14 +26,14 @@ class CommandOptionBuilder extends Builder {
 
   /// The localizations name of your argument / sub-group.
   /// See [SlashCommandBuilder.localizationsName] for more information.
-  final Map<String, String>? localizationsName;
+  final Map<Locale, String>? localizationsName;
 
   /// The description of your argument / sub-group.
   final String description;
 
   /// The localizations description of your argument / sub-group.
   /// See [SlashCommandBuilder.localizationsDescription] for more information.
-  final Map<String, String>? localizationsDescription;
+  final Map<Locale, String>? localizationsDescription;
 
   /// If this should be the fist required option the user picks
   bool defaultArg = false;
@@ -109,8 +110,8 @@ class CommandOptionBuilder extends Builder {
         if (channelTypes != null && type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
         if (min != null) "min_value": min,
         if (max != null) "max_value": max,
-        if (localizationsName != null) "name_localizations": localizationsName,
-        if (localizationsDescription != null) "description_localizations": localizationsDescription,
+        if (localizationsName != null) "name_localizations": localizationsName!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
+        if (localizationsDescription != null) "description_localizations": localizationsDescription!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         "autocomplete": autoComplete,
       };
 }

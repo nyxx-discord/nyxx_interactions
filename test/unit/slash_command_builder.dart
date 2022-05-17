@@ -45,13 +45,13 @@ void main() {
       [],
       requiredPermissions: PermissionsConstants.administrator,
       localizationsName: {
-        'fr': 'nom-invalide',
-        'de': 'unguelitger-name', // ü -> ue
+        Locale.french: 'nom-invalide',
+        Locale.german: 'unguelitger-name', // ü -> ue
       },
       localizationsDescription: {
         // Not litteral translations, just here to test if it works
-        'fr': 'tester',
-        'de': 'testen',
+        Locale.french: 'tester',
+        Locale.german: 'testen',
       },
     );
 

@@ -2,6 +2,7 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
 import 'package:nyxx_interactions/src/builders/command_permission_builder.dart';
+import 'package:nyxx_interactions/src/models/locale.dart';
 import 'package:nyxx_interactions/src/models/slash_command_type.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
@@ -29,27 +30,17 @@ class SlashCommandBuilder extends Builder {
   ///   'Hello World!',
   ///   [],
   ///   localizationsName: {
-  ///     'fr': 'salut',
-  ///     'de': 'hallo',
+  ///     Locale.french: 'salut',
+  ///     Locale.german: 'hallo',
   ///   },
   ///   localizationsDescription: {
-  ///     'fr': 'Salut le monde !',
-  ///     'de': 'Hallo Welt!',
+  ///     Locale.french: 'Salut le monde !',
+  ///     Locale.german: 'Hallo Welt!',
   ///   },
   /// );
   /// ```
   /// {@endtemplate}
-  /// {@template discord.override.link}
-  ///
-  /// At this time, the localized feature is still in developement, so you you must set [an override] on your discord client.
-  ///
-  /// The override is `feature/web-slash-commands-localization` that you can get [here].
-  ///
-  /// [an override]: https://support.discord.com/hc/de/articles/360030114991
-  /// [here]: https://discord.com/__development/link?s=qTpnDQLUm66XsoBawqlEcXO3G9jPncSIJy9OSKnIcSk%3D.eyJ0YXJnZXRCdWlsZE92ZXJyaWRlIjp7ImRpc2NvcmRfd2ViIjp7InR5cGUiOiJicmFuY2giLCJpZCI6ImZlYXR1cmUvd2ViLXNsYXNoLWNvbW1hbmQtbG9jYWxpemF0aW9uIn19LCJyZWxlYXNlQ2hhbm5lbCI6bnVsbCwidmFsaWRGb3JVc2VySWRzIjpbXSwiYWxsb3dMb2dnZWRPdXQiOmZhbHNlLCJleHBpcmVzQXQiOiJGcmksIDIwIE1heSAyMDIyIDE4OjA2OjU5IEdNVCJ9
-  /// {@endtemplate}
-  ///
-  final Map<String, String>? localizationsName;
+  final Map<Locale, String>? localizationsName;
 
   /// Command description shown to the user in the Slash Command UI
   final String? description;
@@ -61,8 +52,7 @@ class SlashCommandBuilder extends Builder {
   ///
   /// An example:
   /// {@macro slashcommand.builder.example}
-  /// {@macro discord.override.link}
-  final Map<String, String>? localizationsDescription;
+  final Map<Locale, String>? localizationsDescription;
 
   /// If people can use the command by default or if they need permissions to use it.
   @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
@@ -129,8 +119,8 @@ class SlashCommandBuilder extends Builder {
         "type": type.value,
         "dm_permission": canBeUsedInDm,
         if (requiredPermissions != null) "default_member_permissions": requiredPermissions.toString(),
-        if (localizationsName != null) "name_localizations": localizationsName,
-        if (localizationsDescription != null) "description_localizations": localizationsDescription,
+        if (localizationsName != null) "name_localizations": localizationsName!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
+        if (localizationsDescription != null) "description_localizations": localizationsDescription!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         "default_permission": defaultPermissions,
       };
 
