@@ -292,11 +292,9 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   @override
   Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, {bool withLocales = false}) async {
     final response =
-        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true, queryParams: {
-      'with_localizations': withLocales.toString(),
-    });
+        await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true);
 
-    if (response is IHttpResponseSucess) {
+    if (response is IHttpResponseError) {
       return Future.error(response);
     }
 
