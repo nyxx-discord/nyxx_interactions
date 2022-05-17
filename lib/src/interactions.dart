@@ -66,10 +66,10 @@ abstract class IInteractions {
   Future<void> deleteGuildCommands(List<Snowflake> guildIds);
 
   /// Fetches all global bots command
-  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = false});
+  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = true});
 
   /// Fetches all guild commands for given guild
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = false});
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true});
 
   factory IInteractions.create(InteractionBackend backend) => Interactions(backend);
 }
@@ -306,11 +306,11 @@ class Interactions implements IInteractions {
 
   /// Fetches all global bots command
   @override
-  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = false}) => interactionsEndpoints.fetchGlobalCommands(client.appId, withLocales: withLocales);
+  Stream<ISlashCommand> fetchGlobalCommands({bool withLocales = true}) => interactionsEndpoints.fetchGlobalCommands(client.appId, withLocales: withLocales);
 
   /// Fetches all guild commands for given guild
   @override
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = false}) =>
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true}) =>
       interactionsEndpoints.fetchGuildCommands(client.appId, guildId, withLocales: withLocales);
 
   void _extractCommandIds(List<ISlashCommand> commands) {
