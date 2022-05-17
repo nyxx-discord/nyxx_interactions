@@ -129,7 +129,7 @@ class SlashCommandBuilder extends Builder {
   Snowflake get id => _id;
 
   /// Register a permission
-  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   void addPermission(CommandPermissionBuilderAbstract permission) {
     permissions ??= [];
 
