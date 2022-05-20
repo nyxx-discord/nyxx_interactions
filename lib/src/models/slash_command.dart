@@ -42,10 +42,10 @@ abstract class ISlashCommand implements SnowflakeEntity {
   Cacheable<Snowflake, ISlashCommandPermissionOverrides>? get permissionOverrides;
 
   /// The localized names of the command.
-  Map<String, String>? get localizationsName;
+  Map<Locale, String>? get localizationsName;
 
   /// The localized descriptions of the command.
-  Map<String, String>? get localizationsDescription;
+  Map<Locale, String>? get localizationsDescription;
 
   /// Get the permission overrides for this command in a specific guild.
   Cacheable<Snowflake, ISlashCommandPermissionOverrides> getPermissionOverridesInGuild(Snowflake guildId);
@@ -94,10 +94,10 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
   late final int requiredPermissions;
 
   @override
-  late final Map<String, String>? localizationsName;
+  late final Map<Locale, String>? localizationsName;
 
   @override
-  late final Map<String, String>? localizationsDescription;
+  late final Map<Locale, String>? localizationsDescription;
 
   @override
   late final Cacheable<Snowflake, ISlashCommandPermissionOverrides>? permissionOverrides;
@@ -113,8 +113,8 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
     guild = raw["guild_id"] != null ? GuildCacheable(_interactions.client, Snowflake(raw["guild_id"])) : null;
     canBeUsedInDm = raw["dm_permission"] as bool? ?? true;
     requiredPermissions = int.parse(raw["default_member_permissions"] as String? ?? "0");
-    localizationsName = (raw['name_localizations'] as RawApiMap?)?.cast<String, String>();
-    localizationsDescription = (raw['description_localizations'] as RawApiMap?)?.cast<String, String>();
+    localizationsName = (raw['name_localizations'] as RawApiMap?)?.map((key, value) => MapEntry(Locale.deserialize(key), value.toString()));
+    localizationsDescription = (raw['description_localizations'] as RawApiMap?)?.map((key, value) => MapEntry(Locale.deserialize(key), value.toString()));
 
     if (guild != null) {
       permissionOverrides = SlashCommandPermissionOverridesCacheable(id, guild!.id, _interactions);
