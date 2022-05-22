@@ -35,7 +35,7 @@ class CommandOptionBuilder extends Builder {
   /// See [SlashCommandBuilder.localizationsDescription] for more information.
   final Map<Locale, String>? localizationsDescription;
 
-  /// If this should be the fist required option the user picks
+  /// If this should be the first required option the user picks
   bool defaultArg = false;
 
   /// If this argument is required
