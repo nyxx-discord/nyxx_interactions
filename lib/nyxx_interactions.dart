@@ -46,6 +46,7 @@ export 'src/models/interaction_option.dart' show IInteractionOption;
 export 'src/models/slash_command_permission.dart' show ISlashCommandPermissionOverride, ISlashCommandPermissionOverrides, SlashCommandPermissionType;
 export 'src/models/slash_command.dart' show ISlashCommand;
 export 'src/models/slash_command_type.dart' show SlashCommandType;
+export 'src/models/locale.dart' show Locale;
 
 export 'src/interactions.dart' show IInteractions;
 export 'src/typedefs.dart' show AutocompleteInteractionHandler, ButtonInteractionHandler, MultiselectInteractionHandler, SlashCommandHandler;

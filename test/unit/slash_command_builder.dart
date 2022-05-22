@@ -39,7 +39,21 @@ void main() {
   });
 
   test('.build', () {
-    final slashCommandBuilder = SlashCommandBuilder("invalid-name", "test", [], requiredPermissions: PermissionsConstants.administrator);
+    final slashCommandBuilder = SlashCommandBuilder(
+      "invalid-name",
+      "test",
+      [],
+      requiredPermissions: PermissionsConstants.administrator,
+      localizationsName: {
+        Locale.french: 'nom-invalide',
+        Locale.german: 'unguelitger-name', // ü -> ue
+      },
+      localizationsDescription: {
+        // Not litteral translations, just here to test if it works
+        Locale.french: 'tester',
+        Locale.german: 'testen',
+      },
+    );
 
     final expectedResult = {
       "name": "invalid-name",
@@ -48,6 +62,14 @@ void main() {
       "default_permission": true, // TODO: remove when default_permission is removed
       "dm_permission": true,
       "default_member_permissions": PermissionsConstants.administrator.toString(),
+      "name_localizations": {
+        'fr': 'nom-invalide',
+        'de': 'unguelitger-name',
+      },
+      "description_localizations": {
+        'fr': 'tester',
+        'de': 'testen',
+      },
     };
 
     expect(slashCommandBuilder.build(), equals(expectedResult));

@@ -24,7 +24,15 @@ main() {
         channelTypes: [
           ChannelType.text,
         ],
-        autoComplete: true);
+        autoComplete: true,
+        localizationsName: {
+          Locale.german: 'testen',
+          Locale.french: 'tester',
+        },
+        localizationsDescription: {
+          Locale.german: 'testen',
+          Locale.french: 'tester',
+        });
 
     final expectedResult = {
       "type": CommandOptionType.channel.value,
@@ -36,7 +44,15 @@ main() {
         {'name': 'arg1', 'value': 'val1'}
       ],
       'channel_types': [ChannelType.text],
-      'autocomplete': true
+      'autocomplete': true,
+      'name_localizations': {
+        'de': 'testen',
+        'fr': 'tester',
+      },
+      'description_localizations': {
+        'de': 'testen',
+        'fr': 'tester',
+      },
     };
 
     expect(builder.build(), equals(expectedResult));
