@@ -46,7 +46,7 @@ abstract class IInteractionsEndpoints {
   Future<IMessage> editFollowup(String token, Snowflake applicationId, Snowflake messageId, MessageBuilder builder);
 
   /// Fetches global commands of application
-  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId);
+  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = true});
 
   /// Fetches global command with given [commandId]
   Future<ISlashCommand> fetchGlobalCommand(Snowflake applicationId, Snowflake commandId);
@@ -61,7 +61,7 @@ abstract class IInteractionsEndpoints {
   Stream<ISlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders);
 
   /// Fetches all commands for given [guildId]
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId, {bool withLocales = true});
 
   /// Fetches single guild command with given [commandId]
   Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId);
@@ -77,7 +77,7 @@ abstract class IInteractionsEndpoints {
 
   /// Overrides permissions for guild commands
   @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
-      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders);
 
   /// Responds to autocomplete interaction
@@ -284,8 +284,13 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/commands", "GET", auth: true);
+  Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = true}) async* {
+    final response = await _client.httpEndpoints.sendRawRequest(
+      "/applications/$applicationId/commands",
+      "GET",
+      auth: true,
+      queryParams: withLocales ? {'with_localizations': withLocales.toString()} : {},
+    );
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -300,7 +305,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
     final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands/$commandId", "GET", auth: true);
 
-    if (response is IHttpResponseSucess) {
+    if (response is IHttpResponseError) {
       return Future.error(response);
     }
 
@@ -308,8 +313,13 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId) async* {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/$applicationId/guilds/$guildId/commands", "GET", auth: true);
+  Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId, {bool withLocales = true}) async* {
+    final response = await _client.httpEndpoints.sendRawRequest(
+      "/applications/$applicationId/guilds/$guildId/commands",
+      "GET",
+      auth: true,
+      queryParams: withLocales ? {'with_localizations': withLocales.toString()} : {},
+    );
 
     if (response is IHttpResponseError) {
       yield* Stream.error(response);
@@ -321,7 +331,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
-      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead.")
   Future<void> bulkOverrideGlobalCommandsPermissions(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async {
     final globalBody = builders
         .where((builder) => builder.permissions != null && builder.permissions!.isNotEmpty)
@@ -336,7 +346,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   @Deprecated("This endpoint requires OAuth2 authentication, which nyxx_interactions doesn't support."
-      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead.")
+      " Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead.")
   Future<void> bulkOverrideGuildCommandsPermissions(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async {
     final guildBody = builders
         .where((b) => b.permissions != null && b.permissions!.isNotEmpty)

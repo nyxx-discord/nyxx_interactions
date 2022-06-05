@@ -2,14 +2,14 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/command_option_builder.dart';
 import 'package:nyxx_interactions/src/builders/command_permission_builder.dart';
-
+import 'package:nyxx_interactions/src/models/locale.dart';
 import 'package:nyxx_interactions/src/models/slash_command_type.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/internal/utils.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
 
-/// A slash command, can only be instantiated through a method on [Interactions]
+/// A slash command, can only be instantiated through a method on [IInteractions]
 class SlashCommandBuilder extends Builder {
   /// The commands ID that is defined on registration and used for permission syncing.
   late final Snowflake _id;
@@ -17,11 +17,45 @@ class SlashCommandBuilder extends Builder {
   /// Command name to be shown to the user in the Slash Command UI
   final String name;
 
+  /// The command names to be shown to the user in the Slash Command UI by specified locales.
+  /// See the [available locales](https://discord.com/developers/docs/reference#locales) for a list of available locales.
+  /// The key is the locale and the value is the name of the command in that locale.
+  /// Values follow the same constraints as [name] (`^[\w-]{1,32}$`).
+  ///
+  /// An example:
+  /// {@template slashcommand.builder.example}
+  /// ```dart
+  /// final scb = SlashCommandBuilder(
+  ///   'hello',
+  ///   'Hello World!',
+  ///   [],
+  ///   localizationsName: {
+  ///     Locale.french: 'salut',
+  ///     Locale.german: 'hallo',
+  ///   },
+  ///   localizationsDescription: {
+  ///     Locale.french: 'Salut le monde !',
+  ///     Locale.german: 'Hallo Welt!',
+  ///   },
+  /// );
+  /// ```
+  /// {@endtemplate}
+  final Map<Locale, String>? localizationsName;
+
   /// Command description shown to the user in the Slash Command UI
   final String? description;
 
+  /// The command descriptions to be shown to the user in the Slash Command UI by specified locales.
+  /// See the [available locales](https://discord.com/developers/docs/reference#locales) for a list of available locales.
+  /// The key is the locale and the value is the description of the command in that locale.
+  /// Values follow the same constraints as [description].
+  ///
+  /// An example:
+  /// {@macro slashcommand.builder.example}
+  final Map<Locale, String>? localizationsDescription;
+
   /// If people can use the command by default or if they need permissions to use it.
-  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   final bool defaultPermissions;
 
   /// The guild that the slash Command is registered in. This can be null if its a global command.
@@ -31,7 +65,7 @@ class SlashCommandBuilder extends Builder {
   List<CommandOptionBuilder> options;
 
   /// Permission overrides for the command
-  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   List<CommandPermissionBuilderAbstract>? permissions;
 
   /// Target of slash command if different that SlashCommandTarget.chat - slash command will
@@ -50,7 +84,7 @@ class SlashCommandBuilder extends Builder {
   /// operator, they will be allowed to execute the command.
   int? requiredPermissions;
 
-  /// A slash command, can only be instantiated through a method on [Interactions]
+  /// A slash command, can only be instantiated through a method on [IInteractions]
   SlashCommandBuilder(
     this.name,
     this.description,
@@ -59,8 +93,10 @@ class SlashCommandBuilder extends Builder {
     this.requiredPermissions,
     this.guild,
     this.type = SlashCommandType.chat,
-    this.defaultPermissions = true,
-    this.permissions,
+    @Deprecated('Use canBeUsedInDm and requiredPermissions instead') this.defaultPermissions = true,
+    @Deprecated('Use canBeUsedInDm and requiredPermissions instead') this.permissions,
+    this.localizationsName,
+    this.localizationsDescription,
   }) {
     if (!slashCommandNameRegex.hasMatch(name)) {
       throw ArgumentError("Command name has to match regex: ${slashCommandNameRegex.pattern}");
@@ -83,6 +119,8 @@ class SlashCommandBuilder extends Builder {
         "type": type.value,
         "dm_permission": canBeUsedInDm,
         if (requiredPermissions != null) "default_member_permissions": requiredPermissions.toString(),
+        if (localizationsName != null) "name_localizations": localizationsName!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
+        if (localizationsDescription != null) "description_localizations": localizationsDescription!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         "default_permission": defaultPermissions,
       };
 
@@ -91,7 +129,7 @@ class SlashCommandBuilder extends Builder {
   Snowflake get id => _id;
 
   /// Register a permission
-  @Deprecated('Use canBeUsedInDm and requiresPermissions instead')
+  @Deprecated('Use canBeUsedInDm and requiredPermissions instead')
   void addPermission(CommandPermissionBuilderAbstract permission) {
     permissions ??= [];
 

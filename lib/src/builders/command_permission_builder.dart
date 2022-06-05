@@ -1,7 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 
 /// Used to define permissions for a particular command.
-@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead')
+@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead')
 abstract class CommandPermissionBuilderAbstract extends Builder {
   int get type;
 
@@ -21,7 +21,7 @@ abstract class CommandPermissionBuilderAbstract extends Builder {
 }
 
 /// A permission for a single role that can be used in [SlashCommandBuilder]
-@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead')
+@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead')
 class RoleCommandPermissionBuilder extends CommandPermissionBuilderAbstract {
   @override
   late final int type = 1;
@@ -34,7 +34,7 @@ class RoleCommandPermissionBuilder extends CommandPermissionBuilderAbstract {
 }
 
 /// A permission for a single user that can be used in [SlashCommandBuilder]
-@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiresPermissions instead')
+@Deprecated('Use SlashCommandBuilder.canBeUsedInDm and SlashCommandBuilder.requiredPermissions instead')
 class UserCommandPermissionBuilder extends CommandPermissionBuilderAbstract {
   @override
   late final int type = 2;
