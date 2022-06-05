@@ -336,7 +336,10 @@ class Interactions implements IInteractions {
   }
 
   void _assignCommandToHandler(SlashCommandBuilder builder) {
-    final commandHashPrefix = builder.name;
+    String commandHashPrefix = builder.name;
+    if (builder.guild != null) {
+      commandHashPrefix = '${builder.guild}/$commandHashPrefix';
+    }
 
     var allowRootHandler = true;
 
