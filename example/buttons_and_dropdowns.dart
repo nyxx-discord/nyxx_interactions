@@ -43,9 +43,7 @@ Future<void> buttonHandler(IButtonInteractionEvent event) async {
   await event.acknowledge(); // ack the interaction so we can send response later
 
   // Send followup to button click with id of button
-  await event.sendFollowup(MessageBuilder.content(
-      "Button pressed with id: ${event.interaction.customId}")
-  );
+  await event.sendFollowup(MessageBuilder.content("Button pressed with id: ${event.interaction.customId}"));
 }
 
 // Handling multiselect events is no different from handling button.
@@ -55,9 +53,7 @@ Future<void> multiselectHandlerHandler(IMultiselectInteractionEvent event) async
   await event.acknowledge(); // ack the interaction so we can send response later
 
   // Send followup to button click with id of button
-  await event.sendFollowup(MessageBuilder.content(
-      "Option chosen with values: ${event.interaction.values}")
-  );
+  await event.sendFollowup(MessageBuilder.content("Option chosen with values: ${event.interaction.values}"));
 }
 
 void main() {

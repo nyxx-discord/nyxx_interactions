@@ -33,7 +33,7 @@ enum Locale {
   final String name;
   const Locale(this.name);
 
-  /// Deserializes the [name] into a [Locale]. If the [name] is not a valid locale, 
+  /// Deserializes the [name] into a [Locale]. If the [name] is not a valid locale,
   /// returns the [Locale.englishUs] as it is considered the default locale from Discord.
   static Locale deserialize(String name) {
     return values.firstWhere((e) => e.name == name, orElse: () => Locale.englishUs);
