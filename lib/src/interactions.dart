@@ -71,7 +71,10 @@ abstract class IInteractions {
   /// Fetches all guild commands for given guild
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true});
 
-  factory IInteractions.create(InteractionBackend backend) => Interactions(backend);
+  /// Returns the global overrides for commands in a guild.
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId);
+
+  static IInteractions create(InteractionBackend backend) => Interactions(backend);
 }
 
 /// Interaction extension for Nyxx. Allows use of: Slash Commands.
@@ -312,6 +315,10 @@ class Interactions implements IInteractions {
   @override
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true}) =>
       interactionsEndpoints.fetchGuildCommands(client.appId, guildId, withLocales: withLocales);
+
+  @override
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId) =>
+      SlashCommandPermissionOverridesCacheable(client.appId, guildId, this);
 
   void _extractCommandIds(List<ISlashCommand> commands) {
     for (final slashCommand in commands) {
