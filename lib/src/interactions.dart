@@ -71,6 +71,9 @@ abstract class IInteractions {
   /// Fetches all guild commands for given guild
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true});
 
+  /// Returns the global overrides for commands in a guild.
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId);
+
   factory IInteractions.create(InteractionBackend backend) => Interactions(backend);
 }
 
@@ -313,6 +316,10 @@ class Interactions implements IInteractions {
   Stream<ISlashCommand> fetchGuildCommands(Snowflake guildId, {bool withLocales = true}) =>
       interactionsEndpoints.fetchGuildCommands(client.appId, guildId, withLocales: withLocales);
 
+  @override
+  Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId) =>
+      SlashCommandPermissionOverridesCacheable(client.appId, guildId, this);
+
   void _extractCommandIds(List<ISlashCommand> commands) {
     for (final slashCommand in commands) {
       _commandBuilders.firstWhere((element) => element.name == slashCommand.name && element.guild == slashCommand.guild?.id).setId(slashCommand.id);
@@ -330,7 +337,10 @@ class Interactions implements IInteractions {
   }
 
   void _assignCommandToHandler(SlashCommandBuilder builder) {
-    final commandHashPrefix = builder.name;
+    String commandHashPrefix = builder.name;
+    if (builder.guild != null) {
+      commandHashPrefix = '${builder.guild}/$commandHashPrefix';
+    }
 
     var allowRootHandler = true;
 

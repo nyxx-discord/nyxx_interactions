@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:logging/logging.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/message/message.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
@@ -82,11 +85,16 @@ abstract class IInteractionsEndpoints {
 
   /// Fetch the command permission overrides for a command in a guild.
   Future<ISlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId);
+
+  /// Fetch the permission overrides for all commands in a guild. The global overrides for that guild have an ID which is equal to the application ID.
+  Future<Iterable<ISlashCommandPermissionOverrides>> fetchPermissionOverrides(Snowflake guildId);
 }
 
 class InteractionsEndpoints implements IInteractionsEndpoints {
   final INyxx _client;
   final Interactions _interactions;
+
+  final Logger _logger = Logger('Interactions');
 
   InteractionsEndpoints(this._client, this._interactions);
 
@@ -388,15 +396,46 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
     }
   }
 
-  /// Fetch the command permission overrides for a command in a guild.
   @override
   Future<SlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands/$commandId/permissions", "GET");
+    try {
+      final response =
+          await _client.httpEndpoints.sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands/$commandId/permissions", "GET", auth: true);
+
+      return SlashCommandPermissionOverrides((response as IHttpResponseSucess).jsonBody as Map<String, dynamic>, _client);
+    } on IHttpResponseError catch (response) {
+      try {
+        // 10066 = Unknown application command permissions
+        // Means there are no overrides for this command... why is this an error, Discord?
+        if (jsonDecode(response.errorMessage)['code'] == 10066) {
+          _logger.finest('Got error code 10066 on permissions for command $commandId in guild $guildId, returning empty permission overrides.');
+          return SlashCommandPermissionOverrides.empty(commandId, _client);
+        }
+      } on Exception {
+        // We got invalid JSON. The request is probably invalid, so we ignore it and return an error.
+        _logger.warning('Invalid JSON in response: ${response.errorMessage}');
+      }
+
+      return Future.error(response);
+    }
+  }
+
+  @override
+  Future<List<ISlashCommandPermissionOverrides>> fetchPermissionOverrides(Snowflake guildId) async {
+    final response = await _client.httpEndpoints.sendRawRequest("/applications/${_client.appId}/guilds/$guildId/commands/permissions", "GET", auth: true);
 
     if (response is IHttpResponseError) {
       return Future.error(response);
     }
 
-    return SlashCommandPermissionOverrides((response as IHttpResponseSucess).jsonBody as Map<String, dynamic>, _client);
+    List<SlashCommandPermissionOverrides> overrides =
+        ((response as IHttpResponseSucess).jsonBody as List<dynamic>).cast<RawApiMap>().map((d) => SlashCommandPermissionOverrides(d, _client)).toList();
+
+    for (final override in overrides) {
+      _interactions.permissionOverridesCache[guildId] ??= {};
+      _interactions.permissionOverridesCache[guildId]![override.id] = override;
+    }
+
+    return overrides;
   }
 }
