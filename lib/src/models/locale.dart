@@ -30,15 +30,16 @@ enum Locale {
   chineseTaiwan('zh-TW'),
   korean('ko');
 
-  final String name;
-  const Locale(this.name);
+  final String code;
 
-  /// Deserializes the [name] into a [Locale]. If the [name] is not a valid locale,
+  const Locale(this.code);
+
+  /// Deserializes the [code] into a [Locale]. If the [code] is not a valid locale,
   /// returns the [Locale.englishUs] as it is considered the default locale from Discord.
-  static Locale deserialize(String name) {
-    return values.firstWhere((e) => e.name == name, orElse: () => Locale.englishUs);
+  static Locale deserialize(String code) {
+    return values.firstWhere((e) => e.code == code, orElse: () => Locale.englishUs);
   }
 
   @override
-  String toString() => name;
+  String toString() => code;
 }
