@@ -204,7 +204,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     final now = DateTime.now();
     if (_hasAcked && now.isAfter(receivedAt.add(const Duration(minutes: 15)))) {
       return Future.error(InteractionExpiredError.fifteenMins());
-    } else if (now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
+    } else if (!_hasAcked && now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
       return Future.error(InteractionExpiredError.threeSecs());
     }
 
