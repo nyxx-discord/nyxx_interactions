@@ -41,7 +41,7 @@ abstract class InteractionEventAbstract<T extends IInteraction> implements IInte
 
   /// The DateTime the interaction was received by the Nyxx Client.
   @override
-  DateTime get receivedAt => interaction.id.timestamp;
+  final DateTime receivedAt = DateTime.now();
 
   final Logger logger = Logger("Interaction Event");
 
