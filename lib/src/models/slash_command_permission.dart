@@ -60,7 +60,7 @@ abstract class ISlashCommandPermissionOverrides implements SnowflakeEntity {
   /// The permissions attached to the command.
   List<SlashCommandPermissionOverride> get permissionOverrides;
 
-  /// Whether these overrideas are global across all commands in a guild.
+  /// Whether these overrides are global across all commands in a guild.
   bool get isGlobal;
 }
 

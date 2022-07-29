@@ -1,6 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/models/arg_choice.dart';
+import 'package:nyxx_interactions/src/models/locale.dart';
 
 /// The type that a user should input for a [CommandOptionBuilder]
 class CommandOptionType extends IEnum<int> {
@@ -69,6 +70,12 @@ abstract class ICommandOption {
 
   /// If the option is a subcommand or subcommand group type, this nested options will be the parameters
   List<ICommandOption> get options;
+
+  /// The localizations for the name of the option.
+  Map<Locale, String>? get localizationsName;
+
+  /// The localizations for the description of the option.
+  Map<Locale, String>? get localizationsDescription;
 }
 
 /// An argument for a [SlashCommand].
@@ -107,12 +114,20 @@ class CommandOption implements ICommandOption {
   @override
   late final List<ICommandOption> options;
 
-  /// Creates na instance of [CommandOption]
+  @override
+  late final Map<Locale, String>? localizationsName;
+
+  @override
+  late final Map<Locale, String>? localizationsDescription;
+
+  /// Creates an instance of [CommandOption]
   CommandOption(RawApiMap raw) {
     type = CommandOptionType(raw["type"] as int);
     name = raw["name"] as String;
     description = raw["description"] as String;
     required = raw["required"] as bool? ?? false;
+    localizationsName = (raw['name_localizations'] as RawApiMap?)?.map((key, value) => MapEntry(Locale.deserialize(key), value.toString()));
+    localizationsDescription = (raw['description_localizations'] as RawApiMap?)?.map((key, value) => MapEntry(Locale.deserialize(key), value.toString()));
 
     choices = [
       if (raw["choices"] != null)

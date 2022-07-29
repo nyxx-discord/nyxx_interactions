@@ -2,7 +2,9 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/arg_choice_builder.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
+import 'package:nyxx_interactions/src/models/locale.dart';
 import 'package:nyxx_interactions/src/typedefs.dart';
+import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
 
 /// An argument for a [SlashCommandBuilder].
 class CommandOptionBuilder extends Builder {
@@ -22,16 +24,24 @@ class CommandOptionBuilder extends Builder {
   /// The name of your argument / sub-group.
   final String name;
 
+  /// The localizations name of your argument / sub-group.
+  /// See [SlashCommandBuilder.localizationsName] for more information.
+  final Map<Locale, String>? localizationsName;
+
   /// The description of your argument / sub-group.
   final String description;
 
-  /// If this should be the fist required option the user picks
+  /// The localizations description of your argument / sub-group.
+  /// See [SlashCommandBuilder.localizationsDescription] for more information.
+  final Map<Locale, String>? localizationsDescription;
+
+  /// If this should be the first required option the user picks
   bool defaultArg = false;
 
   /// If this argument is required
   bool required = false;
 
-  /// Choices for [CommandOptionType.string] and [CommandOptionType.string] types for the user to pick from
+  /// Choices for [CommandOptionType.string], [CommandOptionType.integer] and [CommandOptionType.number] types for the user to pick from
   List<ArgChoiceBuilder>? choices;
 
   /// If the option is a subcommand or subcommand group type, this nested options will be the parameters
@@ -66,6 +76,8 @@ class CommandOptionBuilder extends Builder {
     this.autoComplete = false,
     this.min,
     this.max,
+    this.localizationsName,
+    this.localizationsDescription,
   });
 
   /// Registers handler for subcommand
@@ -98,6 +110,8 @@ class CommandOptionBuilder extends Builder {
         if (channelTypes != null && type == CommandOptionType.channel) "channel_types": channelTypes!.map((e) => e.value).toList(),
         if (min != null) "min_value": min,
         if (max != null) "max_value": max,
+        if (localizationsName != null) "name_localizations": localizationsName!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
+        if (localizationsDescription != null) "description_localizations": localizationsDescription!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         "autocomplete": autoComplete,
       };
 }

@@ -35,7 +35,7 @@ export 'src/internal/sync/commands_sync.dart' show ICommandsSync;
 export 'src/internal/sync/lock_file_command_sync.dart' show LockFileCommandSync;
 export 'src/internal/sync/manual_command_sync.dart' show ManualCommandSync;
 export 'src/internal/event_controller.dart' show IEventController;
-export 'src/internal/interaction_endpoints.dart' show IInteractionsEndpoints;
+export 'src/internal/interaction_endpoints.dart' show IInteractionsEndpoints, InteractionRouteParts;
 export 'src/internal/utils.dart' show slashCommandNameRegex;
 export 'src/models/arg_choice.dart' show IArgChoice;
 export 'src/models/command_option.dart' show ICommandOption, CommandOptionType;
@@ -46,6 +46,7 @@ export 'src/models/interaction_option.dart' show IInteractionOption;
 export 'src/models/slash_command_permission.dart' show ISlashCommandPermissionOverride, ISlashCommandPermissionOverrides, SlashCommandPermissionType;
 export 'src/models/slash_command.dart' show ISlashCommand;
 export 'src/models/slash_command_type.dart' show SlashCommandType;
+export 'src/models/locale.dart' show Locale;
 
 export 'src/interactions.dart' show IInteractions;
 export 'src/typedefs.dart' show AutocompleteInteractionHandler, ButtonInteractionHandler, MultiselectInteractionHandler, SlashCommandHandler;

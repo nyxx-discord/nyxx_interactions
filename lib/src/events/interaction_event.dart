@@ -13,7 +13,7 @@ import 'package:nyxx_interactions/src/exceptions/already_responded.dart';
 import 'package:nyxx/nyxx.dart';
 
 abstract class IInteractionEvent<T extends IInteraction> {
-  /// Reference to [Nyxx]
+  /// Reference to [INyxx]
   INyxx get client;
 
   /// Reference to [Interactions]
@@ -27,7 +27,7 @@ abstract class IInteractionEvent<T extends IInteraction> {
 }
 
 abstract class InteractionEventAbstract<T extends IInteraction> implements IInteractionEvent<T> {
-  /// Reference to [Nyxx]
+  /// Reference to [INyxx]
   @override
   INyxx get client => interactions.client;
 
@@ -41,7 +41,7 @@ abstract class InteractionEventAbstract<T extends IInteraction> implements IInte
 
   /// The DateTime the interaction was received by the Nyxx Client.
   @override
-  DateTime get receivedAt => interaction.id.timestamp;
+  final DateTime receivedAt = DateTime.now();
 
   final Logger logger = Logger("Interaction Event");
 
@@ -204,7 +204,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     final now = DateTime.now();
     if (_hasAcked && now.isAfter(receivedAt.add(const Duration(minutes: 15)))) {
       return Future.error(InteractionExpiredError.fifteenMins());
-    } else if (now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
+    } else if (!_hasAcked && now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
       return Future.error(InteractionExpiredError.threeSecs());
     }
 
@@ -222,7 +222,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     _hasAcked = true;
   }
 
-  /// Returns [Message] object of original interaction response
+  /// Returns [IMessage] object of original interaction response
   @override
   Future<IMessage> getOriginalResponse() async =>
       interactions.interactionsEndpoints.fetchOriginalResponse(interaction.token, client.appId, interaction.id.toString());
