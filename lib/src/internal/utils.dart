@@ -25,11 +25,8 @@ Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate)
 }
 
 /// Determine what handler should be executed based on [interaction]
-String determineInteractionCommandHandler(ISlashCommandInteraction interaction) {
+String determineGlobalInteractionCommandHandler(ISlashCommandInteraction interaction) {
   String commandHash = interaction.name;
-  if (interaction.guild != null) {
-    commandHash = '${interaction.guild!.id}/$commandHash';
-  }
 
   try {
     final subCommandGroup = interaction.options.firstWhere((element) => element.type == CommandOptionType.subCommandGroup);
@@ -46,6 +43,12 @@ String determineInteractionCommandHandler(ISlashCommandInteraction interaction) 
   } on StateError {}
 
   return commandHash;
+}
+
+/// Determine what guild handler should be executed based on [interaction]
+String? determineGuildInteractionCommandHandler(ISlashCommandInteraction interaction) {
+  if (interaction.guild == null) return null;
+  return '${interaction.guild!.id}/${determineGlobalInteractionCommandHandler(interaction)}';
 }
 
 /// Groups [SlashCommandBuilder] for registering them later in bulk

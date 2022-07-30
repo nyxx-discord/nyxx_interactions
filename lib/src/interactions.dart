@@ -221,11 +221,17 @@ class Interactions implements IInteractions {
 
     if (_commandHandlers.isNotEmpty) {
       events.onSlashCommand.listen((event) async {
-        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final globalCommandHash = determineGlobalInteractionCommandHandler(event.interaction);
+        final guildCommandHash = determineGuildInteractionCommandHandler(event.interaction);
 
-        _logger.info("Executing command with hash [$commandHash]");
-        if (_commandHandlers.containsKey(commandHash)) {
-          await _commandHandlers[commandHash]!(event);
+        if (guildCommandHash != null && _commandHandlers.containsKey(guildCommandHash)) {
+          _logger.info("Executing command with hash [$guildCommandHash]");
+          await _commandHandlers[guildCommandHash]!(event);
+        } else if (_commandHandlers.containsKey(globalCommandHash)) {
+          _logger.info("Executing command with hash [$globalCommandHash]");
+          await _commandHandlers[globalCommandHash]!(event);
+        } else {
+          _logger.warning("Failed to match command with hash [$guildCommandHash] or [$globalCommandHash]");
         }
       });
 
@@ -257,14 +263,19 @@ class Interactions implements IInteractions {
     if (_autocompleteHandlers.isNotEmpty) {
       events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
-        final commandHash = determineInteractionCommandHandler(event.interaction);
-        final autocompleteHash = "$commandHash$name";
+        final globalCommandHash = determineGlobalInteractionCommandHandler(event.interaction);
+        final guildCommandHash = determineGuildInteractionCommandHandler(event.interaction);
+        final globalAutocompleteHash = "$globalCommandHash$name";
+        final guildAutocompleteHash = "$guildCommandHash$name";
 
-        if (_autocompleteHandlers.containsKey(autocompleteHash)) {
-          _logger.info("Executing autocomplete with id [$autocompleteHash]");
-          _autocompleteHandlers[autocompleteHash]!(event);
+        if (guildCommandHash != null && _autocompleteHandlers.containsKey(guildAutocompleteHash)) {
+          _logger.info("Executing autocomplete with id [$guildAutocompleteHash]");
+          _autocompleteHandlers[guildAutocompleteHash]!(event);
+        } else if (_autocompleteHandlers.containsKey(globalAutocompleteHash)) {
+          _logger.info("Executing autocomplete with id [$globalAutocompleteHash]");
+          _autocompleteHandlers[globalAutocompleteHash]!(event);
         } else {
-          _logger.warning("Received event for unknown dropdown: $autocompleteHash");
+          _logger.warning("Received event for unknown dropdown: $globalAutocompleteHash");
         }
       });
     }
