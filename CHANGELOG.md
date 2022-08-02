@@ -1,3 +1,8 @@
+## 4.3.1
+__01.08.2022__
+
+- bug: Fix global commands selecting guild command handlers
+
 ## 4.3.0
 __29.07.2022__
 

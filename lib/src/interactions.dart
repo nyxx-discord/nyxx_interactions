@@ -221,7 +221,7 @@ class Interactions implements IInteractions {
 
     if (_commandHandlers.isNotEmpty) {
       events.onSlashCommand.listen((event) async {
-        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final commandHash = determineInteractionCommandHandler(event.interaction, this);
 
         _logger.info("Executing command with hash [$commandHash]");
         if (_commandHandlers.containsKey(commandHash)) {
@@ -257,7 +257,7 @@ class Interactions implements IInteractions {
     if (_autocompleteHandlers.isNotEmpty) {
       events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
-        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final commandHash = determineInteractionCommandHandler(event.interaction, this);
         final autocompleteHash = "$commandHash$name";
 
         if (_autocompleteHandlers.containsKey(autocompleteHash)) {
