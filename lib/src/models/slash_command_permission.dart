@@ -59,17 +59,29 @@ class SlashCommandPermissionOverride implements ISlashCommandPermissionOverride 
 abstract class ISlashCommandPermissionOverrides implements SnowflakeEntity {
   /// The permissions attached to the command.
   List<SlashCommandPermissionOverride> get permissionOverrides;
+
+  /// Whether these overrides are global across all commands in a guild.
+  bool get isGlobal;
 }
 
 class SlashCommandPermissionOverrides extends SnowflakeEntity implements ISlashCommandPermissionOverrides {
   @override
   late final List<SlashCommandPermissionOverride> permissionOverrides;
+  @override
+  late final bool isGlobal;
 
   SlashCommandPermissionOverrides(RawApiMap raw, INyxx client) : super(Snowflake(raw['id'])) {
     permissionOverrides = [
       for (final override in (raw['permissions'] as List<dynamic>).cast<Map<String, dynamic>>())
         SlashCommandPermissionOverride(override, Snowflake(raw["guild_id"]), client),
     ];
+
+    isGlobal = id == client.appId;
+  }
+
+  SlashCommandPermissionOverrides.empty(Snowflake commandId, INyxx client) : super(commandId) {
+    permissionOverrides = [];
+    isGlobal = id == client.appId;
   }
 }
 

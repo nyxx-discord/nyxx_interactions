@@ -17,7 +17,7 @@ unit-tests: ## Run unit tests with coverage
 
 .PHONY: coverage-format
 coverage-format: ## Format dart coverage output to lcov
-	dart run coverage:format_coverage --lcov --in=coverage --out=coverage/coverage.lcov --packages=.packages --report-on=lib
+	dart run coverage:format_coverage --lcov --in=coverage --out=coverage/coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
 
 .PHONY: coverage-gen-html
 coverage-gen-html: ## Generate html coverage from lcov data
