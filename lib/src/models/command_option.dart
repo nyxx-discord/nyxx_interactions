@@ -2,6 +2,7 @@ import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/models/arg_choice.dart';
 import 'package:nyxx_interactions/src/models/locale.dart';
+import 'package:nyxx_interactions/src/models/slash_command.dart';
 
 /// The type that a user should input for a [CommandOptionBuilder]
 class CommandOptionType extends IEnum<int> {
@@ -42,7 +43,7 @@ class CommandOptionType extends IEnum<int> {
   const CommandOptionType(int value) : super(value);
 }
 
-abstract class ICommandOption {
+abstract class ICommandOption implements Mentionable {
   /// The type of arg that will be later changed to an INT value, their values can be seen in the table below:
   /// | Name              | Value |
   /// |-------------------|-------|
@@ -76,6 +77,9 @@ abstract class ICommandOption {
 
   /// The localizations for the description of the option.
   Map<Locale, String>? get localizationsDescription;
+
+  /// The root parent of all this options.
+  ISlashCommand get root;
 }
 
 /// An argument for a [SlashCommand].
@@ -120,8 +124,16 @@ class CommandOption implements ICommandOption {
   @override
   late final Map<Locale, String>? localizationsDescription;
 
+  @override
+  final ISlashCommand root;
+
+  @override
+  String get mention => '</$path:${root.id}>';
+
+  String path;
+
   /// Creates an instance of [CommandOption]
-  CommandOption(RawApiMap raw) {
+  CommandOption(RawApiMap raw, this.root, this.path) {
     type = CommandOptionType(raw["type"] as int);
     name = raw["name"] as String;
     description = raw["description"] as String;
@@ -134,9 +146,13 @@ class CommandOption implements ICommandOption {
         for (final choiceRaw in raw["choices"]) ArgChoice(choiceRaw as RawApiMap)
     ];
 
+    if (type == CommandOptionType.subCommandGroup || type == CommandOptionType.subCommand) {
+      path += ' $name';
+    }
+
     options = [
       if (raw["options"] != null)
-        for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
+        for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap, root, path)
     ];
   }
 }

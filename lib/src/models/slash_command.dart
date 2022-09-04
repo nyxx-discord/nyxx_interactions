@@ -6,7 +6,7 @@ import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/models/slash_command_permission.dart';
 
-abstract class ISlashCommand implements SnowflakeEntity {
+abstract class ISlashCommand implements SnowflakeEntity, Mentionable {
   /// Unique id of the parent application
   Snowflake get applicationId;
 
@@ -104,6 +104,11 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
 
   final Interactions _interactions;
 
+  @override
+  String get mention => '</$path:$id>';
+
+  String path = '';
+
   /// Creates an instance of [SlashCommand]
   SlashCommand(RawApiMap raw, this._interactions) : super(Snowflake(raw["id"])) {
     applicationId = Snowflake(raw["application_id"]);
@@ -122,9 +127,11 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
 
     defaultPermissions = raw["default_permission"] as bool? ?? true;
 
+    path = name;
+
     options = [
       if (raw["options"] != null)
-        for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
+        for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap, this, path)
     ];
   }
 

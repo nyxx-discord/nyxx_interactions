@@ -129,7 +129,7 @@ abstract class IInteractionEventWithAcknowledge<T extends IInteraction> implemen
   /// Once this is sent you can then only send ChannelMessages.
   Future<void> respond(MessageBuilder builder, {bool hidden = false});
 
-  /// Returns [Message] object of original interaction response
+  /// Returns [IMessage] object of original interaction response
   Future<IMessage> getOriginalResponse();
 
   /// Edits original message response

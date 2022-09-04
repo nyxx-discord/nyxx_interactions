@@ -18,18 +18,38 @@ main() {
   });
 
   test('CommandOption', () {
-    final entity = CommandOption({
-      'type': 3,
-      'name': 'test',
-      'description': 'this is description',
-      'required': false,
-      'choices': [
-        {"name": "test", "value": "test1"}
-      ],
+    final client = NyxxWebsocketMock();
+    final interactions = Interactions(WebsocketInteractionBackend(client));
+
+    final entitySlash = SlashCommand({
+      "id": 123,
+      "application_id": 456,
+      'name': 'testname',
+      'description': 'testdesc',
+      'type': SlashCommandType.chat.value,
       'options': [
         {'type': 4, 'name': 'subOption', 'description': 'test'}
       ],
-    });
+      'default_member_permissions': '123',
+      'dm_permission': false,
+    }, interactions);
+
+    final entity = CommandOption(
+      {
+        'type': 3,
+        'name': 'test',
+        'description': 'this is description',
+        'required': false,
+        'choices': [
+          {"name": "test", "value": "test1"}
+        ],
+        'options': [
+          {'type': 4, 'name': 'subOption', 'description': 'test'}
+        ],
+      },
+      entitySlash,
+      'test subOption',
+    );
 
     expect(entity.type, equals(CommandOptionType.string));
     expect(entity.name, equals('test'));
