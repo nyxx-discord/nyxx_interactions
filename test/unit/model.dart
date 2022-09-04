@@ -48,7 +48,7 @@ main() {
         ],
       },
       entitySlash,
-      'test subOption',
+      entitySlash.path,
     );
 
     expect(entity.type, equals(CommandOptionType.string));
@@ -57,6 +57,7 @@ main() {
     expect(entity.required, equals(false));
     expect(entity.choices, hasLength(1));
     expect(entity.options, hasLength(1));
+    expect(entity.mention, equals('</testname:123>'));
   });
 
   test('SlashCommand', () {
@@ -85,6 +86,7 @@ main() {
     expect(entity.guild, isNull);
     expect(entity.requiredPermissions, equals(123));
     expect(entity.canBeUsedInDm, isFalse);
+    expect(entity.mention, '</testname:123>');
   });
 
   test('InteractionOption options not empty', () {
