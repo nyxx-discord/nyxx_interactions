@@ -60,7 +60,7 @@ export 'src/models/interaction.dart'
         IMentionableSelectInteraction,
         IChannelSelectInteraction,
         IResolvedSelectInteraction;
-export 'src/models/interaction_data_resolved.dart' show IInteractionDataResolved, IPartialChannel;
+export 'src/models/interaction_data_resolved.dart' show IInteractionDataResolved, IPartialChannel, IInteractionSlashDataResolved;
 export 'src/models/interaction_option.dart' show IInteractionOption;
 export 'src/models/slash_command_permission.dart' show ISlashCommandPermissionOverride, ISlashCommandPermissionOverrides, SlashCommandPermissionType;
 export 'src/models/slash_command.dart' show ISlashCommand;
