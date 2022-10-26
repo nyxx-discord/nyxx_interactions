@@ -134,7 +134,6 @@ class ChannelMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.channelSelect;
 
-
   List<ChannelType>? channelTypes;
 
   ChannelMultiSelectBuilder(super.customId, [this.channelTypes]);
