@@ -11,7 +11,41 @@ abstract class ComponentBuilderAbstract extends Builder {
       };
 }
 
-/// Allows to create multi select option for [MultiselectBuilder]
+/// Abstract base class that represents any multi seletc builer.
+abstract class MultiSelectBuilderAbstract extends ComponentBuilderAbstract {
+  /// Id for the select menu; max 100 characters.
+  final String customId;
+
+  /// Placeholder text if nothing is selected; max 150 characters.
+  String? placeholder;
+
+  /// Minimum number of items that must be chosen (defaults to 1); min 0, max 25.
+  int? minValues;
+
+  /// Maximum number of items that can be chosen (defaults to 1); max 25.
+  int? maxValues;
+
+  /// Whether select menu is disabled (defaults to `false`).
+  bool? disabled;
+
+  MultiSelectBuilderAbstract(this.customId) {
+    if (customId.length > 100) {
+      throw ArgumentError("Custom Id for Select cannot have more than 100 characters");
+    }
+  }
+
+  @override
+  Map<String, dynamic> build() => {
+        ...super.build(),
+        'custom_id': customId,
+        if (placeholder != null) 'placeholder': placeholder,
+        if (minValues != null) 'min_values': minValues,
+        if (maxValues != null) 'max_values': maxValues,
+        if (disabled != null) 'disabled': disabled,
+      };
+}
+
+/// Allows to create multi select options for [MultiselectBuilder].
 class MultiselectOptionBuilder extends Builder {
   /// User-facing name of the option
   final String label;
@@ -47,36 +81,15 @@ class MultiselectOptionBuilder extends Builder {
 }
 
 /// Allows to create multi select interactive components.
-class MultiselectBuilder extends ComponentBuilderAbstract {
+class MultiselectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.select;
-
-  /// Max: 100 characters
-  final String customId;
 
   /// Max: 25
   final List<MultiselectOptionBuilder> options = [];
 
-  /// Custom placeholder when nothing selected
-  String? placeholder;
-
-  /// Minimum number of options that can be chosen.
-  /// Default: 1, min: 1, max: 25
-  int? minValues;
-
-  /// Maximum numbers of options that can be chosen
-  /// Default: 1, min: 1, max: 25
-  int? maxValues;
-
-  /// Whether disable the select menu.
-  bool? disabled;
-
   /// Creates instance of [MultiselectBuilder]
-  MultiselectBuilder(this.customId, [Iterable<MultiselectOptionBuilder>? options]) {
-    if (customId.length > 100) {
-      throw ArgumentError("Custom Id for Select cannot have more than 100 characters");
-    }
-
+  MultiselectBuilder(super.customId, [Iterable<MultiselectOptionBuilder>? options]) {
     if (options != null) {
       this.options.addAll(options);
     }
@@ -88,12 +101,48 @@ class MultiselectBuilder extends ComponentBuilderAbstract {
   @override
   Map<String, dynamic> build() => {
         ...super.build(),
-        "custom_id": customId,
         "options": [for (final optionBuilder in options) optionBuilder.build()],
-        if (placeholder != null) "placeholder": placeholder,
-        if (minValues != null) "min_values": minValues,
-        if (maxValues != null) "max_values": maxValues,
-        if (disabled != null) "disabled": disabled,
+      };
+}
+
+/// Builder to create select menus with [IUser]s inside of it.
+class UserMultiSelectBuilder extends MultiSelectBuilderAbstract {
+  @override
+  ComponentType get type => ComponentType.userSelect;
+
+  UserMultiSelectBuilder(super.customId);
+}
+
+/// Builder to create select menus with [IRole]s inside of it.
+class RoleMutliSelectBuilder extends MultiSelectBuilderAbstract {
+  @override
+  ComponentType get type => ComponentType.roleSelect;
+
+  RoleMutliSelectBuilder(super.customId);
+}
+
+/// Builder to create select menus with mentionables ([IRole]s & [IUser]s) inside of it.
+class MentionableMultiSelectBuilder extends MultiSelectBuilderAbstract {
+  @override
+  ComponentType get type => ComponentType.mentionableSelect;
+
+  MentionableMultiSelectBuilder(super.customId);
+}
+
+/// Builder to create select menus with [IChannel]s inside of it.
+class ChannelMultiSelectBuilder extends MultiSelectBuilderAbstract {
+  @override
+  ComponentType get type => ComponentType.channelSelect;
+
+
+  List<ChannelType>? channelTypes;
+
+  ChannelMultiSelectBuilder(super.customId, [this.channelTypes]);
+
+  @override
+  Map<String, dynamic> build() => {
+        ...super.build(),
+        if (channelTypes != null) 'channel_types': channelTypes!.map((e) => e.value).toList(),
       };
 }
 

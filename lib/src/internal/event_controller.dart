@@ -15,6 +15,18 @@ abstract class IEventController implements Disposable {
   /// Emitted when a dropdown interaction is received.
   Stream<IMultiselectInteractionEvent> get onMultiselectEvent;
 
+  /// Emitted when a user interaction multi select is received.
+  Stream<IUserSelectInteractionEvent> get onUserMultiSelect;
+
+  /// Emitted when a role interaction multi select is received.
+  Stream<IRoleSelectInteractionEvent> get onRoleMultiSelect;
+
+  /// Emitted when a mentionable interaction multi select is received.
+  Stream<IMentionableSelectInteractionEvent> get onMentionableMultiSelect;
+
+  /// Emitted when a channel interaction multi select is received.
+  Stream<IChannelSelectInteractionEvent> get onChannelMultiSelect;
+
   /// Emitted when a slash command is created by the user.
   Stream<ISlashCommand> get onSlashCommandCreated;
 
@@ -38,6 +50,22 @@ class EventController implements IEventController {
   @override
   late final Stream<IMultiselectInteractionEvent> onMultiselectEvent;
 
+  /// Emitted when a user interaction multi select is received
+  @override
+  late final Stream<IUserSelectInteractionEvent> onUserMultiSelect;
+
+  /// Emitted when a role interaction multi select is received.
+  @override
+  late final Stream<IRoleSelectInteractionEvent> onRoleMultiSelect;
+
+  /// Emitted when a mentionable interaction multi select is received.
+  @override
+  late final Stream<IMentionableSelectInteractionEvent> onMentionableMultiSelect;
+
+  /// Emitted when a channel interaction multi select is received.
+  @override
+  late final Stream<IChannelSelectInteractionEvent> onChannelMultiSelect;
+
   /// Emitted when a slash command is created by the user.
   @override
   late final Stream<ISlashCommand> onSlashCommandCreated;
@@ -53,10 +81,14 @@ class EventController implements IEventController {
   late final StreamController<ISlashCommand> onSlashCommandCreatedController;
   late final StreamController<IButtonInteractionEvent> onButtonEventController;
   late final StreamController<IMultiselectInteractionEvent> onMultiselectEventController;
+  late final StreamController<IUserSelectInteractionEvent> onUserMultiSelectController;
+  late final StreamController<IRoleSelectInteractionEvent> onRoleMultiSelectController;
+  late final StreamController<IMentionableSelectInteractionEvent> onMentionableMultiSelectController;
+  late final StreamController<IChannelSelectInteractionEvent> onChannelMultiSelectController;
   late final StreamController<IAutocompleteInteractionEvent> onAutocompleteEventController;
   late final StreamController<IModalInteractionEvent> onModalEventController;
 
-  /// Creates na instance of [EventController]
+  /// Creates an instance of [EventController]
   EventController() {
     onSlashCommandController = StreamController.broadcast();
     onSlashCommand = onSlashCommandController.stream;
@@ -69,6 +101,14 @@ class EventController implements IEventController {
 
     onMultiselectEventController = StreamController.broadcast();
     onMultiselectEvent = onMultiselectEventController.stream;
+    onUserMultiSelectController = StreamController.broadcast();
+    onUserMultiSelect = onUserMultiSelectController.stream;
+    onRoleMultiSelectController = StreamController.broadcast();
+    onRoleMultiSelect = onRoleMultiSelectController.stream;
+    onMentionableMultiSelectController = StreamController.broadcast();
+    onMentionableMultiSelect = onMentionableMultiSelectController.stream;
+    onChannelMultiSelectController = StreamController.broadcast();
+    onChannelMultiSelect = onChannelMultiSelectController.stream;
 
     onAutocompleteEventController = StreamController.broadcast();
     onAutocompleteEvent = onAutocompleteEventController.stream;
@@ -84,5 +124,9 @@ class EventController implements IEventController {
     await onButtonEventController.close();
     await onMultiselectEventController.close();
     await onAutocompleteEventController.close();
+    await onUserMultiSelectController.close();
+    await onRoleMultiSelectController.close();
+    await onMentionableMultiSelectController.close();
+    await onChannelMultiSelectController.close();
   }
 }

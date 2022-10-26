@@ -133,11 +133,29 @@ class Interactions implements IInteractions {
             final componentType = rawData["d"]["data"]["component_type"] as int;
 
             switch (componentType) {
+              // ComponentType.button
               case 2:
                 (events as EventController).onButtonEventController.add(ButtonInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
                 break;
+              // ComponentType.select
               case 3:
                 (events as EventController).onMultiselectEventController.add(MultiselectInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
+                break;
+              // ComponentType.userSelect
+              case 5:
+                (events as EventController).onUserMultiSelectController.add(UserSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.roleSelect
+              case 6:
+                (events as EventController).onRoleMultiSelectController.add(RoleSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.mentionableSelect
+              case 7:
+                (events as EventController).onMentionableMultiSelectController.add(MentionableSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.channelSelect
+              case 8:
+                (events as EventController).onChannelMultiSelectController.add(ChannelSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
               default:
                 _logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(rawData)}");

@@ -40,18 +40,20 @@ class PartialChannel extends SnowflakeEntity implements IPartialChannel {
 }
 
 abstract class IInteractionDataResolved {
-  /// Resolved [User]s
+  /// Resolved [IUser]s
   Iterable<IUser> get users;
 
-  /// Resolved [Member]s
+  /// Resolved [IMember]s
   Iterable<IMember> get members;
 
-  /// Resolved [Role]s
+  /// Resolved [IRole]s
   Iterable<IRole> get roles;
 
-  /// Resolved [PartialChannel]s
+  /// Resolved [IPartialChannel]s
   Iterable<IPartialChannel> get channels;
+}
 
+abstract class IInteractionSlashDataResolved implements IInteractionDataResolved {
   /// Resolved [IMessage] objects
   Iterable<IMessage> get messages;
 
@@ -59,10 +61,9 @@ abstract class IInteractionDataResolved {
   Iterable<IAttachment> get attachments;
 }
 
-/// Additional data for slash command
 class InteractionDataResolved implements IInteractionDataResolved {
   @override
-  late final Iterable<IUser> users;
+  late final Iterable<IPartialChannel> channels;
 
   @override
   late final Iterable<IMember> members;
@@ -71,15 +72,8 @@ class InteractionDataResolved implements IInteractionDataResolved {
   late final Iterable<IRole> roles;
 
   @override
-  late final Iterable<IPartialChannel> channels;
+  late final Iterable<IUser> users;
 
-  @override
-  late final Iterable<IMessage> messages;
-
-  @override
-  late final Iterable<IAttachment> attachments;
-
-  /// Creates na instance of [InteractionDataResolved]
   InteractionDataResolved(RawApiMap raw, Snowflake? guildId, INyxx client) {
     users = [
       if (raw["users"] != null)
@@ -107,7 +101,19 @@ class InteractionDataResolved implements IInteractionDataResolved {
       if (raw["channels"] != null)
         for (final rawChannelEntry in (raw["channels"] as RawApiMap).entries) PartialChannel(rawChannelEntry.value as RawApiMap)
     ];
+  }
+}
 
+/// Additional data for slash command
+class InteractionSlashDataResolved extends InteractionDataResolved implements IInteractionSlashDataResolved {
+  @override
+  late final Iterable<IMessage> messages;
+
+  @override
+  late final Iterable<IAttachment> attachments;
+
+  /// Creates na instance of [InteractionDataResolved]
+  InteractionSlashDataResolved(RawApiMap raw, Snowflake? guildId, INyxx client) : super(raw, guildId, client) {
     messages = [
       if (raw['messages'] != null)
         for (final rawMessageEntry in (raw['messages'] as RawApiMap).entries) Message(client, rawMessageEntry.value as RawApiMap)

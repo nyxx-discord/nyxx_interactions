@@ -312,6 +312,50 @@ class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselect
   }
 }
 
+abstract class IUserSelectInteractionEvent implements ComponentInteractionEvent<IUserSelectInteraction> {}
+
+class UserSelectInteractionEvent extends ComponentInteractionEvent<IUserSelectInteraction> implements IUserSelectInteractionEvent {
+  @override
+  late final IUserSelectInteraction interaction;
+
+  UserSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = UserSelectInteraction(client, raw);
+  }
+}
+
+abstract class IRoleSelectInteractionEvent implements ComponentInteractionEvent<IRoleSelectInteraction> {}
+
+class RoleSelectInteractionEvent extends ComponentInteractionEvent<IRoleSelectInteraction> implements IRoleSelectInteractionEvent {
+  @override
+  late final IRoleSelectInteraction interaction;
+
+  RoleSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = RoleSelectInteraction(client, raw);
+  }
+}
+
+abstract class IMentionableSelectInteractionEvent implements ComponentInteractionEvent<IMentionableSelectInteraction> {}
+
+class MentionableSelectInteractionEvent extends ComponentInteractionEvent<IMentionableSelectInteraction> implements IMentionableSelectInteractionEvent {
+  @override
+  late final IMentionableSelectInteraction interaction;
+
+  MentionableSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = MentionableSelectInteraction(client, raw);
+  }
+}
+
+abstract class IChannelSelectInteractionEvent implements ComponentInteractionEvent<IChannelSelectInteraction> {}
+
+class ChannelSelectInteractionEvent extends ComponentInteractionEvent<IChannelSelectInteraction> implements IChannelSelectInteractionEvent {
+  @override
+  late final IChannelSelectInteraction interaction;
+
+  ChannelSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = ChannelSelectInteraction(client, raw);
+  }
+}
+
 mixin IModalResponseMixin {
   IInteractions get interactions;
   IInteraction get interaction;

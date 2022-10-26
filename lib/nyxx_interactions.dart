@@ -12,7 +12,11 @@ export 'src/builders/component_builder.dart'
         MultiselectBuilder,
         MultiselectOptionBuilder,
         TextInputBuilder,
-        TextInputStyle;
+        TextInputStyle,
+        UserMultiSelectBuilder,
+        RoleMutliSelectBuilder,
+        MentionableMultiSelectBuilder,
+        ChannelMultiSelectBuilder;
 export 'src/builders/modal_builder.dart' show ModalBuilder;
 export 'src/builders/slash_command_builder.dart' show SlashCommandBuilder;
 export 'src/events/interaction_event.dart'
@@ -27,7 +31,11 @@ export 'src/events/interaction_event.dart'
         InteractionEventWithAcknowledge,
         ISlashCommandInteractionEvent,
         IModalResponseMixin,
-        IModalInteractionEvent;
+        IModalInteractionEvent,
+        IUserSelectInteractionEvent,
+        IRoleSelectInteractionEvent,
+        IMentionableSelectInteractionEvent,
+        IChannelSelectInteractionEvent;
 export 'src/exceptions/already_responded.dart' show AlreadyRespondedError;
 export 'src/exceptions/interaction_expired.dart' show InteractionExpiredError;
 export 'src/exceptions/response_required.dart' show ResponseRequiredError;
@@ -40,7 +48,18 @@ export 'src/internal/utils.dart' show slashCommandNameRegex;
 export 'src/models/arg_choice.dart' show IArgChoice;
 export 'src/models/command_option.dart' show ICommandOption, CommandOptionType;
 export 'src/models/interaction.dart'
-    show IComponentInteraction, IInteraction, IButtonInteraction, IMultiselectInteraction, ISlashCommandInteraction, IModalInteraction;
+    show
+        IComponentInteraction,
+        IInteraction,
+        IButtonInteraction,
+        IMultiselectInteraction,
+        ISlashCommandInteraction,
+        IModalInteraction,
+        IUserSelectInteraction,
+        IRoleSelectInteraction,
+        IMentionableSelectInteraction,
+        IChannelSelectInteraction,
+        IResolvedSelectInteraction;
 export 'src/models/interaction_data_resolved.dart' show IInteractionDataResolved, IPartialChannel;
 export 'src/models/interaction_option.dart' show IInteractionOption;
 export 'src/models/slash_command_permission.dart' show ISlashCommandPermissionOverride, ISlashCommandPermissionOverrides, SlashCommandPermissionType;
