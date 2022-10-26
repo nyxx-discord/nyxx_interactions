@@ -16,16 +16,16 @@ abstract class IEventController implements Disposable {
   Stream<IMultiselectInteractionEvent> get onMultiselectEvent;
 
   /// Emitted when a user interaction multi select is received.
-  Stream<IUserSelectInteractionEvent> get onUserMultiSelect;
+  Stream<IUserMultiSelectInteractionEvent> get onUserMultiSelect;
 
   /// Emitted when a role interaction multi select is received.
-  Stream<IRoleSelectInteractionEvent> get onRoleMultiSelect;
+  Stream<IRoleMultiSelectInteractionEvent> get onRoleMultiSelect;
 
   /// Emitted when a mentionable interaction multi select is received.
-  Stream<IMentionableSelectInteractionEvent> get onMentionableMultiSelect;
+  Stream<IMentionableMultiSelectInteractionEvent> get onMentionableMultiSelect;
 
   /// Emitted when a channel interaction multi select is received.
-  Stream<IChannelSelectInteractionEvent> get onChannelMultiSelect;
+  Stream<IChannelMultiSelectInteractionEvent> get onChannelMultiSelect;
 
   /// Emitted when a slash command is created by the user.
   Stream<ISlashCommand> get onSlashCommandCreated;
@@ -52,19 +52,19 @@ class EventController implements IEventController {
 
   /// Emitted when a user interaction multi select is received
   @override
-  late final Stream<IUserSelectInteractionEvent> onUserMultiSelect;
+  late final Stream<IUserMultiSelectInteractionEvent> onUserMultiSelect;
 
   /// Emitted when a role interaction multi select is received.
   @override
-  late final Stream<IRoleSelectInteractionEvent> onRoleMultiSelect;
+  late final Stream<IRoleMultiSelectInteractionEvent> onRoleMultiSelect;
 
   /// Emitted when a mentionable interaction multi select is received.
   @override
-  late final Stream<IMentionableSelectInteractionEvent> onMentionableMultiSelect;
+  late final Stream<IMentionableMultiSelectInteractionEvent> onMentionableMultiSelect;
 
   /// Emitted when a channel interaction multi select is received.
   @override
-  late final Stream<IChannelSelectInteractionEvent> onChannelMultiSelect;
+  late final Stream<IChannelMultiSelectInteractionEvent> onChannelMultiSelect;
 
   /// Emitted when a slash command is created by the user.
   @override
@@ -81,10 +81,10 @@ class EventController implements IEventController {
   late final StreamController<ISlashCommand> onSlashCommandCreatedController;
   late final StreamController<IButtonInteractionEvent> onButtonEventController;
   late final StreamController<IMultiselectInteractionEvent> onMultiselectEventController;
-  late final StreamController<IUserSelectInteractionEvent> onUserMultiSelectController;
-  late final StreamController<IRoleSelectInteractionEvent> onRoleMultiSelectController;
-  late final StreamController<IMentionableSelectInteractionEvent> onMentionableMultiSelectController;
-  late final StreamController<IChannelSelectInteractionEvent> onChannelMultiSelectController;
+  late final StreamController<IUserMultiSelectInteractionEvent> onUserMultiSelectController;
+  late final StreamController<IRoleMultiSelectInteractionEvent> onRoleMultiSelectController;
+  late final StreamController<IMentionableMultiSelectInteractionEvent> onMentionableMultiSelectController;
+  late final StreamController<IChannelMultiSelectInteractionEvent> onChannelMultiSelectController;
   late final StreamController<IAutocompleteInteractionEvent> onAutocompleteEventController;
   late final StreamController<IModalInteractionEvent> onModalEventController;
 

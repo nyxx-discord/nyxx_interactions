@@ -15,13 +15,13 @@ typedef MultiselectInteractionHandler = FutureOr<void> Function(IMultiselectInte
 typedef AutocompleteInteractionHandler = FutureOr<void> Function(IAutocompleteInteractionEvent);
 
 /// Function that will handle execution of user dropdown event
-typedef UserSelectInteractionHandler = FutureOr<void> Function(IUserSelectInteractionEvent); 
+typedef UserMultiSelectInteractionHandler = FutureOr<void> Function(IUserMultiSelectInteractionEvent); 
 
 /// Function that will handle execution of role dropdown event
-typedef RoleSelectInteractionHandler = FutureOr<void> Function(IRoleSelectInteractionEvent); 
+typedef RoleMultiSelectInteractionHandler = FutureOr<void> Function(IRoleMultiSelectInteractionEvent); 
 
 /// Function that will handle execution of mentionable dropdown event
-typedef MentionableSelectInteractionHandler = FutureOr<void> Function(IMentionableSelectInteractionEvent); 
+typedef MentionableMultiSelectInteractionHandler = FutureOr<void> Function(IMentionableMultiSelectInteractionEvent); 
 
 /// Function that will handle execution of channel dropdown event
-typedef ChannelSelectInteractionHandler = FutureOr<void> Function(IChannelSelectInteractionEvent); 
+typedef ChannelMultiSelectInteractionHandler = FutureOr<void> Function(IChannelMultiSelectInteractionEvent); 

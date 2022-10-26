@@ -14,7 +14,7 @@ export 'src/builders/component_builder.dart'
         TextInputBuilder,
         TextInputStyle,
         UserMultiSelectBuilder,
-        RoleMutliSelectBuilder,
+        RoleMultiSelectBuilder,
         MentionableMultiSelectBuilder,
         ChannelMultiSelectBuilder;
 export 'src/builders/modal_builder.dart' show ModalBuilder;
@@ -32,10 +32,10 @@ export 'src/events/interaction_event.dart'
         ISlashCommandInteractionEvent,
         IModalResponseMixin,
         IModalInteractionEvent,
-        IUserSelectInteractionEvent,
-        IRoleSelectInteractionEvent,
-        IMentionableSelectInteractionEvent,
-        IChannelSelectInteractionEvent;
+        IUserMultiSelectInteractionEvent,
+        IRoleMultiSelectInteractionEvent,
+        IMentionableMultiSelectInteractionEvent,
+        IChannelMultiSelectInteractionEvent;
 export 'src/exceptions/already_responded.dart' show AlreadyRespondedError;
 export 'src/exceptions/interaction_expired.dart' show InteractionExpiredError;
 export 'src/exceptions/response_required.dart' show ResponseRequiredError;
@@ -55,10 +55,10 @@ export 'src/models/interaction.dart'
         IMultiselectInteraction,
         ISlashCommandInteraction,
         IModalInteraction,
-        IUserSelectInteraction,
-        IRoleSelectInteraction,
-        IMentionableSelectInteraction,
-        IChannelSelectInteraction,
+        IUserMultiSelectInteraction,
+        IRoleMultiSelectInteraction,
+        IMentionableMultiSelectInteraction,
+        IChannelMultiSelectInteraction,
         IResolvedSelectInteraction;
 export 'src/models/interaction_data_resolved.dart' show IInteractionDataResolved, IPartialChannel, IInteractionSlashDataResolved;
 export 'src/models/interaction_option.dart' show IInteractionOption;

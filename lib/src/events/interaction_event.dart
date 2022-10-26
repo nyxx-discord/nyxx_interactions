@@ -312,47 +312,47 @@ class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselect
   }
 }
 
-abstract class IUserSelectInteractionEvent implements ComponentInteractionEvent<IUserSelectInteraction> {}
+abstract class IUserMultiSelectInteractionEvent implements ComponentInteractionEvent<IUserMultiSelectInteraction> {}
 
-class UserSelectInteractionEvent extends ComponentInteractionEvent<IUserSelectInteraction> implements IUserSelectInteractionEvent {
+class UserMultiSelectInteractionEvent extends ComponentInteractionEvent<IUserMultiSelectInteraction> implements IUserMultiSelectInteractionEvent {
   @override
-  late final IUserSelectInteraction interaction;
+  late final IUserMultiSelectInteraction interaction;
 
-  UserSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
-    interaction = UserSelectInteraction(client, raw);
+  UserMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = UserMultiSelectInteraction(client, raw);
   }
 }
 
-abstract class IRoleSelectInteractionEvent implements ComponentInteractionEvent<IRoleSelectInteraction> {}
+abstract class IRoleMultiSelectInteractionEvent implements ComponentInteractionEvent<IRoleMultiSelectInteraction> {}
 
-class RoleSelectInteractionEvent extends ComponentInteractionEvent<IRoleSelectInteraction> implements IRoleSelectInteractionEvent {
+class RoleMultiSelectInteractionEvent extends ComponentInteractionEvent<IRoleMultiSelectInteraction> implements IRoleMultiSelectInteractionEvent {
   @override
-  late final IRoleSelectInteraction interaction;
+  late final IRoleMultiSelectInteraction interaction;
 
-  RoleSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
-    interaction = RoleSelectInteraction(client, raw);
+  RoleMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = RoleMultiSelectInteraction(client, raw);
   }
 }
 
-abstract class IMentionableSelectInteractionEvent implements ComponentInteractionEvent<IMentionableSelectInteraction> {}
+abstract class IMentionableMultiSelectInteractionEvent implements ComponentInteractionEvent<IMentionableMultiSelectInteraction> {}
 
-class MentionableSelectInteractionEvent extends ComponentInteractionEvent<IMentionableSelectInteraction> implements IMentionableSelectInteractionEvent {
+class MentionableMultiSelectInteractionEvent extends ComponentInteractionEvent<IMentionableMultiSelectInteraction> implements IMentionableMultiSelectInteractionEvent {
   @override
-  late final IMentionableSelectInteraction interaction;
+  late final IMentionableMultiSelectInteraction interaction;
 
-  MentionableSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
-    interaction = MentionableSelectInteraction(client, raw);
+  MentionableMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = MentionableMultiSelectInteraction(client, raw);
   }
 }
 
-abstract class IChannelSelectInteractionEvent implements ComponentInteractionEvent<IChannelSelectInteraction> {}
+abstract class IChannelMultiSelectInteractionEvent implements ComponentInteractionEvent<IChannelMultiSelectInteraction> {}
 
-class ChannelSelectInteractionEvent extends ComponentInteractionEvent<IChannelSelectInteraction> implements IChannelSelectInteractionEvent {
+class ChannelMultiSelectInteractionEvent extends ComponentInteractionEvent<IChannelMultiSelectInteraction> implements IChannelMultiSelectInteractionEvent {
   @override
-  late final IChannelSelectInteraction interaction;
+  late final IChannelMultiSelectInteraction interaction;
 
-  ChannelSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
-    interaction = ChannelSelectInteraction(client, raw);
+  ChannelMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = ChannelMultiSelectInteraction(client, raw);
   }
 }
 

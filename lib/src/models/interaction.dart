@@ -289,7 +289,7 @@ abstract class ResolvedSelectInteraction extends ComponentInteraction implements
   }
 }
 
-abstract class IUserSelectInteraction implements IResolvedSelectInteraction {
+abstract class IUserMultiSelectInteraction implements IResolvedSelectInteraction {
   /// The users that were selected.
   Iterable<IUser> get users;
 
@@ -297,44 +297,44 @@ abstract class IUserSelectInteraction implements IResolvedSelectInteraction {
   Iterable<IMember> get members;
 }
 
-class UserSelectInteraction extends ResolvedSelectInteraction implements IUserSelectInteraction {
+class UserMultiSelectInteraction extends ResolvedSelectInteraction implements IUserMultiSelectInteraction {
   @override
   late final Iterable<IUser> users;
   @override
   late final Iterable<IMember> members;
 
-  UserSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+  UserMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
     users = resolved.users;
     members = resolved.members;
   }
 }
 
-abstract class IRoleSelectInteraction implements IResolvedSelectInteraction {
+abstract class IRoleMultiSelectInteraction implements IResolvedSelectInteraction {
   /// The roles that were selected.
   Iterable<IRole> get roles;
 }
 
-class RoleSelectInteraction extends ResolvedSelectInteraction implements IRoleSelectInteraction {
+class RoleMultiSelectInteraction extends ResolvedSelectInteraction implements IRoleMultiSelectInteraction {
   @override
   late final Iterable<IRole> roles;
 
-  RoleSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+  RoleMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
     roles = resolved.roles;
   }
 }
 
-abstract class IMentionableSelectInteraction implements IResolvedSelectInteraction {
+abstract class IMentionableMultiSelectInteraction implements IResolvedSelectInteraction {
   /// The mentionables that were selected.
   Iterable<Mentionable> get mentionables;
 }
 
-class MentionableSelectInteraction extends ResolvedSelectInteraction implements IMentionableSelectInteraction {
+class MentionableMultiSelectInteraction extends ResolvedSelectInteraction implements IMentionableMultiSelectInteraction {
   @override
   late final Iterable<Mentionable> mentionables;
 
-  MentionableSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+  MentionableMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
     mentionables = [
       ...{...resolved.users, ...resolved.members},
@@ -343,16 +343,16 @@ class MentionableSelectInteraction extends ResolvedSelectInteraction implements 
   }
 }
 
-abstract class IChannelSelectInteraction implements IResolvedSelectInteraction {
+abstract class IChannelMultiSelectInteraction implements IResolvedSelectInteraction {
   /// The channels that were selected.
   Iterable<IPartialChannel> get channels;
 }
 
-class ChannelSelectInteraction extends ResolvedSelectInteraction implements IChannelSelectInteraction {
+class ChannelMultiSelectInteraction extends ResolvedSelectInteraction implements IChannelMultiSelectInteraction {
   @override
   late final Iterable<IPartialChannel> channels;
 
-  ChannelSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+  ChannelMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
     channels = resolved.channels;
   }

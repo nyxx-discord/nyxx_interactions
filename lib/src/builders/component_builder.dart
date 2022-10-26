@@ -83,7 +83,7 @@ class MultiselectOptionBuilder extends Builder {
 /// Allows to create multi select interactive components.
 class MultiselectBuilder extends MultiSelectBuilderAbstract {
   @override
-  ComponentType get type => ComponentType.select;
+  ComponentType get type => ComponentType.multiSelect;
 
   /// Max: 25
   final List<MultiselectOptionBuilder> options = [];
@@ -108,23 +108,23 @@ class MultiselectBuilder extends MultiSelectBuilderAbstract {
 /// Builder to create select menus with [IUser]s inside of it.
 class UserMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
-  ComponentType get type => ComponentType.userSelect;
+  ComponentType get type => ComponentType.userMultiSelect;
 
   UserMultiSelectBuilder(super.customId);
 }
 
 /// Builder to create select menus with [IRole]s inside of it.
-class RoleMutliSelectBuilder extends MultiSelectBuilderAbstract {
+class RoleMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
-  ComponentType get type => ComponentType.roleSelect;
+  ComponentType get type => ComponentType.roleMultiSelect;
 
-  RoleMutliSelectBuilder(super.customId);
+  RoleMultiSelectBuilder(super.customId);
 }
 
 /// Builder to create select menus with mentionables ([IRole]s & [IUser]s) inside of it.
 class MentionableMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
-  ComponentType get type => ComponentType.mentionableSelect;
+  ComponentType get type => ComponentType.mentionableMultiSelect;
 
   MentionableMultiSelectBuilder(super.customId);
 }
@@ -132,7 +132,7 @@ class MentionableMultiSelectBuilder extends MultiSelectBuilderAbstract {
 /// Builder to create select menus with [IChannel]s inside of it.
 class ChannelMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
-  ComponentType get type => ComponentType.channelSelect;
+  ComponentType get type => ComponentType.channelMultiSelect;
 
   List<ChannelType>? channelTypes;
 
