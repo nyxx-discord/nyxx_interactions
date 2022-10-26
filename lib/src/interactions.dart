@@ -74,7 +74,7 @@ abstract class IInteractions {
   /// Returns the global overrides for commands in a guild.
   Cacheable<Snowflake, ISlashCommandPermissionOverrides> getGlobalOverridesInGuild(Snowflake guildId);
 
-  static IInteractions create(InteractionBackend backend) => Interactions(backend);
+  factory IInteractions.create(InteractionBackend backend) => Interactions(backend);
 }
 
 /// Interaction extension for Nyxx. Allows use of: Slash Commands.
@@ -221,7 +221,7 @@ class Interactions implements IInteractions {
 
     if (_commandHandlers.isNotEmpty) {
       events.onSlashCommand.listen((event) async {
-        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final commandHash = determineInteractionCommandHandler(event.interaction, this);
 
         _logger.info("Executing command with hash [$commandHash]");
         if (_commandHandlers.containsKey(commandHash)) {
@@ -257,7 +257,7 @@ class Interactions implements IInteractions {
     if (_autocompleteHandlers.isNotEmpty) {
       events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
-        final commandHash = determineInteractionCommandHandler(event.interaction);
+        final commandHash = determineInteractionCommandHandler(event.interaction, this);
         final autocompleteHash = "$commandHash$name";
 
         if (_autocompleteHandlers.containsKey(autocompleteHash)) {
@@ -337,7 +337,10 @@ class Interactions implements IInteractions {
   }
 
   void _assignCommandToHandler(SlashCommandBuilder builder) {
-    final commandHashPrefix = builder.name;
+    String commandHashPrefix = builder.name;
+    if (builder.guild != null) {
+      commandHashPrefix = '${builder.guild}/$commandHashPrefix';
+    }
 
     var allowRootHandler = true;
 

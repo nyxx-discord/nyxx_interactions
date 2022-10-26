@@ -1,3 +1,15 @@
+## 4.3.1
+__01.08.2022__
+
+- bug: Fix global commands selecting guild command handlers
+
+## 4.3.0
+__29.07.2022__
+
+- feature: Update to nyxx 4.0.0 (#54)
+- feature: Locales (#48)
+- feature: Differentiate command handlers per guild
+
 ## 4.2.1
 __02.05.2022__
 

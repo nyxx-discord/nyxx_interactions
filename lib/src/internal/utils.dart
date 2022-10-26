@@ -1,9 +1,11 @@
 import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/models/interaction_option.dart';
 import 'package:nyxx_interactions/src/models/interaction.dart';
+import 'package:nyxx_interactions/src/models/slash_command.dart';
 
 /// Slash command names and subcommands names have to match this regex
 final RegExp slashCommandNameRegex = RegExp(r"^[\w-]{1,32}$");
@@ -25,8 +27,13 @@ Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate)
 }
 
 /// Determine what handler should be executed based on [interaction]
-String determineInteractionCommandHandler(ISlashCommandInteraction interaction) {
-  final commandHash = interaction.name;
+String determineInteractionCommandHandler(ISlashCommandInteraction interaction, IInteractions interactions) {
+  String commandHash = interaction.name;
+
+  ISlashCommand triggered = interactions.commands.firstWhere((command) => command.id == interaction.commandId);
+  if (triggered.guild != null) {
+    commandHash = '${triggered.guild!.id}/$commandHash';
+  }
 
   try {
     final subCommandGroup = interaction.options.firstWhere((element) => element.type == CommandOptionType.subCommandGroup);
