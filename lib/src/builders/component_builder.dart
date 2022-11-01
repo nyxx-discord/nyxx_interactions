@@ -11,7 +11,7 @@ abstract class ComponentBuilderAbstract extends Builder {
       };
 }
 
-/// Abstract base class that represents any multi seletc builer.
+/// Abstract base class that represents any multi select builer.
 abstract class MultiSelectBuilderAbstract extends ComponentBuilderAbstract {
   /// Id for the select menu; max 100 characters.
   final String customId;
@@ -105,7 +105,7 @@ class MultiselectBuilder extends MultiSelectBuilderAbstract {
       };
 }
 
-/// Builder to create select menus with [IUser]s inside of it.
+/// Builder to create select menu with [IUser]s inside of it.
 class UserMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.userMultiSelect;
@@ -113,7 +113,7 @@ class UserMultiSelectBuilder extends MultiSelectBuilderAbstract {
   UserMultiSelectBuilder(super.customId);
 }
 
-/// Builder to create select menus with [IRole]s inside of it.
+/// Builder to create select menu with [IRole]s inside of it.
 class RoleMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.roleMultiSelect;
@@ -121,7 +121,7 @@ class RoleMultiSelectBuilder extends MultiSelectBuilderAbstract {
   RoleMultiSelectBuilder(super.customId);
 }
 
-/// Builder to create select menus with mentionables ([IRole]s & [IUser]s) inside of it.
+/// Builder to create select menu with mentionables ([IRole]s & [IUser]s) inside of it.
 class MentionableMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.mentionableMultiSelect;
@@ -129,7 +129,7 @@ class MentionableMultiSelectBuilder extends MultiSelectBuilderAbstract {
   MentionableMultiSelectBuilder(super.customId);
 }
 
-/// Builder to create select menus with [IChannel]s inside of it.
+/// Builder to create select menu with [IChannel]s inside of it.
 class ChannelMultiSelectBuilder extends MultiSelectBuilderAbstract {
   @override
   ComponentType get type => ComponentType.channelMultiSelect;
