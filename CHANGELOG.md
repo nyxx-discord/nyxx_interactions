@@ -1,3 +1,8 @@
+## 4.3.2
+__09.11.2022__
+
+- bug: Allow `ComponentMessageBuilder`s with only components to be used as new messages
+
 ## 4.3.1
 __01.08.2022__
 
