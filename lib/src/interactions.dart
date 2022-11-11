@@ -157,19 +157,19 @@ class Interactions implements IInteractions {
               case 3:
                 (events as EventController).onMultiselectEventController.add(MultiselectInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
                 break;
-              // ComponentType.UserMultiSelect
+              // ComponentType.userMultiSelect
               case 5:
                 (events as EventController).onUserMultiSelectController.add(UserMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
-              // ComponentType.RoleMultiSelect
+              // ComponentType.roleMultiSelect
               case 6:
                 (events as EventController).onRoleMultiSelectController.add(RoleMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
-              // ComponentType.MentionableMultiSelect
+              // ComponentType.mentionableMultiSelect
               case 7:
                 (events as EventController).onMentionableMultiSelectController.add(MentionableMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
-              // ComponentType.ChannelMultiSelect
+              // ComponentType.channelMultiSelect
               case 8:
                 (events as EventController).onChannelMultiSelectController.add(ChannelMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
