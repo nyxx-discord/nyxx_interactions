@@ -371,8 +371,8 @@ class Interactions implements IInteractions {
   void registerRoleMultiSelectHandler(String id, RoleMultiSelectInteractionHandler handler) => _roleMultiSelectHandlers[id] = handler;
 
   @override
-  void registerUserMultiSelectHandler(String id, UserMultiSelectInteractionHandler handler) => _userMultiSelectHandlers[id] = handler;    
-  
+  void registerUserMultiSelectHandler(String id, UserMultiSelectInteractionHandler handler) => _userMultiSelectHandlers[id] = handler;
+
   @override
   void registerMentionableMultiSelectHandler(String id, MentionableMultiSelectInteractionHandler handler) => _mentionableMultiSelectHandlers[id] = handler;
 

@@ -336,7 +336,8 @@ class RoleMultiSelectInteractionEvent extends ComponentInteractionEvent<IRoleMul
 
 abstract class IMentionableMultiSelectInteractionEvent implements ComponentInteractionEvent<IMentionableMultiSelectInteraction> {}
 
-class MentionableMultiSelectInteractionEvent extends ComponentInteractionEvent<IMentionableMultiSelectInteraction> implements IMentionableMultiSelectInteractionEvent {
+class MentionableMultiSelectInteractionEvent extends ComponentInteractionEvent<IMentionableMultiSelectInteraction>
+    implements IMentionableMultiSelectInteractionEvent {
   @override
   late final IMentionableMultiSelectInteraction interaction;
 
