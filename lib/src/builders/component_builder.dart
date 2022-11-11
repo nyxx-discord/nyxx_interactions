@@ -296,6 +296,9 @@ class ComponentMessageBuilder extends MessageBuilder {
   }
 
   @override
+  bool canBeUsedAsNewMessage() => super.canBeUsedAsNewMessage() || (componentRows != null && componentRows!.isNotEmpty);
+
+  @override
   RawApiMap build([AllowedMentions? defaultAllowedMentions]) => {
         ...super.build(allowedMentions),
         if (componentRows != null) "components": [for (final row in componentRows!) row.build()]
