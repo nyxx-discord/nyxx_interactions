@@ -337,8 +337,9 @@ class MentionableMultiSelectInteraction extends ResolvedSelectInteraction implem
   MentionableMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
     final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
     mentionables = [
-      ...{...resolved.users, ...resolved.members},
-      ...resolved.roles
+      ...resolved.users,
+      ...resolved.members,
+      ...resolved.roles,
     ];
   }
 }
