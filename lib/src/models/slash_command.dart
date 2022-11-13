@@ -47,6 +47,9 @@ abstract class ISlashCommand implements SnowflakeEntity {
   /// The localized descriptions of the command.
   Map<Locale, String>? get localizationsDescription;
 
+  /// Indicates whether the command is age-restricted.
+  bool get isNsfw;
+
   /// Get the permission overrides for this command in a specific guild.
   Cacheable<Snowflake, ISlashCommandPermissionOverrides> getPermissionOverridesInGuild(Snowflake guildId);
 }
@@ -102,6 +105,9 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
   @override
   late final Cacheable<Snowflake, ISlashCommandPermissionOverrides>? permissionOverrides;
 
+  @override
+  late final bool isNsfw;
+
   final Interactions _interactions;
 
   /// Creates an instance of [SlashCommand]
@@ -126,6 +132,8 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
       if (raw["options"] != null)
         for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
     ];
+
+    isNsfw = raw['nsfw'] as bool? ?? false;
   }
 
   @override
