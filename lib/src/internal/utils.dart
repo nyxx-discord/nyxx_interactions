@@ -8,7 +8,7 @@ import 'package:nyxx_interactions/src/models/interaction.dart';
 import 'package:nyxx_interactions/src/models/slash_command.dart';
 
 /// Slash command names and subcommands names have to match this regex
-final RegExp slashCommandNameRegex = RegExp(r"^[\w-]{1,32}$");
+final RegExp slashCommandNameRegex = RegExp(r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$", unicode: true);
 
 Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate) {
   final matches = <T>[];

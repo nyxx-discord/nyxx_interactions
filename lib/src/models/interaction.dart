@@ -2,7 +2,6 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx/src/core/permissions/permissions.dart';
 import 'package:nyxx/src/core/user/user.dart';
 import 'package:nyxx/src/core/user/member.dart';
-import 'package:nyxx/src/core/guild/guild.dart';
 import 'package:nyxx/src/internal/cache/cacheable.dart';
 import 'package:nyxx/src/core/channel/cacheable_text_channel.dart';
 import 'package:nyxx/src/core/message/message.dart';
@@ -174,7 +173,7 @@ abstract class ISlashCommandInteraction implements IInteraction {
   late final Snowflake commandId;
 
   /// Additional data for command
-  late final IInteractionDataResolved? resolved;
+  late final IInteractionSlashDataResolved? resolved;
 
   /// Id of the target entity (only present in message or user interactions)
   Snowflake? get targetId;
@@ -196,7 +195,7 @@ class SlashCommandInteraction extends Interaction implements ISlashCommandIntera
 
   /// Additional data for command
   @override
-  late final IInteractionDataResolved? resolved;
+  late final IInteractionSlashDataResolved? resolved;
 
   @override
   late final Snowflake? targetId;
@@ -210,7 +209,7 @@ class SlashCommandInteraction extends Interaction implements ISlashCommandIntera
     ];
     commandId = Snowflake(raw["data"]["id"]);
 
-    resolved = raw["data"]["resolved"] != null ? InteractionDataResolved(raw["data"]["resolved"] as RawApiMap, guild?.id, client) : null;
+    resolved = raw["data"]["resolved"] != null ? InteractionSlashDataResolved(raw["data"]["resolved"] as RawApiMap, guild?.id, client) : null;
 
     targetId = raw["data"]["target_id"] != null ? Snowflake(raw["data"]["target_id"]) : null;
   }
@@ -273,5 +272,89 @@ class MultiselectInteraction extends ComponentInteraction implements IMultiselec
   /// Creates na instance of [MultiselectInteraction]
   MultiselectInteraction(INyxx client, Map<String, dynamic> raw) : super(client, raw) {
     values = (raw["data"]["values"] as List<dynamic>).cast<String>();
+  }
+}
+
+abstract class IResolvedSelectInteraction implements IComponentInteraction {
+  /// Iterable of all ids selectionned.
+  Iterable<Snowflake> get values;
+}
+
+abstract class ResolvedSelectInteraction extends ComponentInteraction implements IResolvedSelectInteraction {
+  @override
+  late final Iterable<Snowflake> values;
+
+  ResolvedSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    values = (raw['data']['values'] as List).cast<String>().map(Snowflake.new);
+  }
+}
+
+abstract class IUserMultiSelectInteraction implements IResolvedSelectInteraction {
+  /// The users that were selected.
+  Iterable<IUser> get users;
+
+  /// The [IMember]s attached to the [users].
+  Iterable<IMember> get members;
+}
+
+class UserMultiSelectInteraction extends ResolvedSelectInteraction implements IUserMultiSelectInteraction {
+  @override
+  late final Iterable<IUser> users;
+  @override
+  late final Iterable<IMember> members;
+
+  UserMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
+    users = resolved.users;
+    members = resolved.members;
+  }
+}
+
+abstract class IRoleMultiSelectInteraction implements IResolvedSelectInteraction {
+  /// The roles that were selected.
+  Iterable<IRole> get roles;
+}
+
+class RoleMultiSelectInteraction extends ResolvedSelectInteraction implements IRoleMultiSelectInteraction {
+  @override
+  late final Iterable<IRole> roles;
+
+  RoleMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
+    roles = resolved.roles;
+  }
+}
+
+abstract class IMentionableMultiSelectInteraction implements IResolvedSelectInteraction {
+  /// The mentionables that were selected.
+  Iterable<Mentionable> get mentionables;
+}
+
+class MentionableMultiSelectInteraction extends ResolvedSelectInteraction implements IMentionableMultiSelectInteraction {
+  @override
+  late final Iterable<Mentionable> mentionables;
+
+  MentionableMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
+    mentionables = [
+      ...resolved.users,
+      ...resolved.members,
+      ...resolved.roles,
+    ];
+  }
+}
+
+abstract class IChannelMultiSelectInteraction implements IResolvedSelectInteraction {
+  /// The channels that were selected.
+  Iterable<IPartialChannel> get channels;
+}
+
+class ChannelMultiSelectInteraction extends ResolvedSelectInteraction implements IChannelMultiSelectInteraction {
+  @override
+  late final Iterable<IPartialChannel> channels;
+
+  ChannelMultiSelectInteraction(INyxx client, RawApiMap raw) : super(client, raw) {
+    final resolved = InteractionDataResolved(raw['data']['resolved'] as RawApiMap, guild?.id, client);
+    channels = resolved.channels;
   }
 }
