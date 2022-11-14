@@ -312,6 +312,51 @@ class MultiselectInteractionEvent extends ComponentInteractionEvent<IMultiselect
   }
 }
 
+abstract class IUserMultiSelectInteractionEvent implements ComponentInteractionEvent<IUserMultiSelectInteraction> {}
+
+class UserMultiSelectInteractionEvent extends ComponentInteractionEvent<IUserMultiSelectInteraction> implements IUserMultiSelectInteractionEvent {
+  @override
+  late final IUserMultiSelectInteraction interaction;
+
+  UserMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = UserMultiSelectInteraction(client, raw);
+  }
+}
+
+abstract class IRoleMultiSelectInteractionEvent implements ComponentInteractionEvent<IRoleMultiSelectInteraction> {}
+
+class RoleMultiSelectInteractionEvent extends ComponentInteractionEvent<IRoleMultiSelectInteraction> implements IRoleMultiSelectInteractionEvent {
+  @override
+  late final IRoleMultiSelectInteraction interaction;
+
+  RoleMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = RoleMultiSelectInteraction(client, raw);
+  }
+}
+
+abstract class IMentionableMultiSelectInteractionEvent implements ComponentInteractionEvent<IMentionableMultiSelectInteraction> {}
+
+class MentionableMultiSelectInteractionEvent extends ComponentInteractionEvent<IMentionableMultiSelectInteraction>
+    implements IMentionableMultiSelectInteractionEvent {
+  @override
+  late final IMentionableMultiSelectInteraction interaction;
+
+  MentionableMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = MentionableMultiSelectInteraction(client, raw);
+  }
+}
+
+abstract class IChannelMultiSelectInteractionEvent implements ComponentInteractionEvent<IChannelMultiSelectInteraction> {}
+
+class ChannelMultiSelectInteractionEvent extends ComponentInteractionEvent<IChannelMultiSelectInteraction> implements IChannelMultiSelectInteractionEvent {
+  @override
+  late final IChannelMultiSelectInteraction interaction;
+
+  ChannelMultiSelectInteractionEvent(Interactions interactions, RawApiMap raw) : super(interactions, raw) {
+    interaction = ChannelMultiSelectInteraction(client, raw);
+  }
+}
+
 mixin IModalResponseMixin {
   IInteractions get interactions;
   IInteraction get interaction;

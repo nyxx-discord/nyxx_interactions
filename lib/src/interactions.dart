@@ -47,6 +47,18 @@ abstract class IInteractions {
   /// Register callback for dropdown event for given [id]
   void registerMultiselectHandler(String id, MultiselectInteractionHandler handler);
 
+  /// Register callback for user dropdown event for given [id].
+  void registerUserMultiSelectHandler(String id, UserMultiSelectInteractionHandler handler);
+
+  /// Register callback for role dropdown event for given [id].
+  void registerRoleMultiSelectHandler(String id, RoleMultiSelectInteractionHandler handler);
+
+  /// Register callback for mentionable dropdown event for given [id].
+  void registerMentionableMultiSelectHandler(String id, MentionableMultiSelectInteractionHandler handler);
+
+  /// Register callback for channel dropdown event for given [id].
+  void registerChannelMultiSelectHandler(String id, ChannelMultiSelectInteractionHandler handler);
+
   /// Allows to register new [SlashCommandBuilder]
   void registerSlashCommand(SlashCommandBuilder slashCommandBuilder);
 
@@ -89,6 +101,10 @@ class Interactions implements IInteractions {
   final _buttonHandlers = <String, ButtonInteractionHandler>{};
   final _autocompleteHandlers = <String, AutocompleteInteractionHandler>{};
   final _multiselectHandlers = <String, MultiselectInteractionHandler>{};
+  final _userMultiSelectHandlers = <String, UserMultiSelectInteractionHandler>{};
+  final _roleMultiSelectHandlers = <String, RoleMultiSelectInteractionHandler>{};
+  final _mentionableMultiSelectHandlers = <String, MentionableMultiSelectInteractionHandler>{};
+  final _channelMultiSelectHandlers = <String, ChannelMultiSelectInteractionHandler>{};
 
   final permissionOverridesCache = <Snowflake, Map<Snowflake, SlashCommandPermissionOverrides>>{};
 
@@ -133,11 +149,29 @@ class Interactions implements IInteractions {
             final componentType = rawData["d"]["data"]["component_type"] as int;
 
             switch (componentType) {
+              // ComponentType.button
               case 2:
                 (events as EventController).onButtonEventController.add(ButtonInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
                 break;
+              // ComponentType.select
               case 3:
                 (events as EventController).onMultiselectEventController.add(MultiselectInteractionEvent(this, rawData["d"] as Map<String, dynamic>));
+                break;
+              // ComponentType.userMultiSelect
+              case 5:
+                (events as EventController).onUserMultiSelectController.add(UserMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.roleMultiSelect
+              case 6:
+                (events as EventController).onRoleMultiSelectController.add(RoleMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.mentionableMultiSelect
+              case 7:
+                (events as EventController).onMentionableMultiSelectController.add(MentionableMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
+                break;
+              // ComponentType.channelMultiSelect
+              case 8:
+                (events as EventController).onChannelMultiSelectController.add(ChannelMultiSelectInteractionEvent(this, rawData['d'] as RawApiMap));
                 break;
               default:
                 _logger.warning("Unknown componentType type: [$componentType]; Payload: ${jsonEncode(rawData)}");
@@ -254,6 +288,50 @@ class Interactions implements IInteractions {
       });
     }
 
+    if (_userMultiSelectHandlers.isNotEmpty) {
+      events.onUserMultiSelect.listen((event) {
+        if (_userMultiSelectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing user select with id [${event.interaction.customId}]");
+          _userMultiSelectHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown user select: ${event.interaction.customId}");
+        }
+      });
+    }
+
+    if (_roleMultiSelectHandlers.isNotEmpty) {
+      events.onRoleMultiSelect.listen((event) {
+        if (_roleMultiSelectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing role select with id [${event.interaction.customId}]");
+          _roleMultiSelectHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown role select: ${event.interaction.customId}");
+        }
+      });
+    }
+
+    if (_mentionableMultiSelectHandlers.isNotEmpty) {
+      events.onMentionableMultiSelect.listen((event) {
+        if (_mentionableMultiSelectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing mentionable select with id [${event.interaction.customId}]");
+          _mentionableMultiSelectHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown mentionable select: ${event.interaction.customId}");
+        }
+      });
+    }
+
+    if (_channelMultiSelectHandlers.isNotEmpty) {
+      events.onChannelMultiSelect.listen((event) {
+        if (_channelMultiSelectHandlers.containsKey(event.interaction.customId)) {
+          _logger.info("Executing channel select with id [${event.interaction.customId}]");
+          _channelMultiSelectHandlers[event.interaction.customId]!(event);
+        } else {
+          _logger.warning("Received event for unknown channel select: ${event.interaction.customId}");
+        }
+      });
+    }
+
     if (_autocompleteHandlers.isNotEmpty) {
       events.onAutocompleteEvent.listen((event) {
         final name = event.focusedOption.name;
@@ -288,6 +366,18 @@ class Interactions implements IInteractions {
   /// Register callback for slash command event for given [id]
   @override
   void registerSlashCommandHandler(String id, SlashCommandHandler handler) => _commandHandlers[id] = handler;
+
+  @override
+  void registerRoleMultiSelectHandler(String id, RoleMultiSelectInteractionHandler handler) => _roleMultiSelectHandlers[id] = handler;
+
+  @override
+  void registerUserMultiSelectHandler(String id, UserMultiSelectInteractionHandler handler) => _userMultiSelectHandlers[id] = handler;
+
+  @override
+  void registerMentionableMultiSelectHandler(String id, MentionableMultiSelectInteractionHandler handler) => _mentionableMultiSelectHandlers[id] = handler;
+
+  @override
+  void registerChannelMultiSelectHandler(String id, ChannelMultiSelectInteractionHandler handler) => _channelMultiSelectHandlers[id] = handler;
 
   /// Deletes global command
   @override
