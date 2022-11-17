@@ -133,7 +133,7 @@ class SlashCommand extends SnowflakeEntity implements ISlashCommand {
         for (final optionRaw in raw["options"]) CommandOption(optionRaw as RawApiMap)
     ];
 
-    isNsfw = raw['nsfw'] as bool? ?? false;
+    isNsfw = raw['nsfw'] as bool;
   }
 
   @override
