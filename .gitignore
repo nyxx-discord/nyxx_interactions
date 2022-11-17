@@ -5,3 +5,4 @@ pubspec.lock
 .packages
 private_test.dart
 .vscode/
+doc/**

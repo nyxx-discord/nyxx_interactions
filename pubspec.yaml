@@ -1,5 +1,5 @@
 name: nyxx_interactions
-version: 4.3.1
+version: 4.4.0
 description: Nyxx Interactions Module. Discord library for Dart. Simple, robust framework for creating discord bots for Dart language.
 homepage: https://github.com/nyxx-discord/nyxx_interactions
 repository: https://github.com/nyxx-discord/nyxx_interactions
@@ -12,7 +12,7 @@ environment:
 dependencies:
   crypto: ^3.0.1
   logging: ^1.0.1
-  nyxx: ^4.0.0
+  nyxx: ^4.2.0
 
 dev_dependencies:
   test: ^1.19.0

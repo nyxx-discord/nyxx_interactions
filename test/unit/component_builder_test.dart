@@ -7,12 +7,20 @@ main() {
     final customButton = ButtonBuilder("label", "customId", ButtonStyle.secondary);
     final linkButton = LinkButtonBuilder("label2", "discord://-/");
     final multiselect = MultiselectBuilder("customId2", [MultiselectOptionBuilder("label1", "value1", true)]);
+    final multiSelectUser = ChannelMultiSelectBuilder('userCustomId')
+      ..disabled = true
+      ..minValues = 1
+      ..maxValues = 3
+      ..placeholder = 'A placeholder here'
+      ..channelTypes = [ChannelType.text, ChannelType.voice];
 
     final componentRow = ComponentRowBuilder()
       ..addComponent(customButton)
       ..addComponent(linkButton);
 
-    final secondComponentRow = ComponentRowBuilder()..addComponent(multiselect);
+    final secondComponentRow = ComponentRowBuilder()
+      ..addComponent(multiselect)
+      ..addComponent(multiSelectUser);
 
     final messageBuilder = ComponentMessageBuilder()
       ..addComponentRow(componentRow)
@@ -38,6 +46,15 @@ main() {
               'options': [
                 {'label': 'label1', 'value': 'value1', 'default': true}
               ]
+            },
+            {
+              'type': 8,
+              'custom_id': 'userCustomId',
+              'placeholder': 'A placeholder here',
+              'min_values': 1,
+              'max_values': 3,
+              'disabled': true,
+              'channel_types': [0, 2]
             }
           ]
         }
