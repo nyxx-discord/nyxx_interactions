@@ -556,7 +556,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       try {
         // 10066 = Unknown application command permissions
         // Means there are no overrides for this command... why is this an error, Discord?
-        if (jsonDecode(response.message)['code'] == 10066) {
+        if (response.code == 10066) {
           _logger.finest('Got error code 10066 on permissions for command $commandId in guild $guildId, returning empty permission overrides.');
           return SlashCommandPermissionOverrides.empty(commandId, _client);
         }
