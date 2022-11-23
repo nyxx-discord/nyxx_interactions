@@ -496,19 +496,14 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
       return SlashCommandPermissionOverrides(response.jsonBody as Map<String, dynamic>, _client);
     } on IHttpResponseError catch (response) {
-      try {
-        // 10066 = Unknown application command permissions
-        // Means there are no overrides for this command... why is this an error, Discord?
-        if (response.code == 10066) {
-          _logger.finest('Got error code 10066 on permissions for command $commandId in guild $guildId, returning empty permission overrides.');
-          return SlashCommandPermissionOverrides.empty(commandId, _client);
-        }
-      } on Exception {
-        // We got invalid JSON. The request is probably invalid, so we ignore it and return an error.
-        _logger.warning('Invalid JSON in response: ${response.message}');
+      // 10066 = Unknown application command permissions
+      // Means there are no overrides for this command... why is this an error, Discord?
+      if (response.code == 10066) {
+        _logger.finest('Got error code 10066 on permissions for command $commandId in guild $guildId, returning empty permission overrides.');
+        return SlashCommandPermissionOverrides.empty(commandId, _client);
       }
 
-      return Future.error(response);
+      rethrow;
     }
   }
 
