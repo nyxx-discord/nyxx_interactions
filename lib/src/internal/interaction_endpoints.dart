@@ -113,28 +113,47 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   InteractionsEndpoints(this._client, this._interactions);
 
-  @override
-  Future<void> acknowledge(String token, String interactionId, bool hidden, int opCode) async {
+  // TODO: Make this public in nyxx to avoid duplication?
+  Future<IHttpResponseSuccess> executeSafe(
+    IHttpRoute route,
+    String method, {
+    dynamic body,
+    bool auth = false,
+    List<AttachmentBuilder> files = const [],
+    Map<String, dynamic>? queryParams,
+  }) async {
     final response = await _client.httpEndpoints.sendRawRequest(
-      IHttpRoute()
-        ..interactions(id: interactionId, token: token)
-        ..callback(),
-      "POST",
-      body: {
-        "type": opCode,
-        "data": {
-          if (hidden) "flags": 1 << 6,
-        }
-      },
+      route,
+      method,
+      body: body,
+      auth: auth,
+      files: files,
+      queryParams: queryParams,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
+    if (response is! IHttpResponseSuccess) {
+      return Future.error(response, StackTrace.current);
     }
+
+    return response;
   }
 
   @override
-  Future<void> deleteFollowup(String token, Snowflake applicationId, Snowflake messageId) => _client.httpEndpoints.sendRawRequest(
+  Future<void> acknowledge(String token, String interactionId, bool hidden, int opCode) => executeSafe(
+        IHttpRoute()
+          ..interactions(id: interactionId, token: token)
+          ..callback(),
+        "POST",
+        body: {
+          "type": opCode,
+          "data": {
+            if (hidden) "flags": 1 << 6,
+          }
+        },
+      );
+
+  @override
+  Future<void> deleteFollowup(String token, Snowflake applicationId, Snowflake messageId) => executeSafe(
         IHttpRoute()
           ..webhooks(id: applicationId.id.toString(), token: token)
           ..messages(id: messageId.id.toString()),
@@ -142,24 +161,18 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       );
 
   @override
-  Future<void> deleteOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
-      IHttpRoute()
-        ..webhooks(id: applicationId.id.toString(), token: token)
-        ..messages(id: '@original'),
-      "DELETE",
-    );
-
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-  }
+  Future<void> deleteOriginalResponse(String token, Snowflake applicationId, String interactionId) => executeSafe(
+        IHttpRoute()
+          ..webhooks(id: applicationId.id.toString(), token: token)
+          ..messages(id: '@original'),
+        "DELETE",
+      );
 
   @override
   Future<IMessage> editFollowup(String token, Snowflake applicationId, Snowflake messageId, MessageBuilder builder) async {
     final body = builder.build(_client.options.allowedMentions);
 
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..webhooks(id: applicationId.id.toString(), token: token)
         ..messages(id: messageId.id.toString()),
@@ -167,16 +180,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       body: body,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return Message(_client, (response as IHttpResponseSuccess).jsonBody as RawApiMap);
+    return Message(_client, response.jsonBody as RawApiMap);
   }
 
   @override
   Future<IMessage> editOriginalResponse(String token, Snowflake applicationId, MessageBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..webhooks(id: applicationId.id.toString(), token: token)
         ..messages(id: '@original'),
@@ -184,70 +193,50 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       body: builder.build(_client.options.allowedMentions),
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return Message(_client, (response as IHttpResponseSuccess).jsonBody as RawApiMap);
+    return Message(_client, response.jsonBody as RawApiMap);
   }
 
   @override
   Future<IMessage> fetchOriginalResponse(String token, Snowflake applicationId, String interactionId) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..webhooks(id: applicationId.id.toString(), token: token)
         ..messages(id: '@original'),
       "GET",
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return Message(_client, (response as IHttpResponseSuccess).jsonBody as RawApiMap);
+    return Message(_client, response.jsonBody as RawApiMap);
   }
 
   @override
-  Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
-      IHttpRoute()
-        ..webhooks(id: applicationId.id.toString(), token: token)
-        ..messages(id: '@original'),
-      "PATCH",
-      body: {if (hidden) "flags": 1 << 6, ...builder.build(_client.options.allowedMentions)},
-      files: builder.files ?? [],
-    );
-
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-  }
+  Future<void> respondEditOriginal(String token, Snowflake applicationId, MessageBuilder builder, bool hidden) => executeSafe(
+        IHttpRoute()
+          ..webhooks(id: applicationId.id.toString(), token: token)
+          ..messages(id: '@original'),
+        "PATCH",
+        body: {if (hidden) "flags": 1 << 6, ...builder.build(_client.options.allowedMentions)},
+        files: builder.files ?? [],
+      );
 
   @override
-  Future<void> respondCreateResponse(String token, String interactionId, MessageBuilder builder, bool hidden, int respondOpCode) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
-      IHttpRoute()
-        ..interactions(id: interactionId, token: token)
-        ..callback(),
-      "POST",
-      body: {
-        "type": respondOpCode,
-        "data": {
-          if (hidden) "flags": 1 << 6,
-          ...builder.build(_client.options.allowedMentions),
+  Future<void> respondCreateResponse(String token, String interactionId, MessageBuilder builder, bool hidden, int respondOpCode) => executeSafe(
+        IHttpRoute()
+          ..interactions(id: interactionId, token: token)
+          ..callback(),
+        "POST",
+        body: {
+          "type": respondOpCode,
+          "data": {
+            if (hidden) "flags": 1 << 6,
+            ...builder.build(_client.options.allowedMentions),
+          },
         },
-      },
-      files: builder.files ?? [],
-    );
-
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-  }
+        files: builder.files ?? [],
+      );
 
   @override
   Future<IMessage> sendFollowup(String token, Snowflake applicationId, MessageBuilder builder, {bool hidden = false}) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()..webhooks(id: applicationId.id.toString(), token: token),
       "POST",
       body: {
@@ -257,16 +246,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       files: builder.files ?? [],
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return Message(_client, (response as IHttpResponseSuccess).jsonBody as RawApiMap);
+    return Message(_client, response.jsonBody as RawApiMap);
   }
 
   @override
   Stream<ISlashCommand> bulkOverrideGlobalCommands(Snowflake applicationId, Iterable<SlashCommandBuilder> builders) async* {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..commands(),
@@ -275,18 +260,14 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      yield* Stream.error(response);
-    }
-
-    for (final rawRes in (response as IHttpResponseSuccess).jsonBody as List<dynamic>) {
+    for (final rawRes in response.jsonBody as List<dynamic>) {
       yield SlashCommand(rawRes as RawApiMap, _interactions);
     }
   }
 
   @override
   Stream<ISlashCommand> bulkOverrideGuildCommands(Snowflake applicationId, Snowflake guildId, Iterable<SlashCommandBuilder> builders) async* {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -296,17 +277,13 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      yield* Stream.error(response);
-    }
-
-    for (final rawRes in (response as IHttpResponseSuccess).jsonBody as List<dynamic>) {
+    for (final rawRes in response.jsonBody as List<dynamic>) {
       yield SlashCommand(rawRes as RawApiMap, _interactions);
     }
   }
 
   @override
-  Future<void> deleteGlobalCommand(Snowflake applicationId, Snowflake commandId) => _client.httpEndpoints.sendRawRequest(
+  Future<void> deleteGlobalCommand(Snowflake applicationId, Snowflake commandId) => executeSafe(
         IHttpRoute()
           ..applications(id: applicationId.id.toString())
           ..commands(id: commandId.id.toString()),
@@ -315,7 +292,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       );
 
   @override
-  Future<void> deleteGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) => _client.httpEndpoints.sendRawRequest(
+  Future<void> deleteGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) => executeSafe(
         IHttpRoute()
           ..applications(id: applicationId.id.toString())
           ..guilds(id: guildId.id.toString())
@@ -326,7 +303,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<ISlashCommand> editGlobalCommand(Snowflake applicationId, Snowflake commandId, SlashCommandBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..commands(id: commandId.id.toString()),
@@ -335,16 +312,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return SlashCommand((response as IHttpResponseSuccess).jsonBody as RawApiMap, _interactions);
+    return SlashCommand(response.jsonBody as RawApiMap, _interactions);
   }
 
   @override
   Future<ISlashCommand> editGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId, SlashCommandBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -354,16 +327,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return SlashCommand((response as IHttpResponseSuccess).jsonBody as RawApiMap, _interactions);
+    return SlashCommand(response.jsonBody as RawApiMap, _interactions);
   }
 
   @override
   Future<ISlashCommand> fetchGlobalCommand(Snowflake applicationId, Snowflake commandId) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..commands(id: commandId.id.toString()),
@@ -371,16 +340,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return SlashCommand((response as IHttpResponseSuccess).jsonBody as RawApiMap, _interactions);
+    return SlashCommand(response.jsonBody as RawApiMap, _interactions);
   }
 
   @override
   Stream<ISlashCommand> fetchGlobalCommands(Snowflake applicationId, {bool withLocales = true}) async* {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..commands(),
@@ -389,18 +354,14 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       queryParams: withLocales ? {'with_localizations': withLocales.toString()} : {},
     );
 
-    if (response is IHttpResponseError) {
-      yield* Stream.error(response);
-    }
-
-    for (final commandSlash in (response as IHttpResponseSuccess).jsonBody as List<dynamic>) {
+    for (final commandSlash in response.jsonBody as List<dynamic>) {
       yield SlashCommand(commandSlash as RawApiMap, _interactions);
     }
   }
 
   @override
   Future<ISlashCommand> fetchGuildCommand(Snowflake applicationId, Snowflake commandId, Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -409,16 +370,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
-    return SlashCommand((response as IHttpResponseSuccess).jsonBody as RawApiMap, _interactions);
+    return SlashCommand(response.jsonBody as RawApiMap, _interactions);
   }
 
   @override
   Stream<ISlashCommand> fetchGuildCommands(Snowflake applicationId, Snowflake guildId, {bool withLocales = true}) async* {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -428,11 +385,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       queryParams: withLocales ? {'with_localizations': withLocales.toString()} : {},
     );
 
-    if (response is IHttpResponseError) {
-      yield* Stream.error(response);
-    }
-
-    for (final commandSlash in (response as IHttpResponseSuccess).jsonBody as List<dynamic>) {
+    for (final commandSlash in response.jsonBody as List<dynamic>) {
       yield SlashCommand(commandSlash as RawApiMap, _interactions);
     }
   }
@@ -448,7 +401,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
             })
         .toList();
 
-    await _client.httpEndpoints.sendRawRequest(
+    await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..commands()
@@ -471,7 +424,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
             })
         .toList();
 
-    await _client.httpEndpoints.sendRawRequest(
+    await executeSafe(
       IHttpRoute()
         ..applications(id: applicationId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -485,7 +438,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<IMessage> fetchFollowup(String token, Snowflake applicationId, Snowflake messageId) async {
-    final result = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..webhooks(id: applicationId.id.toString(), token: token)
         ..messages(id: messageId.id.toString()),
@@ -493,16 +446,12 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (result is IHttpResponseError) {
-      return Future.error(result);
-    }
-
-    return Message(_client, (result as IHttpResponseSuccess).jsonBody as RawApiMap);
+    return Message(_client, response.jsonBody as RawApiMap);
   }
 
   @override
   Future<void> respondToAutocomplete(Snowflake interactionId, String token, List<ArgChoiceBuilder> builders) async {
-    final result = await _client.httpEndpoints.sendRawRequest(
+    final result = await executeSafe(
       IHttpRoute()
         ..interactions(id: interactionId.id.toString(), token: token)
         ..callback(),
@@ -521,27 +470,21 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
   }
 
   @override
-  Future<void> respondModal(String token, String interactionId, ModalBuilder builder) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
-      IHttpRoute()
-        ..interactions(id: interactionId, token: token)
-        ..callback(),
-      "POST",
-      body: {
-        "type": 9,
-        "data": {...builder.build()},
-      },
-    );
-
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-  }
+  Future<void> respondModal(String token, String interactionId, ModalBuilder builder) => executeSafe(
+        IHttpRoute()
+          ..interactions(id: interactionId, token: token)
+          ..callback(),
+        "POST",
+        body: {
+          "type": 9,
+          "data": {...builder.build()},
+        },
+      );
 
   @override
   Future<SlashCommandPermissionOverrides> fetchCommandOverrides(Snowflake commandId, Snowflake guildId) async {
     try {
-      final response = await _client.httpEndpoints.sendRawRequest(
+      final response = await executeSafe(
         IHttpRoute()
           ..applications(id: _client.appId.id.toString())
           ..guilds(id: guildId.id.toString())
@@ -551,7 +494,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
         auth: true,
       );
 
-      return SlashCommandPermissionOverrides((response as IHttpResponseSuccess).jsonBody as Map<String, dynamic>, _client);
+      return SlashCommandPermissionOverrides(response.jsonBody as Map<String, dynamic>, _client);
     } on IHttpResponseError catch (response) {
       try {
         // 10066 = Unknown application command permissions
@@ -571,7 +514,7 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
 
   @override
   Future<List<ISlashCommandPermissionOverrides>> fetchPermissionOverrides(Snowflake guildId) async {
-    final response = await _client.httpEndpoints.sendRawRequest(
+    final response = await executeSafe(
       IHttpRoute()
         ..applications(id: _client.appId.id.toString())
         ..guilds(id: guildId.id.toString())
@@ -581,12 +524,8 @@ class InteractionsEndpoints implements IInteractionsEndpoints {
       auth: true,
     );
 
-    if (response is IHttpResponseError) {
-      return Future.error(response);
-    }
-
     List<SlashCommandPermissionOverrides> overrides =
-        ((response as IHttpResponseSuccess).jsonBody as List<dynamic>).cast<RawApiMap>().map((d) => SlashCommandPermissionOverrides(d, _client)).toList();
+        (response.jsonBody as List<dynamic>).cast<RawApiMap>().map((d) => SlashCommandPermissionOverrides(d, _client)).toList();
 
     for (final override in overrides) {
       _interactions.permissionOverridesCache[guildId] ??= {};

@@ -152,7 +152,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
   @override
   Future<IMessage> sendFollowup(MessageBuilder builder, {bool hidden = false}) async {
     if (!_hasAcked) {
-      return Future.error(ResponseRequiredError());
+      throw ResponseRequiredError();
     }
     logger.fine("Sending followup for interaction: ${interaction.id}");
 
@@ -183,11 +183,11 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
   @override
   Future<void> acknowledge({bool hidden = false}) async {
     if (_hasAcked) {
-      return Future.error(AlreadyRespondedError());
+      throw AlreadyRespondedError();
     }
 
     if (DateTime.now().isAfter(receivedAt.add(const Duration(seconds: 3)))) {
-      return Future.error(InteractionExpiredError.threeSecs());
+      throw InteractionExpiredError.threeSecs();
     }
 
     await interactions.interactionsEndpoints.acknowledge(interaction.token, interaction.id.toString(), hidden, _acknowledgeOpCode);
@@ -203,9 +203,9 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
   Future<void> respond(MessageBuilder builder, {bool hidden = false}) async {
     final now = DateTime.now();
     if (_hasAcked && now.isAfter(receivedAt.add(const Duration(minutes: 15)))) {
-      return Future.error(InteractionExpiredError.fifteenMins());
+      throw InteractionExpiredError.fifteenMins();
     } else if (!_hasAcked && now.isAfter(receivedAt.add(const Duration(seconds: 3)))) {
-      return Future.error(InteractionExpiredError.threeSecs());
+      throw InteractionExpiredError.threeSecs();
     }
 
     logger.fine("Sending respond for for interaction: ${interaction.id}");
@@ -213,7 +213,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
       await interactions.interactionsEndpoints.respondEditOriginal(interaction.token, client.appId, builder, hidden);
     } else {
       if (!builder.canBeUsedAsNewMessage()) {
-        return Future.error(ArgumentError("Cannot sent message when MessageBuilder doesn't have set either content, embed or files"));
+        throw ArgumentError("Cannot sent message when MessageBuilder doesn't have set either content, embed or files");
       }
 
       await interactions.interactionsEndpoints.respondCreateResponse(interaction.token, interaction.id.toString(), builder, hidden, _respondOpcode);
