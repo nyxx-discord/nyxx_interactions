@@ -190,7 +190,17 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
       return Future.error(InteractionExpiredError.threeSecs());
     }
 
-    await interactions.interactionsEndpoints.acknowledge(interaction.token, interaction.id.toString(), hidden, _acknowledgeOpCode);
+    try {
+      await interactions.interactionsEndpoints.acknowledge(interaction.token, interaction.id.toString(), hidden, _acknowledgeOpCode);
+    } on IHttpResponseError catch (response) {
+      // 40060 - Interaction has already been acknowledged
+      // Catch in case of a desync between server and _hasAcked
+      if (response.code == 40060) {
+        throw AlreadyRespondedError();
+      }
+
+      rethrow;
+    }
 
     logger.fine("Sending acknowledge for for interaction: ${interaction.id}");
 
