@@ -54,6 +54,7 @@ main() {
       ],
       'default_member_permissions': '123',
       'dm_permission': false,
+      'nsfw': true,
     }, interactions);
 
     expect(entity.id, equals(Snowflake(123)));
@@ -65,6 +66,7 @@ main() {
     expect(entity.guild, isNull);
     expect(entity.requiredPermissions, equals(123));
     expect(entity.canBeUsedInDm, isFalse);
+    expect(entity.isNsfw, isTrue);
   });
 
   test('InteractionOption options not empty', () {
