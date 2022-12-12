@@ -1,3 +1,12 @@
+## 4.5.0
+__12.12.022__
+
+- feature: Handle HTTP error response in acknowledge()
+- feature: Update nyxx_interactions to work with the new logging system in nyxx (#69)
+- feature: Add support for nsfw commands (#66)
+- bug: fix slash command model failing with nsfw field (#71)
+- bug: Fix nsfw field not present in payload (#73)
+
 ## 4.4.0
 __14.11.022__
 

@@ -84,6 +84,9 @@ class SlashCommandBuilder extends Builder {
   /// operator, they will be allowed to execute the command.
   int? requiredPermissions;
 
+  /// Indicates whether the command is age-restricted, defaults to `false`.
+  bool? isNsfw;
+
   /// A slash command, can only be instantiated through a method on [IInteractions]
   SlashCommandBuilder(
     this.name,
@@ -97,6 +100,7 @@ class SlashCommandBuilder extends Builder {
     @Deprecated('Use canBeUsedInDm and requiredPermissions instead') this.permissions,
     this.localizationsName,
     this.localizationsDescription,
+    this.isNsfw,
   }) {
     if (!slashCommandNameRegex.hasMatch(name)) {
       throw ArgumentError("Command name has to match regex: ${slashCommandNameRegex.pattern}");
@@ -122,6 +126,7 @@ class SlashCommandBuilder extends Builder {
         if (localizationsName != null) "name_localizations": localizationsName!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         if (localizationsDescription != null) "description_localizations": localizationsDescription!.map((k, v) => MapEntry<String, String>(k.toString(), v)),
         "default_permission": defaultPermissions,
+        if (isNsfw != null) 'nsfw': isNsfw,
       };
 
   void setId(Snowflake id) => _id = id;

@@ -53,6 +53,7 @@ void main() {
         Locale.french: 'tester',
         Locale.german: 'testen',
       },
+      isNsfw: true,
     );
 
     final expectedResult = {
@@ -70,6 +71,7 @@ void main() {
         'fr': 'tester',
         'de': 'testen',
       },
+      'nsfw': true,
     };
 
     expect(slashCommandBuilder.build(), equals(expectedResult));
