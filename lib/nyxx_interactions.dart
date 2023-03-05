@@ -37,6 +37,7 @@ export 'src/events/interaction_event.dart'
         IMentionableMultiSelectInteractionEvent,
         IChannelMultiSelectInteractionEvent;
 export 'src/exceptions/already_responded.dart' show AlreadyRespondedError;
+export 'src/exceptions/command_not_found.dart' show CommandNotFoundException;
 export 'src/exceptions/interaction_expired.dart' show InteractionExpiredError;
 export 'src/exceptions/response_required.dart' show ResponseRequiredError;
 export 'src/internal/sync/commands_sync.dart' show ICommandsSync;
