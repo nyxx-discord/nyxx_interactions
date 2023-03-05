@@ -1,3 +1,9 @@
+## 4.6.0
+__06.03.2023__
+
+- feature: Add Indonesian locale (#75)
+- update to nyxx 5.0.0
+
 ## 4.6.0-dev.0
 __26.01.2023__
 
