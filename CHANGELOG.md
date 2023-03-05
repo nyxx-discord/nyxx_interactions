@@ -1,5 +1,17 @@
+## 4.6.0
+__06.03.2023__
+
+- feature: Add Indonesian locale (#75)
+- feature: Add an exception for unknown commands (#76)
+- update to nyxx 5.0.0
+
+## 4.6.0-dev.0
+__26.01.2023__
+
+- feature: Add Indonesian locale (#75)
+
 ## 4.5.0
-__12.12.022__
+__12.12.2022__
 
 - feature: Handle HTTP error response in acknowledge()
 - feature: Update nyxx_interactions to work with the new logging system in nyxx (#69)
@@ -8,7 +20,7 @@ __12.12.022__
 - bug: Fix nsfw field not present in payload (#73)
 
 ## 4.4.0
-__14.11.022__
+__14.11.2022__
 
 - feature: Add support for new select menus components (#62)
 

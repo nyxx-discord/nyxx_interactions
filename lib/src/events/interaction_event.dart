@@ -195,7 +195,7 @@ abstract class InteractionEventWithAcknowledge<T extends IInteraction> extends I
     } on IHttpResponseError catch (response) {
       // 40060 - Interaction has already been acknowledged
       // Catch in case of a desync between server and _hasAcked
-      if (response.code == 40060) {
+      if (response.errorCode == 40060) {
         throw AlreadyRespondedError();
       }
 

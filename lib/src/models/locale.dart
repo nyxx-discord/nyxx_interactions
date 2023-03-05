@@ -1,4 +1,5 @@
 enum Locale {
+  indonesian('id'),
   danish('da'),
   german('de'),
   englishUk('en-GB'),
