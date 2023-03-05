@@ -1,6 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 
 import 'package:nyxx_interactions/src/builders/slash_command_builder.dart';
+import 'package:nyxx_interactions/src/exceptions/command_not_found.dart';
 import 'package:nyxx_interactions/src/interactions.dart';
 import 'package:nyxx_interactions/src/models/command_option.dart';
 import 'package:nyxx_interactions/src/models/interaction_option.dart';
@@ -30,7 +31,11 @@ Iterable<Iterable<T>> partition<T>(Iterable<T> list, bool Function(T) predicate)
 String determineInteractionCommandHandler(ISlashCommandInteraction interaction, IInteractions interactions) {
   String commandHash = interaction.name;
 
-  ISlashCommand triggered = interactions.commands.firstWhere((command) => command.id == interaction.commandId);
+  ISlashCommand triggered = interactions.commands.firstWhere(
+    (command) => command.id == interaction.commandId,
+    orElse: () => throw CommandNotFoundException(interaction),
+  );
+
   if (triggered.guild != null) {
     commandHash = '${triggered.guild!.id}/$commandHash';
   }
