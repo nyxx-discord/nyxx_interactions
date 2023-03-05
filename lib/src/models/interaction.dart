@@ -154,7 +154,7 @@ class ModalInteraction extends Interaction implements IModalInteraction {
     if (raw['data']["components"] != null) {
       components = [
         for (final rawRow in raw['data']["components"])
-          [for (final componentRaw in rawRow["components"]) MessageComponent.deserialize(componentRaw as RawApiMap)]
+          [for (final componentRaw in rawRow["components"]) MessageComponent.deserialize(componentRaw as RawApiMap, client)]
       ];
     } else {
       components = [];

@@ -2,6 +2,8 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:test/test.dart';
 
+import '../mocks/nyxx_rest.mocks.dart';
+
 main() {
   test("components", () {
     final customButton = ButtonBuilder("label", "customId", ButtonStyle.secondary);
@@ -78,7 +80,7 @@ main() {
   });
 
   test("MultiselectOptionBuilder emoji unicode", () {
-    final builder = MultiselectOptionBuilder("test", 'test')..emoji = IBaseGuildEmoji.fromId(Snowflake.zero());
+    final builder = MultiselectOptionBuilder("test", 'test')..emoji = IBaseGuildEmoji.fromId(Snowflake.zero(), NyxxRestMock());
 
     final expectedResult = {
       'label': 'test',
